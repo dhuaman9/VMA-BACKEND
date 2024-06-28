@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "myapp.datasource.remote-secret-ops",
+    "type": "java.lang.String",
+    "description": "A description for 'myapp.datasource.remote-secret-ops'"
+  },
+  {
+    "name": "myapp.datasource.token",
+    "type": "java.lang.String",
+    "description": "A description for 'myapp.datasource.token'"
+  },
+  {
+    "name": "myapp.datasource.driver-class-name",
+    "type": "java.lang.String",
+    "description": "A description for 'myapp.datasource.driver-class-name'"
+  },
+  {
+    "name": "myapp.jpa.show-sql",
+    "type": "java.lang.String",
+    "description": "A description for 'myapp.jpa.show-sql'"
+  },
+  {
+    "name": "cors.urls",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.urls'"
+  },
+  {
+    "name": "security.jwt.expiration-minutes",
+    "type": "java.lang.String",
+    "description": "A description for 'security.jwt.expiration-minutes'"
+  },
+  {
+    "name": "myapp.jpa.database-platform",
+    "type": "java.lang.String",
+    "description": "A description for 'myapp.jpa.database-platform'"
+  }
+]}

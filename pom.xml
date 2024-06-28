@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.17</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>pe.gob.sunass.vma</groupId>
+	<artifactId>vma</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>vma</name>
+	<description>Backend VMA</description>
+	<properties>
+		<java.version>11</java.version>
+		<current.environment>dev</current.environment>
+		<activatedProperties>${current.environment}</activatedProperties>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.12</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+    	<!--
+    	<dependency>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
+		</dependency>
+		-->
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
+		<dependency>
+		    <groupId>com.nimbusds</groupId>
+		    <artifactId>nimbus-jose-jwt</artifactId>
+		    <version>9.31</version>
+		</dependency>
+   		
+   		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+   		
+   		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.6.1</version>
+		</dependency>
+   		 
+	   	<dependency>
+	      <groupId>commons-io</groupId>
+	      <artifactId>commons-io</artifactId>
+	      <version>2.6</version>
+	    </dependency>
+	    
+	    <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+		    <groupId>com.squareup.okhttp3</groupId>
+		    <artifactId>okhttp</artifactId>
+		    <version>4.10.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+		    <groupId>org.json</groupId>
+		    <artifactId>json</artifactId>
+		    <version>20231013</version>
+		</dependency>
+		
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-antrun-plugin -->
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-antrun-plugin</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.9.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>3.3.1</version>
+			<type>maven-plugin</type>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<finalName>vma-backend</finalName>
+		<resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>true</filtering>
+	        </resource>
+	    </resources>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<!--
+	<annotationProcessorPaths>
+		<path>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
+		</path>
+	</annotationProcessorPaths>
+	-->
+	
+	<profiles>
+		<profile>
+            <id>local</id>
+            <properties>
+				<current.environment>local</current.environment>
+                <activatedProperties>${current.environment}</activatedProperties>
+            </properties>
+            <build>
+		        <plugins>
+		        	<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>3.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+						  <execution>
+							<phase>test</phase>
+							<goals>
+							  <goal>run</goal>
+							</goals>
+							<configuration>
+							  <tasks>
+								
+				                <delete>
+									<fileset dir="${project.build.outputDirectory}" includes="**/*.yml">
+										<exclude name="application.yml" />
+										<exclude name="application-${current.environment}.yml" />
+									</fileset>
+								</delete>
+				                
+							  </tasks>
+							</configuration>
+						  </execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+		    </build>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+				<current.environment>dev</current.environment>
+                <activatedProperties>${current.environment}</activatedProperties>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+		        <plugins>
+		        	<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>3.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+						  <execution>
+							<phase>test</phase>
+							<goals>
+							  <goal>run</goal>
+							</goals>
+							<configuration>
+							  <tasks>
+								
+				                <delete>
+									<fileset dir="${project.build.outputDirectory}" includes="**/*.yml">
+										<exclude name="application.yml" />
+										<exclude name="application-${current.environment}.yml" />
+									</fileset>
+								</delete>
+				                
+							  </tasks>
+							</configuration>
+						  </execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+		    </build>
+        </profile>
+        <profile>
+            <id>qa</id>
+            <properties>
+				<current.environment>qa</current.environment>
+                <activatedProperties>${current.environment}</activatedProperties>
+            </properties>
+            <build>
+		        <plugins>
+		        	<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>3.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+						  <execution>
+							<phase>test</phase>
+							<goals>
+							  <goal>run</goal>
+							</goals>
+							<configuration>
+							  <tasks>
+								
+				                <delete>
+									<fileset dir="${project.build.outputDirectory}" includes="**/*.yml">
+										<exclude name="application.yml" />
+										<exclude name="application-${current.environment}.yml" />
+									</fileset>
+								</delete>
+				                
+							  </tasks>
+							</configuration>
+						  </execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+		    </build>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+				<current.environment>prod</current.environment>
+                <activatedProperties>${current.environment}</activatedProperties>
+            </properties>
+            <build>
+		        <plugins>
+		        	<plugin>
+					    <groupId>org.apache.maven.plugins</groupId>
+					    <artifactId>maven-war-plugin</artifactId>
+					    <version>3.3.1</version>
+					</plugin>
+					
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+						  <execution>
+							<phase>test</phase>
+							<goals>
+							  <goal>run</goal>
+							</goals>
+							<configuration>
+							  <tasks>
+								
+				                <delete>
+									<fileset dir="${project.build.outputDirectory}" includes="**/*.yml">
+										<exclude name="application.yml" />
+										<exclude name="application-${current.environment}.yml" />
+									</fileset>
+								</delete>
+				                
+							  </tasks>
+							</configuration>
+						  </execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+		    </build>
+        </profile>
+	</profiles>
+	
+</project>
