@@ -19,8 +19,8 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	public Optional<RegistroVMA> findById(Integer id);
 	
 	// ** query para obtener el listado de registros VMA, segun el usuario en sesion.
-	/*@Query("SELECT r FROM RegistroVMA r WHERE r.username = ( SELECT u.idEmpresa FROM Usuario u WHERE u.username = :username)")
-	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndUsername(@Param("username") String username);*/
+	@Query("SELECT r FROM RegistroVMA r WHERE r.username = ( SELECT u.idEmpresa FROM Usuario u WHERE u.username = :username)")
+	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndUsername(@Param("username") String username);
 	
 	//query para obtener el listado de registros VMA, segun la EPS , a la que pertenece el usuario en sesion.
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ( SELECT e.idEmpresa FROM Empresa e WHERE e.nombre = :nombre)")
