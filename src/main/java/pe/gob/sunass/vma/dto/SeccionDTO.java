@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import java.util.List;
+
 @JsonInclude(Include.NON_EMPTY)
 public class SeccionDTO {
 	
@@ -30,8 +32,18 @@ public class SeccionDTO {
 	private Integer idUsuarioRegistro;
 	
 	private Integer idUsuarioActualizacion;
-	
-	
+
+	private List<PreguntaDTO> preguntas;
+
+	public SeccionDTO() {
+	}
+
+	public SeccionDTO(Integer idSeccion, String nombre, Integer orden, List<PreguntaDTO> preguntas) {
+		this.idSeccion = idSeccion;
+		this.nombre = nombre;
+		this.orden = orden;
+		this.preguntas = preguntas;
+	}
 
 	public Integer getIdSeccion() {
 		return idSeccion;
@@ -97,6 +109,11 @@ public class SeccionDTO {
 		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
 
-	
+	public List<PreguntaDTO> getPreguntas() {
+		return preguntas;
+	}
 
+	public void setPreguntas(List<PreguntaDTO> preguntas) {
+		this.preguntas = preguntas;
+	}
 }

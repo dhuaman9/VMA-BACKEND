@@ -1,10 +1,18 @@
 package pe.gob.sunass.vma.dto;
 
 public class RespuestaDTO {
+    private Integer idRespuesta;
     private Integer idAlternativa;
     private Integer idPregunta;
     private String respuesta;
     private Integer idRegistroVMA;
+
+    public RespuestaDTO(Integer idRespuesta, Integer idAlternativa, Integer idPregunta, String respuesta) {
+        this.idRespuesta = idRespuesta;
+        this.idAlternativa = idAlternativa;
+        this.idPregunta = idPregunta;
+        this.respuesta = respuesta;
+    }
 
     public RespuestaDTO(Integer idAlternativa, String respuesta, Integer idRegistroVMA) {
         this.idAlternativa = idAlternativa;

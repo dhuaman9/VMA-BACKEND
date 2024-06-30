@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import pe.gob.sunass.vma.dto.CuestionarioDTO;
 import pe.gob.sunass.vma.model.Cuestionario;
 import pe.gob.sunass.vma.service.CuestionarioService;
 import pe.gob.sunass.vma.util.ResponseEntity;
@@ -39,6 +40,18 @@ public class CuestionarioController {
 
         if(cuestionario.isPresent()) {
             return ResponseEntity.ok(cuestionario.get());
+        } else {
+            return new ResponseEntity<>(NOT_FOUND);
+        }
+    }
+
+    @GetMapping(path = "/respuestas/{idRegistro}", produces= MediaType.APPLICATION_JSON_VALUE)
+    public  ResponseEntity<?> getCuestionarioConRespuestas(@PathVariable Integer idRegistro) {
+
+        CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(idRegistro);
+
+        if(cuestionario != null) {
+            return ResponseEntity.ok(cuestionario);
         } else {
             return new ResponseEntity<>(NOT_FOUND);
         }

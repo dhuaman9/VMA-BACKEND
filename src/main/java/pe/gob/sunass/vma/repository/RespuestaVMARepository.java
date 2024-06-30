@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Integer> {
 	
-	@Query("FROM RespuestaVMA r WHERE r.registroVMA = ?1")
+	@Query("FROM RespuestaVMA r WHERE r.registroVMA.idRegistroVma = ?1")
 	List<RespuestaVMA> findByRegistroVMAId(Integer idRegistroVMA);
 }
