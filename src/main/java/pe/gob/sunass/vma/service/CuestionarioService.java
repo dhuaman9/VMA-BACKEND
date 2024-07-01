@@ -51,7 +51,7 @@ public class CuestionarioService {
             return null;
         }
 
-        Optional<Cuestionario> lastCuestionario = cuestionarioRepository.getLastCuestionario();
+        Optional<Cuestionario> lastCuestionario = getLastCuestionario();
 
         if(lastCuestionario.isEmpty()){
             return null;
@@ -93,7 +93,7 @@ public class CuestionarioService {
 
     private PreguntaDTO mapToPreguntaDTO(Pregunta pregunta, List<RespuestaVMA> respuestas) {
         RespuestaDTO respuestaDTO = null;
-        if(respuestas.size() == 1) {
+        if(respuestas.size() == 1 && (pregunta.getAlternativas().isEmpty() || pregunta.getTipoPregunta().equals(TipoPregunta.RADIO))) {
             RespuestaVMA respuesta = respuestas.get(0);
             respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
         }
@@ -111,12 +111,17 @@ public class CuestionarioService {
                 );
     }
 
-    private String getRespuestaAlternativa(Integer idAlternativa, List<RespuestaVMA> respuestas) {
-        RespuestaVMA respuestaVMA = respuestas.stream().filter(res -> res.getIdAlternativa().equals(idAlternativa)).findFirst().orElse(null);
-        return respuestaVMA != null ? respuestaVMA.getRespuesta() : null;
+    private RespuestaVMA getRespuestaAlternativa(Integer idAlternativa, List<RespuestaVMA> respuestas) {
+        return respuestas
+                .stream()
+                .filter(res -> res.getIdAlternativa() != null && res.getIdAlternativa().equals(idAlternativa))
+                .findFirst()
+                .orElse(null);
     }
 
-    private AlternativaDTO mapToAlternativaDTO(Alternativa alternativa, String respuesta) {
-        return new AlternativaDTO(alternativa.getIdAlternativa(), alternativa.getNombreCampo(), respuesta);
+    private AlternativaDTO mapToAlternativaDTO(Alternativa alternativa, RespuestaVMA respuesta) {
+        return new AlternativaDTO(alternativa.getIdAlternativa(),
+                alternativa.getNombreCampo(),
+                respuesta != null ? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta()) : null);
     }
 }

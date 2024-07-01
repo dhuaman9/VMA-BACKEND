@@ -26,11 +26,12 @@ public class RespuestaVMA {
     public RespuestaVMA() {
     }
 
-    public RespuestaVMA(Integer idAlternativa, String respuesta, RegistroVMA registroVMA, Integer idPregunta) {
+    public RespuestaVMA(Integer idRespuestaVMA, Integer idAlternativa, String respuesta, RegistroVMA registroVMA, Integer idPregunta) {
         this.idAlternativa = idAlternativa;
         this.respuesta = respuesta;
         this.registroVMA = registroVMA;
         this.idPregunta = idPregunta;
+        this.idRespuestaVMA = idRespuestaVMA;
     }
 
     public Integer getIdRespuestaVMA() {

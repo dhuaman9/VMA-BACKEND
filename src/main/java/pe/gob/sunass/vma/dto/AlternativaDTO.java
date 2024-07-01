@@ -3,12 +3,12 @@ package pe.gob.sunass.vma.dto;
 public class AlternativaDTO {
     private Integer idAlternativa;
     private String nombreCampo;
-    private String respuesta;
+    private RespuestaDTO respuestaDTO;
 
-    public AlternativaDTO(Integer idAlternativa, String nombreCampo, String respuesta) {
+    public AlternativaDTO(Integer idAlternativa, String nombreCampo, RespuestaDTO respuestaDTO) {
         this.idAlternativa = idAlternativa;
         this.nombreCampo = nombreCampo;
-        this.respuesta = respuesta;
+        this.respuestaDTO = respuestaDTO;
     }
 
     public Integer getIdAlternativa() {
@@ -27,11 +27,11 @@ public class AlternativaDTO {
         this.nombreCampo = nombreCampo;
     }
 
-    public String getRespuesta() {
-        return respuesta;
+    public RespuestaDTO getRespuestaDTO() {
+        return respuestaDTO;
     }
 
-    public void setRespuesta(String respuesta) {
-        this.respuesta = respuesta;
+    public void setRespuestaDTO(RespuestaDTO respuestaDTO) {
+        this.respuestaDTO = respuestaDTO;
     }
 }

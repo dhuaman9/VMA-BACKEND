@@ -11,11 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import pe.gob.sunass.vma.constants.Constants;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
-import pe.gob.sunass.vma.dto.UsuarioDTO;
-import pe.gob.sunass.vma.service.EmpresaService;
+import pe.gob.sunass.vma.security.jwt.JWTProvider;
 import pe.gob.sunass.vma.service.RegistroVMAService;
 
 @RestController
@@ -28,33 +26,42 @@ public class RegistroVMAController {
 	  @Autowired
 	  private RegistroVMAService registroVMAService;
 
+	  @Autowired
+	  private JWTProvider jwtProvider;
+
 	  public RegistroVMAController() {
 	    super();
 	  }
 
 	  @PostMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> saveRegistroVMA(@RequestBody RegistroVMARequest request) {
-		  registroVMAService.crearRegistroVMA(request);
+	  public ResponseEntity<?> saveRegistroVMA(@RequestBody RegistroVMARequest request, @RequestHeader("Authorization") String token) {
+		  registroVMAService.saveRegistroVMA(null, request, getUsername(token));
 		  return new ResponseEntity<>(HttpStatus.CREATED);
 	  }
+
+	@PutMapping(path = "/{idRegistroVMA}",produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> saveRegistroVMA(@PathVariable Integer idRegistroVMA, @RequestBody RegistroVMARequest request) {
+		registroVMAService.saveRegistroVMA(idRegistroVMA, request, null);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	@GetMapping(path="/activo",
+			produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getEstadoRegistro(@RequestHeader("Authorization") String token) {
+		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token));
+		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
+	}
 	  
 	  
 	@GetMapping(path="/listar",
 	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getList() {
+	  public ResponseEntity<?> getList(@RequestHeader("Authorization") String token) {
 	    ResponseEntity<?> response = null;
 	
 	    logger.info(Constants.Logger.Method.Initialize);
 	
 	    try {
-	      List<RegistroVMADTO> list = this.registroVMAService.findAllOrderById();
-	
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<RegistroVMADTO>>(list, HttpStatus.OK);
-	      }
+			response = new ResponseEntity<List<RegistroVMADTO>>(this.registroVMAService.findAllOrderById(getUsername(token)), HttpStatus.OK);
 	    }
 	    catch (Exception ex) {
 	      logger.error(ex.getMessage(), ex);
@@ -98,6 +105,9 @@ public class RegistroVMAController {
 	    return response;
 	  }
 	  
-
+	private String getUsername(String token) {
+		token = token.split(" ")[1];
+		return jwtProvider.extractUsername(token);
+	}
 
 }

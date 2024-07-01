@@ -7,6 +7,9 @@ public class RespuestaDTO {
     private String respuesta;
     private Integer idRegistroVMA;
 
+    public RespuestaDTO() {
+    }
+
     public RespuestaDTO(Integer idRespuesta, Integer idAlternativa, Integer idPregunta, String respuesta) {
         this.idRespuesta = idRespuesta;
         this.idAlternativa = idAlternativa;
@@ -18,6 +21,14 @@ public class RespuestaDTO {
         this.idAlternativa = idAlternativa;
         this.respuesta = respuesta;
         this.idRegistroVMA = idRegistroVMA;
+    }
+
+    public Integer getIdRespuesta() {
+        return idRespuesta;
+    }
+
+    public void setIdRespuesta(Integer idRespuesta) {
+        this.idRespuesta = idRespuesta;
     }
 
     public Integer getIdAlternativa() {

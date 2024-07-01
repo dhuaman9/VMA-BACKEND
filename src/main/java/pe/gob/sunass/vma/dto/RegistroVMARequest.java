@@ -4,6 +4,7 @@ import java.util.List;
 
 public class RegistroVMARequest {
     private Integer idEmpresa;
+    private boolean registroValido;
     private List<RespuestaDTO> respuestas;
 
     public RegistroVMARequest(Integer idEmpresa, List<RespuestaDTO> respuestas) {
@@ -26,6 +27,12 @@ public class RegistroVMARequest {
     public void setRespuestas(List<RespuestaDTO> respuestas) {
         this.respuestas = respuestas;
     }
-    
-    
+
+    public boolean isRegistroValido() {
+        return registroValido;
+    }
+
+    public void setRegistroValido(boolean registroValido) {
+        this.registroValido = registroValido;
+    }
 }

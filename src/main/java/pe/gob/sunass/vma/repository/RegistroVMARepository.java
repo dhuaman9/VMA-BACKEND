@@ -14,7 +14,12 @@ import pe.gob.sunass.vma.model.RegistroVMA;
 public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integer>{
 
 	//si es usuario tipo SUNASS, deberia ver todos los registros VMA de todas las EPS . Se usara esto por mientras.
+
 	public List<RegistroVMA> findAllByOrderByIdRegistroVma();
+
+	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ?1")
+	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
+
 	
 	public Optional<RegistroVMA> findById(Integer id);
 	
@@ -25,7 +30,10 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	//query para obtener el listado de registros VMA, segun la EPS , a la que pertenece el usuario en sesion.
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ( SELECT e.idEmpresa FROM Empresa e WHERE e.nombre = :nombre)")
 	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndEPS(@Param("nombre") String nombre);
-		
-		
-	
+
+
+	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+			"FROM RegistroVMA e " +
+			"WHERE e.username = ?1")
+    boolean isRegistroCompletado(String username);
 }
