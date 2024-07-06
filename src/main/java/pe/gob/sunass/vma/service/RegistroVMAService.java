@@ -75,10 +75,11 @@ public class RegistroVMAService {
 			 registroVMA.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
 			 saveRespuestas(registroRequest.getRespuestas(), registroVMA);
 		 } else {
+			 Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 			 RegistroVMA nuevoRegistro = new RegistroVMA();
 			 Empresa empresa = new Empresa();
 			 empresa.setIdEmpresa(registroRequest.getIdEmpresa());
-			 nuevoRegistro.setEmpresa(empresa);
+			 nuevoRegistro.setEmpresa(usuario.getEmpresa());
 			 nuevoRegistro.setUsername(username);
 			 nuevoRegistro.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
 			 nuevoRegistro.setCreatedAt(new Date());

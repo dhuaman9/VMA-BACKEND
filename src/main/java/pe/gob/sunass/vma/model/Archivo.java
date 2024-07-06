@@ -5,12 +5,16 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 
 @Entity
 @Table(schema="vma", name="archivos")
@@ -29,6 +33,9 @@ public class Archivo  implements Serializable  {
 		@Column(name="ruta")
 		private String ruta;
 	
+		@ManyToOne(fetch=FetchType.EAGER, optional=false)
+		@JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma", nullable=false)
+		private RegistroVMA registroVma;
 		
 		@Column(name="username", nullable=true)
 		private String username;
@@ -89,6 +96,14 @@ public class Archivo  implements Serializable  {
 
 		public void setUpdatedAt(Date updatedAt) {
 			this.updatedAt = updatedAt;
+		}
+
+		public RegistroVMA getRegistroVma() {
+			return registroVma;
+		}
+
+		public void setRegistroVma(RegistroVMA registroVma) {
+			this.registroVma = registroVma;
 		}
 	
 	

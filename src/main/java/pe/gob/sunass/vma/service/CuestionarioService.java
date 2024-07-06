@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.service;
 
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.model.*;
@@ -15,12 +16,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class CuestionarioService {
-    private final CuestionarioRepository cuestionarioRepository;
-    private final SeccionRepository seccionRepository;
-    private final RespuestaVMARepository respuestaVMARepository;
-    private final RegistroVMARepository registroVMARepository;
+	 @Autowired
+    private  CuestionarioRepository cuestionarioRepository;
+	 
+	 @Autowired
+	 private  SeccionRepository seccionRepository;
+	 @Autowired
+    private  RespuestaVMARepository respuestaVMARepository;
+	 @Autowired
+    private  RegistroVMARepository registroVMARepository;
+
+    CuestionarioService(SeccionRepository seccionRepository) {
+        this.seccionRepository = seccionRepository;
+    }
 
     public Optional<Cuestionario> findById(Integer idCuestionario) {
         Optional<Cuestionario> cuestionario = cuestionarioRepository.findById(idCuestionario);

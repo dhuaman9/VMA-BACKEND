@@ -17,7 +17,7 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 
 	public List<RegistroVMA> findAllByOrderByIdRegistroVma();
 
-	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ?1")
+	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
 
 	
