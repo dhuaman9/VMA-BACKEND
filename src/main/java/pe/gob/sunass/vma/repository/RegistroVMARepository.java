@@ -34,6 +34,6 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 
 	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
 			"FROM RegistroVMA e " +
-			"WHERE e.username = ?1")
-    boolean isRegistroCompletado(String username);
+			"WHERE e.empresa.idEmpresa = ?1")
+    boolean isRegistroCompletado(Integer idEmpresa);
 }

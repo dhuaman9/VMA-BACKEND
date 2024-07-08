@@ -101,6 +101,7 @@ public class RegistroVMAService {
 	}
 
 	public boolean isRegistroCompletado(String username) {
-		return registroVMARepository.isRegistroCompletado(username);
+		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
+		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
 }
