@@ -103,9 +103,7 @@ public class UsuarioController {
 	  @GetMapping(path="/page/{num}/{size}",
 	              produces=MediaType.APPLICATION_JSON_VALUE)
 	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
-	                                   @PathVariable(name="size") Integer size 
-	                                   //@RequestParam(name="txtUser") String txtUser
-	                                   ) {
+	                                   @PathVariable(name="size") Integer size ) {
 	    ResponseEntity<?> response = null;
 
 	    logger.info(Constants.Logger.Method.Initialize);

@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.EmpresaDTO;
+import pe.gob.sunass.vma.dto.UsuarioDTO;
+import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.service.EmpresaService;
 
@@ -138,24 +140,23 @@ public class EmpresaController {
 	  @PostMapping(produces=MediaType.APPLICATION_JSON_VALUE)
 	
 	  public ResponseEntity<?> registrar(@RequestBody EmpresaDTO request) {
-	    ResponseEntity<?> response = null;
-	    //long startProcess = System.currentTimeMillis();
-
-	    logger.info(Constants.Logger.Method.Initialize);
-
-	    try {
-	    	EmpresaDTO dto = this.empresaService.registrar(request);
-	         response = new ResponseEntity<EmpresaDTO>(dto,
-	                                                HttpStatus.CREATED);
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                            HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    finally {
-	       logger.info(Constants.Logger.Method.Finalize);
-	    }
+		  ResponseEntity<?> response = null;
+		   
+		    try {
+		    	EmpresaDTO dto = this.empresaService.registrar(request);
+		      response = new ResponseEntity<>(dto,HttpStatus.CREATED);
+		    }
+		    catch (FailledValidationException ex) {  //BadRequestException ex
+		    	
+		    	throw ex;
+		    }
+		    catch (Exception ex) {
+			      logger.error(ex.getMessage(), ex);
+			      response = new ResponseEntity<String>("error:" + ex.getMessage() + ".", HttpStatus.INTERNAL_SERVER_ERROR);
+			 }
+		    finally {
+		      logger.info(Constants.Logger.Method.Finalize);
+		    }
 
 	    return response;
 	  }

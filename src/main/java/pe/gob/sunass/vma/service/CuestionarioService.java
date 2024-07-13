@@ -17,15 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class CuestionarioService {
+	
 	 @Autowired
     private  CuestionarioRepository cuestionarioRepository;
 	 
 	 @Autowired
 	 private  SeccionRepository seccionRepository;
 	 @Autowired
-    private  RespuestaVMARepository respuestaVMARepository;
+     private  RespuestaVMARepository respuestaVMARepository;
 	 @Autowired
-    private  RegistroVMARepository registroVMARepository;
+     private  RegistroVMARepository registroVMARepository;
 
     CuestionarioService(SeccionRepository seccionRepository) {
         this.seccionRepository = seccionRepository;

@@ -16,11 +16,11 @@ import pe.gob.sunass.vma.model.FichaRegistro;
 @Repository
 public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	
-	public List<FichaRegistro> findAllByOrderByIdFichaRegistroDesc();
+	  public List<FichaRegistro> findAllByOrderByIdFichaRegistroDesc();
 
-	 // public Page<FichaRegistro> findAll(Pageable pageable);
+	  // public Page<FichaRegistro> findAll(Pageable pageable);
 	  
-	  public Page<FichaRegistro> findAllByOrderByIdFichaRegistroDesc(Pageable pageable);//orden descendente de los IDs
+	  //public Page<FichaRegistro> findAllByOrderByIdFichaRegistroDesc(Pageable pageable);//orden descendente de los IDs
 	  
 	  public Optional<FichaRegistro> findById(Integer id);
 	  
@@ -28,8 +28,23 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	  public List<FichaRegistro> existsByFecha(@Param("fechaInicio") LocalDate fechaInicio,@Param("fechaFin") LocalDate fechaFin);
 
 	  @Query("SELECT COUNT(f) FROM FichaRegistro f WHERE f.anio = :anio")
-	  public int countByYear(@Param("anio") String anio );
+	  public int countByYear(@Param("anio") String anio );  // para que no registre mas de N cantidad de años en la tabla
+	  
+	  @Query("SELECT MAX(f.fechaInicio) FROM FichaRegistro f")
+	  LocalDate findMaxFechaInicio();  //para obtener fecha max
+	  
+	  @Query("SELECT COUNT(r) " +
+	           "FROM FichaRegistro r " +
+	           "WHERE :fechaInicio BETWEEN r.fechaInicio AND r.fechaFin " +
+	           "   OR :fechaFin BETWEEN r.fechaInicio AND r.fechaFin " +
+	           "   OR r.fechaInicio BETWEEN :fechaInicio AND :fechaFin " +
+	           "   OR r.fechaFin BETWEEN :fechaInicio AND :fechaFin")
+	    long validarFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
 
-		
 
+	  @Query("SELECT r " +
+		       "FROM FichaRegistro r " +
+		       "WHERE :fecha BETWEEN r.fechaInicio AND r.fechaFin")
+		Optional<FichaRegistro> validarRangoConFecha(@Param("fecha") LocalDate fecha);
+	 
 }

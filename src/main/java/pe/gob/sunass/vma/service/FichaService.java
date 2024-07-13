@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma.service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 import pe.gob.sunass.vma.assembler.FichaAssembler;
@@ -41,19 +43,19 @@ public class FichaService {
 	    return listDTO;
 	  }
 
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
+	  /*@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<FichaDTO> findAll(Pageable pageable) throws Exception {
 	    Page<FichaRegistro> pageDomain = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc(pageable);
 	    Page<FichaDTO> pageDTO = FichaAssembler.buildDtoModelCollection(pageDomain);
 
 	    return pageDTO;
-	  }
+	  }*/
 
 	  
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public FichaDTO findById(Integer id) throws Exception {
 		  
-		  FichaDTO dto = null;
+		FichaDTO dto = null;
 	    Optional<FichaRegistro> opt = this.fichaRepository.findById(id);
 
 	    if (opt.isPresent()) {
@@ -68,25 +70,49 @@ public class FichaService {
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public FichaDTO registrar(FichaDTO dto) throws Exception {
 	    if (dto == null) {
-	      throw new Exception("datos son obligatorios");
+	      throw new FailledValidationException("Los datos son obligatorios");
 	    }
 	    else if (dto.getAnio() == null || dto.getAnio().isEmpty()) {
-	      throw new Exception("el [anio] es obligatorio");
+	      throw new FailledValidationException("el [anio] es obligatorio");
 	    }
 	    else if (dto.getFechaInicio() == null ) {
-	      throw new Exception("[FechaInicio] es obligatorio");
+	      throw new FailledValidationException("La [FechaInicio] es obligatorio");
 	    }
 	    else if (dto.getFechaFin() == null ) {
-		      throw new Exception("[FechaFin] es obligatorio");
+		      throw new FailledValidationException("La [FechaFin] es obligatorio");
 		}
 	    
 	  
-	    List<FichaRegistro> list = this.fichaRepository.existsByFecha(dto.getFechaInicio(),dto.getFechaFin() );
-	    if (list != null && list.size() > 0) {
-	      throw new FailledValidationException(" ya existe la fecha de inicio o fin");
-	    }
+	    List<FichaRegistro> listaFichas = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();
+	    
+	    if (listaFichas != null && !listaFichas.isEmpty()) {
+	    	
+	    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
+	            logger.info("error: La fecha de inicio es mayor o igual que la fecha fin.");
+	            throw new FailledValidationException("Error: La Fecha de Inicio es mayor o igual que la Fecha Fin");
+	        }
 
+	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) {
+	    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
+			}
 
+	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+	            
+	        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
+	            
+	            
+	        } else {
+	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
+	            throw new FailledValidationException("Error: El rango de fechas se solapa con un rango registrado.");
+	        }
+	    
+        } else {
+            logger.info("No hay fichas en la base de datos.");
+        }
+
+	    
+	    
+	    
 	    FichaRegistro fichaRegistro = new FichaRegistro();
 	    fichaRegistro.setAnio(dto.getAnio());
 	    fichaRegistro.setFechaInicio(dto.getFechaInicio());
@@ -117,24 +143,63 @@ public class FichaService {
 	          //int countAnio = this.fichaRepository.countByYear(dto.getAnio());
 
 	         /* if ( countAnio > 2) {
-	            throw new FailledValidationException("El [anio] no se puede registrar más de dos veces en el mismo año.");
+	            throw new FailledValidationException("El valor anio no se registra más de dos veces en  año actual."); // en duda
 	          }*/
-	          fichaRegistro.setAnio(dto.getAnio());
+	    	  
+	         fichaRegistro.setAnio(dto.getAnio());
 	        
 	      }
 
 	      if (dto.getFechaInicio() != null ) {
 	        if (!dto.getFechaInicio().equals(fichaRegistro.getFechaInicio())) {
+	        	 List<FichaRegistro> listaFichas = this.fichaRepository.existsByFecha(dto.getFechaInicio(),null);
+	        	 
+	        	 if (listaFichas != null && listaFichas.size() > 0) {
+	                 throw new FailledValidationException("La fecha de inicio  ya existe!.");
+	             }
+	        
 	        	fichaRegistro.setFechaInicio(dto.getFechaInicio());
 	        }
 	      }
 	      
 	      if (dto.getFechaFin() != null ) {
 		        if (!dto.getFechaFin().equals(fichaRegistro.getFechaFin())) {
+		        	List<FichaRegistro> listaFichas = this.fichaRepository.existsByFecha(dto.getFechaFin(),null);
+		        	 
+		        	if (listaFichas != null && listaFichas.size() > 0) {
+		                 throw new FailledValidationException("La fecha fin  ya existe!.");
+		            }
+		        	
 		        	fichaRegistro.setFechaFin(dto.getFechaFin());
 		        }
 		   }
 
+	      List<FichaRegistro> listaFicha2 = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista para validar si esta en algun rango.
+	      if (listaFicha2 != null && !listaFicha2.isEmpty()) {
+		    	
+		    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
+		            logger.info("error: La fecha de inicio es mayor o igual que la fecha fin.");
+		            throw new FailledValidationException("Error: La Fecha de Inicio es mayor o igual que la Fecha Fin");
+		        }
+
+		    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) {
+		    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
+				}
+
+		        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+		            
+		        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
+		            
+		            
+		        } else {
+		            logger.info("Error, el rango de fechas se cruza con un rango de fechas existente.");
+		            throw new FailledValidationException("Error: El rango de fechas se cruza con un rango registrado.");
+		        }
+		    
+	        } else {
+	            logger.info("No hay fichas en la base de datos.");
+	        }
+	      
 	      fichaRegistro.setUpdatedAt(new Date());
 	      fichaRegistro = this.fichaRepository.save(fichaRegistro);
 	    }
@@ -142,5 +207,50 @@ public class FichaService {
 	    return FichaAssembler.buildDtoModel(fichaRegistro);
 	    
 	  }
+	  
 	
+	  //para exponer al front
+	  public boolean validarFechaEnRango(LocalDate fechaactual) {
+		  
+		  boolean enRango=false;
+		   List<FichaRegistro> listaFichas = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();
+		   
+		    if (listaFichas != null && !listaFichas.isEmpty()) {
+		    	
+			    for(FichaRegistro itemFicha : listaFichas) {
+			    	
+			    	if (((fechaactual.isAfter(itemFicha.getFechaInicio())  || fechaactual.isEqual(itemFicha.getFechaInicio())) &&
+			    			(fechaactual.isBefore(itemFicha.getFechaFin())) || fechaactual.isEqual(itemFicha.getFechaFin())) ) {
+			    		enRango=true;
+			    		break;
+					} 	
+			    }
+		    
+		    } else {
+	            logger.info("No hay periodos registrados en la base de datos.");
+	           enRango=false;
+	        }
+		    return enRango;
+		    
+	  }
+	  
+	  public boolean validarFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+	        long count = fichaRepository.validarFechas(fechaInicio, fechaFin);
+	        return count == 0;
+	  }
+	  
+	  public FichaDTO fichaEnPeriodo(LocalDate fechaActual) throws Exception {
+		  
+			FichaDTO dto = null;
+		    Optional<FichaRegistro> opt = this.fichaRepository.validarRangoConFecha(fechaActual);
+		    logger.info("this.fichaRepository.validarRangoConFecha(fechaActual)-"+this.fichaRepository.validarRangoConFecha(fechaActual));
+		    if (opt.isPresent()) {
+		    	FichaRegistro ficha = opt.get();
+		        dto = FichaAssembler.buildDtoModel(ficha);
+		    }
+		    logger.info("opt.isPresent() -"+opt.isPresent());
+		    return dto;
+	  }
+
+	  
 }

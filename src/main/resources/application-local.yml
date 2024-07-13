@@ -31,6 +31,11 @@ spring:
   jpa:
     hibernate:
      ddl-auto: update
+     
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB 
 
 myapp:
   datasource:

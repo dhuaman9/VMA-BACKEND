@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El cuerpo del parámetro no puede estar vacío");
     }
 	
-    
+    //se utiliza para el front
     @ExceptionHandler(FailledValidationException.class)
     public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
     	logger.info("Error controlado : FailledValidationException"+ ex.getMessage());

@@ -79,16 +79,16 @@ public class EmpresaService {
 		      throw new Exception("[tipo] es obligatorio");
 		}
 	    
-	  
+	  //falta
 	    List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre());
 	    if (list != null && list.size() > 0) {
-	      throw new FailledValidationException("[eps] ya se encuentra registrado");
+	      throw new FailledValidationException("La EPS "+dto.getNombre()+",  ya se encuentra registrado");
 	    }
 
 
 	    Empresa empresa = new Empresa();
 	    
-	    empresa.setNombre(dto.getNombre());
+	    empresa.setNombre(dto.getNombre().toUpperCase());
 	    empresa.setRegimen(dto.getRegimen());
 	    empresa.setTipo(dto.getTipo());
 	    empresa.setEstado(true);

@@ -164,7 +164,7 @@ public class UsuarioService   {
 			 usuario.setRole(optRole.get());
 			 usuario.setNombres(dto.getNombres());
 			 usuario.setApellidos(dto.getApellidos());
-			 usuario.setUserName(dto.getUserName());
+			 usuario.setUserName(dto.getUserName().toLowerCase());
 			 usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 			 usuario.setUnidadOrganica("");
 			 usuario.setCorreo(dto.getCorreo());

@@ -27,14 +27,14 @@ public class Archivo  implements Serializable  {
 	 	@Column(name="id_archivo")
 		private Integer idArchivo;
 
-	    @Column(name="nombre", nullable=false)
-		private String nombre;
+	    @Column(name="nombre_archivo", nullable=false)
+		private String nombreArchivo;
 	    
-		@Column(name="ruta")
-		private String ruta;
+		@Column(name="id_alfresco")
+		private String idAlfresco;
 	
 		@ManyToOne(fetch=FetchType.EAGER, optional=false)
-		@JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma", nullable=false)
+		@JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma", nullable=true)
 		private RegistroVMA registroVma;
 		
 		@Column(name="username", nullable=true)
@@ -55,25 +55,7 @@ public class Archivo  implements Serializable  {
 		public void setIdArchivo(Integer idArchivo) {
 			this.idArchivo = idArchivo;
 		}
-
-		public String getNombre() {
-			return nombre;
-		}
-
-		public void setNombre(String nombre) {
-			this.nombre = nombre;
-		}
-
-		public String getRuta() {
-			return ruta;
-		}
-
-		public void setRuta(String ruta) {
-			this.ruta = ruta;
-		}
-
 		
-
 		public String getUsername() {
 			return username;
 		}
@@ -104,6 +86,22 @@ public class Archivo  implements Serializable  {
 
 		public void setRegistroVma(RegistroVMA registroVma) {
 			this.registroVma = registroVma;
+		}
+
+		public String getNombreArchivo() {
+			return nombreArchivo;
+		}
+
+		public void setNombreArchivo(String nombreArchivo) {
+			this.nombreArchivo = nombreArchivo;
+		}
+
+		public String getIdAlfresco() {
+			return idAlfresco;
+		}
+
+		public void setIdAlfresco(String idAlfresco) {
+			this.idAlfresco = idAlfresco;
 		}
 	
 	

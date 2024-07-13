@@ -57,6 +57,7 @@ public class RegistroVMA implements Serializable {
 	@Column(name="username", nullable=true)
 	private String username;
 
+	
 	public Integer getIdRegistroVma() {
 		return idRegistroVma;
 	}
@@ -72,8 +73,6 @@ public class RegistroVMA implements Serializable {
 	public void setEmpresa(Empresa empresa) {
 		this.empresa = empresa;
 	}
-
-	
 
 	public FichaRegistro getFichaRegistro() {
 		return fichaRegistro;
@@ -116,7 +115,5 @@ public class RegistroVMA implements Serializable {
 	}
 
 
-	
-	
 	
 }

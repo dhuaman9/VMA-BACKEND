@@ -1,11 +1,19 @@
 package pe.gob.sunass.vma.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
+import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
 import pe.gob.sunass.vma.dto.RespuestaDTO;
 import pe.gob.sunass.vma.model.Empresa;
@@ -21,6 +30,7 @@ import pe.gob.sunass.vma.model.RegistroVMA;
 import pe.gob.sunass.vma.model.RespuestaVMA;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
+import pe.gob.sunass.vma.repository.RegistroVMARepositoryCustom;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 import pe.gob.sunass.vma.repository.UsuarioRepository;
 
@@ -38,6 +48,10 @@ public class RegistroVMAService {
 
 	 @Autowired
 	 private UsuarioRepository usuarioRepository;
+	 
+	 
+	 @Autowired
+	 private RegistroVMARepositoryCustom registroVMARepositorycustom;
 	 
 	 @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
@@ -104,4 +118,9 @@ public class RegistroVMAService {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
+	
+	public List<RegistroVMA> filterRegistros(RegistroVMAFilterDTO filterDTO) {
+        return registroVMARepositorycustom.findByFilters(filterDTO);
+    }
+	
 }
