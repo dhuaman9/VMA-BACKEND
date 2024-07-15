@@ -10,8 +10,8 @@ import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 import pe.gob.sunass.vma.repository.SeccionRepository;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -117,7 +117,8 @@ public class CuestionarioService {
                         .stream()
                         .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
                         .collect(Collectors.toList()),
-                respuestaDTO
+                respuestaDTO,
+                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas) : null
                 );
     }
 

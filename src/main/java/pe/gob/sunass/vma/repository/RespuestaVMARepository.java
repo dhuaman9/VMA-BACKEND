@@ -12,4 +12,10 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	
 	@Query("FROM RespuestaVMA r WHERE r.registroVMA.idRegistroVma = ?1")
 	List<RespuestaVMA> findByRegistroVMAId(Integer idRegistroVMA);
+
+	@Query("FROM RespuestaVMA r WHERE r.idPregunta = ?1")
+	List<RespuestaVMA> findRespuestasByIdPregunta(Integer preguntaId);
+
+	@Query("FROM RespuestaVMA r WHERE r.idPregunta = ?1 and r.registroVMA.empresa.tipo = ?2 AND YEAR(r.registroVMA.createdAt) = ?3")
+	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, int anio);
 }

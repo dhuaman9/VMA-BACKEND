@@ -52,7 +52,7 @@ cors:
         
 security:
   jwt:
-    expiration-minutes: 30
+    expiration-minutes: 720
     secret-key: RDN2M2wwcDNyIDNuIFN1TjRTUyBWNE0wNTY3IDEyMzQ1Njc4OSBBQkNhYmM=
 
 ldap:

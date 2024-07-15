@@ -36,7 +36,8 @@ public class AlfrescoService {
 	
 	 public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
 	        validateFile(file);
-	        return processFile(file);
+//	        return processFile(file);
+	        return new ArchivoDTO();
 	    }
 
 	    private void validateFile(MultipartFile file) {

@@ -1,6 +1,11 @@
 package pe.gob.sunass.vma.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +42,34 @@ public class FileUploadController {
 	            return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
 	        }
 	    }*/
+
+	@PostMapping("/upload")
+	public ResponseEntity<List<ArchivoDTO>> uploadFiles(@RequestParam(value = "pdf", required = false) MultipartFile pdf,
+											@RequestParam(value = "pdfWord", required = false) MultipartFile pdfWord,
+											@RequestParam(value = "excel", required = false) MultipartFile excel) {
+		try {
+			List<ArchivoDTO> archivosDTO = new ArrayList<>();
+			if(Objects.nonNull(pdf)) {
+				archivosDTO.add(alfrescoService.uploadFile(pdf));
+			}
+
+			if(Objects.nonNull(pdfWord)) {
+				archivosDTO.add(alfrescoService.uploadFile(pdfWord));
+			}
+			if(Objects.nonNull(excel)) {
+				archivosDTO.add(alfrescoService.uploadFile(excel));
+			}
+
+			return new ResponseEntity<>(archivosDTO, HttpStatus.OK);
+
+		} catch (FailledValidationException ex) {  //BadRequestException ex
+
+			throw ex;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	    
 		 @PostMapping("/upload/pdf")
 		    public ResponseEntity<ArchivoDTO> uploadPdfFile(@RequestParam("file") MultipartFile file) {

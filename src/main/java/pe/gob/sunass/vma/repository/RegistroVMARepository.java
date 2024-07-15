@@ -27,6 +27,8 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
 
+	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipo = :tipoEmpresa AND YEAR(r.createdAt) = :anio")
+	long registrosPorTipoEmpresa(String tipoEmpresa, int anio);
 	
 	public Optional<RegistroVMA> findById(Integer id);
 	

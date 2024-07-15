@@ -11,17 +11,16 @@ public class PreguntaDTO {
     private TipoPregunta tipoPregunta;
     private RespuestaDTO respuestaDTO;
     private List<AlternativaDTO> alternativas;
+    private PreguntaDTO preguntaDependiente;
 
-    public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta, List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO) {
+    public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta, List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO, PreguntaDTO preguntaDependiente) {
         this.idPregunta = idPregunta;
         this.descripcion = descripcion;
         this.orden = orden;
         this.tipoPregunta = tipoPregunta;
         this.alternativas = alternativas;
         this.respuestaDTO = respuestaDTO;
-    }
-
-    public PreguntaDTO() {
+        this.preguntaDependiente = preguntaDependiente;
     }
 
     public Integer getIdPregunta() {
@@ -54,6 +53,14 @@ public class PreguntaDTO {
 
     public void setTipoPregunta(TipoPregunta tipoPregunta) {
         this.tipoPregunta = tipoPregunta;
+    }
+
+    public PreguntaDTO getPreguntaDependiente() {
+        return preguntaDependiente;
+    }
+
+    public void setPreguntaDependiente(PreguntaDTO preguntaDependiente) {
+        this.preguntaDependiente = preguntaDependiente;
     }
 
     public List<AlternativaDTO> getAlternativas() {
