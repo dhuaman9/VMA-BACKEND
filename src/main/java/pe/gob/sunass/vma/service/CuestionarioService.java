@@ -71,26 +71,26 @@ public class CuestionarioService {
 
         Cuestionario cuestionario = lastCuestionario.get();
 
-        return mapToCuestionarioDTO(cuestionario, respuestas);
+        return mapToCuestionarioDTO(cuestionario, respuestas, idRegistroVma);
     }
 
-    private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas){
+    private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas, Integer idRegistroVma){
         return new CuestionarioDTO(cuestionario.getIdCuestionario(),
                 cuestionario.getNombre(),
                 cuestionario.getSecciones()
                         .stream()
-                        .map(sec -> mapToSeccionDTO(sec, respuestas))
+                        .map(sec -> mapToSeccionDTO(sec, respuestas, idRegistroVma))
                         .collect(Collectors.toList()));
     }
 
-    private SeccionDTO mapToSeccionDTO(Seccion seccion, List<RespuestaVMA> respuestas) {
+    private SeccionDTO mapToSeccionDTO(Seccion seccion, List<RespuestaVMA> respuestas, Integer idRegistroVma) {
         return new SeccionDTO(
                 seccion.getIdSeccion(),
                 seccion.getNombre(),
                 seccion.getOrden(),
                 seccion.getPreguntas()
                         .stream()
-                        .map(pregunta -> mapToPreguntaDTO(pregunta, respuestasByPreguntaId(respuestas, pregunta.getIdPregunta())))
+                        .map(pregunta -> mapToPreguntaDTO(pregunta, respuestasByPreguntaId(respuestas, pregunta.getIdPregunta()), false, idRegistroVma))
                         .collect(Collectors.toList()));
     }
 
@@ -101,10 +101,13 @@ public class CuestionarioService {
                 .collect(Collectors.toList());
     }
 
-    private PreguntaDTO mapToPreguntaDTO(Pregunta pregunta, List<RespuestaVMA> respuestas) {
+    private PreguntaDTO mapToPreguntaDTO(Pregunta pregunta, List<RespuestaVMA> respuestas, boolean esDependiente, Integer idRegistroVma) {
         RespuestaDTO respuestaDTO = null;
-        if(respuestas.size() == 1 && (pregunta.getAlternativas().isEmpty() || pregunta.getTipoPregunta().equals(TipoPregunta.RADIO))) {
+        if(respuestas.size() == 1 && (pregunta.getAlternativas().isEmpty() || pregunta.getTipoPregunta().equals(TipoPregunta.RADIO)) && !esDependiente) {
             RespuestaVMA respuesta = respuestas.get(0);
+            respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
+        } else if(esDependiente) {
+            RespuestaVMA respuesta = respuestaVMARepository.findRespuestasByIdPreguntaAndRegistroVma(pregunta.getIdPregunta(), idRegistroVma);
             respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
         }
 
@@ -118,7 +121,7 @@ public class CuestionarioService {
                         .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
                         .collect(Collectors.toList()),
                 respuestaDTO,
-                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas) : null
+                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma) : null
                 );
     }
 
