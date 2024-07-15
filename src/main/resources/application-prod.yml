@@ -47,7 +47,7 @@ cors:
         
 security:
   jwt:
-    expiration-minutes: 30
+    expiration-minutes: 60
 
 ldap:
   cn: OU=Usuarios,DC=sunass,DC=gob,DC=pe

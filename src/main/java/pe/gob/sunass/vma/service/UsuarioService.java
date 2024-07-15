@@ -109,7 +109,7 @@ public class UsuarioService   {
 
 	    if (opt.isPresent()) {
 	    	Usuario user = opt.get();
-            dto = UsuarioAssembler.buildDtoDomain(user);
+          dto = UsuarioAssembler.buildDtoDomain(user);
 	    }
 	    return dto;
 	  }
@@ -142,9 +142,9 @@ public class UsuarioService   {
 	    	
 	    	usuario.setTipo("SUNASS");  //dhr, por mejorar
 	    	usuario.setRole(optRole.get());
-	    	usuario.setNombres(dto.getNombres());//dhr , se otiene del AD 
-			usuario.setApellidos(dto.getApellidos());//dhr , se otiene del AD 
-			usuario.setUserName(dto.getUserName());//dhr , se otiene del AD 
+	    	usuario.setNombres(dto.getNombres().toUpperCase());//dhr , se otiene del AD 
+			usuario.setApellidos(dto.getApellidos().toUpperCase());//dhr , se otiene del AD 
+			usuario.setUserName(dto.getUserName().toLowerCase());//dhr , se otiene del AD 
 			usuario.setPassword("");
 		
 	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); //dhr , se otiene del AD 
@@ -162,8 +162,8 @@ public class UsuarioService   {
 			
 			 usuario.setTipo(dto.getTipo());
 			 usuario.setRole(optRole.get());
-			 usuario.setNombres(dto.getNombres());
-			 usuario.setApellidos(dto.getApellidos());
+			 usuario.setNombres(dto.getNombres().toUpperCase());
+			 usuario.setApellidos(dto.getApellidos().toUpperCase());
 			 usuario.setUserName(dto.getUserName().toLowerCase());
 			 usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 			 usuario.setUnidadOrganica("");
@@ -186,7 +186,7 @@ public class UsuarioService   {
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public UsuarioDTO update(UsuarioDTO dto) throws Exception {
 	    if (dto == null) {
-	      throw new FailledValidationException("datos son obligatorios");
+	      throw new FailledValidationException("Los datos son obligatorios");
 	    }
 //	    else if (dto.getId() == null) {
 //	      throw new FailledValidationException("[id] es obligatorio");
@@ -200,13 +200,13 @@ public class UsuarioService   {
 
 	      if (dto.getUserName() != null && !dto.getUserName().isEmpty()) {
 	        if (!dto.getUserName().equals(usuario.getUserName())) {
-	          List<Usuario> list = this.usuarioRepository.findByUserNameAndIdNotAndEstado(dto.getUserName(),
+	          List<Usuario> list = this.usuarioRepository.findByUserNameAndIdNotAndEstado(dto.getUserName().toLowerCase(),
 	        		  dto.getId(),  new Boolean(true));
 	        
 	          if (list != null && list.size() > 0) {
 	        	  throw new FailledValidationException("El Username ya existe, registre otro por favor.");  // para validar en el front
 	          }
-	          usuario.setUserName(dto.getUserName());
+	          usuario.setUserName(dto.getUserName().toLowerCase());
 	        }
 	      }
 	      if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
@@ -222,12 +222,12 @@ public class UsuarioService   {
 	      }
 	      if (dto.getNombres() != null && !dto.getNombres().isEmpty()) {
 		        if (!dto.getNombres().equals(usuario.getNombres())) {
-		        	usuario.setNombres(dto.getNombres());
+		        	usuario.setNombres(dto.getNombres().toUpperCase());
 		        }
 		      }
 	      if (dto.getApellidos() != null && !dto.getApellidos().isEmpty()) {
 		        if (!dto.getApellidos().equals(usuario.getApellidos())) {
-		        	usuario.setApellidos(dto.getApellidos());
+		        	usuario.setApellidos(dto.getApellidos().toUpperCase());
 		        }
 		      }
 	      if (dto.getCorreo() != null && !dto.getCorreo().isEmpty()) {
@@ -304,7 +304,7 @@ public class UsuarioService   {
 		catch (Exception ex) {
 			item =  null;
 			StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
+          PrintWriter pw = new PrintWriter(sw);
 			ex.printStackTrace(pw);
 		}
 		
