@@ -102,32 +102,37 @@ public class RegistroVMAService {
 		 }
 	  }
 
-	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year) {
+	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year, String username) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
 		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
+		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 
-		List<Predicate> predicates = new ArrayList<>();
+		if(usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
+			List<Predicate> predicates = new ArrayList<>();
 
-		if (empresaId != null) {
-			predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")), cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
-		}
-		if (estado != null) {
-			predicates.add(cb.equal(registroVMA.get("estado"), estado));
-		}
-		if (startDate != null) {
-			predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
-		}
-		if (endDate != null) {
-			predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
-		}
-		if (year != null) {
-			predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
+			if (empresaId != null) {
+				predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")), cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
+			}
+			if (estado != null) {
+				predicates.add(cb.equal(registroVMA.get("estado"), estado));
+			}
+			if (startDate != null) {
+				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
+			}
+			if (endDate != null) {
+				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
+			}
+			if (year != null) {
+				predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
+			}
+
+			query.where(predicates.toArray(new Predicate[0]));
+
+			return entityManager.createQuery(query).getResultList();
 		}
 
-		query.where(predicates.toArray(new Predicate[0]));
-
-		return entityManager.createQuery(query).getResultList();
+		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
 	}
 
 	  private void saveRespuestas(List<RespuestaDTO> respuestasRequest, RegistroVMA registro) {

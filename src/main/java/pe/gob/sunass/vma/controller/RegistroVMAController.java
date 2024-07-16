@@ -82,9 +82,10 @@ public class RegistroVMAController {
 			@RequestParam(required = false) String estado,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-			@RequestParam(required = false) String year) {
+			@RequestParam(required = false) String year,
+			@RequestHeader("Authorization") String token) {
 
-		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year);
+		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token));
 	}
 
 	@GetMapping(path = "/findByid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
