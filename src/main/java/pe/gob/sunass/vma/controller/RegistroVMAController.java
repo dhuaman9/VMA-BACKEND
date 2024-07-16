@@ -1,10 +1,12 @@
 package pe.gob.sunass.vma.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,6 +74,17 @@ public class RegistroVMAController {
 		}
 
 		return response;
+	}
+
+	@GetMapping("/search")
+	public List<RegistroVMA> searchRegistroVMA(
+			@RequestParam(required = false) Integer empresaId,
+			@RequestParam(required = false) String estado,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestParam(required = false) String year) {
+
+		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year);
 	}
 
 	@GetMapping(path = "/findByid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

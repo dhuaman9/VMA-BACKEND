@@ -48,6 +48,4 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	
 	
 	// List<RegistroVMA> findByFilters(RegistroVMAFilterDTO filters);  //para filtros
-	
-
 }

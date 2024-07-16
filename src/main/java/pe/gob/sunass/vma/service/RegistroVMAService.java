@@ -1,9 +1,6 @@
 package pe.gob.sunass.vma.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -48,6 +45,9 @@ public class RegistroVMAService {
 
 	 @Autowired
 	 private UsuarioRepository usuarioRepository;
+
+	@PersistenceContext
+	private EntityManager entityManager;
 	 
 	 
 	 @Autowired
@@ -102,6 +102,34 @@ public class RegistroVMAService {
 		 }
 	  }
 
+	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
+		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
+
+		List<Predicate> predicates = new ArrayList<>();
+
+		if (empresaId != null) {
+			predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")), cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
+		}
+		if (estado != null) {
+			predicates.add(cb.equal(registroVMA.get("estado"), estado));
+		}
+		if (startDate != null) {
+			predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
+		}
+		if (endDate != null) {
+			predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
+		}
+		if (year != null) {
+			predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
+		}
+
+		query.where(predicates.toArray(new Predicate[0]));
+
+		return entityManager.createQuery(query).getResultList();
+	}
+
 	  private void saveRespuestas(List<RespuestaDTO> respuestasRequest, RegistroVMA registro) {
 		  respuestaVMARepository.saveAll(
 				  respuestasRequest
@@ -122,5 +150,14 @@ public class RegistroVMAService {
 	public List<RegistroVMA> filterRegistros(RegistroVMAFilterDTO filterDTO) {
         return registroVMARepositorycustom.findByFilters(filterDTO);
     }
-	
+
+	public Date agregarHoraFinDia(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		return calendar.getTime();
+	}
 }
