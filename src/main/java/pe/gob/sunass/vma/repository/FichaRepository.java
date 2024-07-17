@@ -47,4 +47,7 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 		       "WHERE :fecha BETWEEN r.fechaInicio AND r.fechaFin")
 		Optional<FichaRegistro> validarRangoConFecha(@Param("fecha") LocalDate fecha);
 	 
+	  @Query("SELECT r FROM FichaRegistro r WHERE CURRENT_DATE >= r.fechaInicio AND CURRENT_DATE <= r.fechaFin")
+	  public FichaRegistro findFichaRegistroActual();
+	  
 }

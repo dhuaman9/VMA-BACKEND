@@ -32,11 +32,11 @@ public class RegistroVMA implements Serializable {
 	private Integer idRegistroVma;
     
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=true)
+	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
 	private Empresa empresa;
 	
 	@OneToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=true)  //por descartar en la bd
+	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=false)
 	private FichaRegistro fichaRegistro;
 	
 	@Column(name="estado")

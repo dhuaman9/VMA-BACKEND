@@ -142,20 +142,15 @@ public class FichasController {
 
 	    try {
 	    	FichaDTO dto = this.fichaService.update(request);
-
-	      if (dto == null) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
-	      }
-	      else {
-	        response = new ResponseEntity<FichaDTO>(dto,
-	                                                  HttpStatus.ACCEPTED);
-	      }
+	    	response = new ResponseEntity<>(dto,HttpStatus.ACCEPTED);
+	    }catch (FailledValidationException ex) {
+	    	
+	    	throw ex;
 	    }
 	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                            HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		      logger.error(ex.getMessage(), ex);
+		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+		 }
 	    finally {
 	      logger.info(Constants.Logger.Method.Finalize);
 	    }

@@ -26,6 +26,7 @@ import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.RegistroVMA;
 import pe.gob.sunass.vma.model.RespuestaVMA;
 import pe.gob.sunass.vma.model.Usuario;
+import pe.gob.sunass.vma.repository.FichaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepositoryCustom;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
@@ -45,6 +46,9 @@ public class RegistroVMAService {
 
 	 @Autowired
 	 private UsuarioRepository usuarioRepository;
+	 
+	 @Autowired
+	 private FichaRepository fichaRepository;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -96,6 +100,7 @@ public class RegistroVMAService {
 			 nuevoRegistro.setEmpresa(usuario.getEmpresa());
 			 nuevoRegistro.setUsername(username);
 			 nuevoRegistro.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
+			 nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			 nuevoRegistro.setCreatedAt(new Date());
 			 RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			 saveRespuestas(registroRequest.getRespuestas(), registroDB);
