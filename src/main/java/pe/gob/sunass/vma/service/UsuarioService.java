@@ -133,8 +133,7 @@ public class UsuarioService   {
 	    /*if (!optRole.isPresent()) {  //para evitar esto, que el front muestre los roles de la bd
 //	      throw new FailledValidationException("[role.id] no se encuentra");
 	    }*/
-
-	    Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getEmpresa().getIdEmpresa());
+	    logger.info("id empresa - "+dto.getEmpresa().getIdEmpresa());
 	    
 	    Usuario usuario = new Usuario();
 	    
@@ -142,15 +141,15 @@ public class UsuarioService   {
 	    	
 	    	usuario.setTipo("SUNASS");  //dhr, por mejorar
 	    	usuario.setRole(optRole.get());
-	    	usuario.setNombres(dto.getNombres().toUpperCase());//dhr , se otiene del AD 
-			usuario.setApellidos(dto.getApellidos().toUpperCase());//dhr , se otiene del AD 
-			usuario.setUserName(dto.getUserName().toLowerCase());//dhr , se otiene del AD 
+	    	usuario.setNombres(dto.getNombres().toUpperCase());
+			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setUserName(dto.getUserName().toLowerCase());
 			usuario.setPassword("");
 		
 	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); //dhr , se otiene del AD 
 	    	usuario.setCorreo(dto.getCorreo()); //dhr , se otiene del AD 
-	    	Optional<Empresa> optEmpresa2 = this.empresaRepository.findEmpresaByName("SUNASS");
-			usuario.setEmpresa(optEmpresa2.get()); //debe ir un metodo con parametro  optEmpresa.get()
+	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+			usuario.setEmpresa(optEmpresa1.get()); //debe ir un metodo con parametro  optEmpresa.get()
 			
 			//usuario.setEps("Sunass");
 			usuario.setTelefono(dto.getTelefono());
@@ -160,6 +159,8 @@ public class UsuarioService   {
 			
 		} else if(dto.getTipo().equals("EPS")) {
 			
+			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
+		    
 			 usuario.setTipo(dto.getTipo());
 			 usuario.setRole(optRole.get());
 			 usuario.setNombres(dto.getNombres().toUpperCase());
@@ -169,7 +170,7 @@ public class UsuarioService   {
 			 usuario.setUnidadOrganica("");
 			 usuario.setCorreo(dto.getCorreo());
 			 //usuario.setEps(dto.getEps());
-			 usuario.setEmpresa(optEmpresa.get());
+			 usuario.setEmpresa(optEmpresa2.get());
 			 usuario.setTelefono(dto.getTelefono());
 			 usuario.setEstado(new Boolean(true));
 			 usuario.setCreatedAt(new Date());
@@ -240,12 +241,7 @@ public class UsuarioService   {
 		        	usuario.setTelefono(dto.getTelefono());
 		        }
 		      }
-	      if (dto.getEps() != null && !dto.getEps().isEmpty()) {
-		        if (!dto.getEps().equals(usuario.getEps())) {
-		        	usuario.setEps(dto.getEps());
-		        }
-		      }
-	 
+	   
 	      //Se agrego este fragmento de codigo para actualizar el campo estado
 	      if (dto.getEstado() != null ) {
 	        if (dto.getEstado() !=usuario.getEstado() ) {

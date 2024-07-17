@@ -42,7 +42,7 @@ public class Usuario implements UserDetails{
 	@Column(name="apellidos")
 	private String apellidos;
 	
-	@Column(name="username", nullable=false, length=30)
+	@Column(name="username", nullable=false)
 	private String userName;
 
 	@Column(name="password")
@@ -60,7 +60,7 @@ public class Usuario implements UserDetails{
 	@Column(name="unidad_organica")
 	private String unidadOrganica;
 	
-	@Column(name="correo",  nullable=false)
+	@Column(name="correo")
 	private String correo;
 	
 	@Column(name="eps")

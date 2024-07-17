@@ -19,7 +19,7 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
 	  public Page<Empresa> findAllByOrderByIdEmpresa(Pageable pageable);
 
-	  public Optional<Empresa> findById(Integer id);
+	  public Optional<Empresa> findByIdEmpresa(Integer id);
 
 	  @Query("SELECT e FROM Empresa e WHERE e.nombre = :nombre")
 	  public List<Empresa> findByEps(@Param("nombre") String nombre);
