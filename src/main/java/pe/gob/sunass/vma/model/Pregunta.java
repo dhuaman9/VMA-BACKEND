@@ -30,6 +30,10 @@ public class Pregunta  implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private TipoPregunta tipoPregunta;
 
+	@OneToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	@JoinColumn(name = "id_metadata", nullable = true)
+	private MetadatoArchivo metadatoArchivo;
+
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_pregunta", nullable = true)
 	private List<Alternativa> alternativas;
@@ -149,5 +153,13 @@ public class Pregunta  implements Serializable{
 
 	public void setPreguntaDependiente(Pregunta preguntaDependiente) {
 		this.preguntaDependiente = preguntaDependiente;
+	}
+
+	public MetadatoArchivo getMetadatoArchivo() {
+		return metadatoArchivo;
+	}
+
+	public void setMetadatoArchivo(MetadatoArchivo metadatoArchivo) {
+		this.metadatoArchivo = metadatoArchivo;
 	}
 }
