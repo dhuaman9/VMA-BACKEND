@@ -11,7 +11,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +26,8 @@ import pe.gob.sunass.vma.model.Archivo;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
 import java.util.Base64;
 import java.util.Date;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.*;
 
 @Service
 public class AlfrescoService {
@@ -33,6 +37,13 @@ public class AlfrescoService {
 	
 	@Autowired
     ArchivoRepository archivoRepository;
+	
+	private final RestTemplate restTemplate;
+	
+	 public AlfrescoService(RestTemplate restTemplate) {
+	        this.restTemplate = restTemplate;
+	    }
+	 
 	
 	 public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
 	        validateFile(file);
@@ -114,4 +125,29 @@ public class AlfrescoService {
 	            throw new RuntimeException("Failed to upload file, status code: " + response.getStatusLine().getStatusCode());
 	        }
 	    }
+	    
+	    //descarga de ficheros
+	    public ResponseEntity<byte[]> downloadFile(String nodeId) {
+	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+
+	        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+	        try {
+	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+
+	            HttpHeaders responseHeaders = new HttpHeaders();
+	            responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	            responseHeaders.setContentDisposition(ContentDisposition.attachment().filename("archivo.pdf").build());
+
+	            return new ResponseEntity<>(response.getBody(), responseHeaders, HttpStatus.OK);
+	        } catch (Exception e) {
+	            // Log the error or handle it as needed
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    }
+	    
+	    
 }

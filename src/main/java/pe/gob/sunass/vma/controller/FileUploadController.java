@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,7 +73,7 @@ public class FileUploadController {
 		}
 	}
 	    
-		 @PostMapping("/upload/pdf")
+		/* @PostMapping("/upload/pdf")
 		    public ResponseEntity<ArchivoDTO> uploadPdfFile(@RequestParam("file") MultipartFile file) {
 		        try {
 		            ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
@@ -112,7 +114,12 @@ public class FileUploadController {
 				      logger.error(ex.getMessage(), ex);
 				       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 				 }
-		    }
+		    }*/
 	   
+	
+	 @GetMapping("/{nodeId}/download")
+	    public ResponseEntity<byte[]> downloadFile(@PathVariable String nodeId) {
+	        return alfrescoService.downloadFile(nodeId);
+	    }
 	    
 }
