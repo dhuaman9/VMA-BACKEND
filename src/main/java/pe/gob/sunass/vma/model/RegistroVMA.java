@@ -32,15 +32,11 @@ public class RegistroVMA implements Serializable {
 	private Integer idRegistroVma;
     
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=true)
+	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
 	private Empresa empresa;
 	
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name="id_archivo", nullable=true)
-	private List<Archivo> archivo;
-	
 	@OneToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=true)  //por descartar en la bd
+	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=false)
 	private FichaRegistro fichaRegistro;
 	
 	@Column(name="estado")
@@ -57,6 +53,7 @@ public class RegistroVMA implements Serializable {
 	@Column(name="username", nullable=true)
 	private String username;
 
+	
 	public Integer getIdRegistroVma() {
 		return idRegistroVma;
 	}
@@ -72,8 +69,6 @@ public class RegistroVMA implements Serializable {
 	public void setEmpresa(Empresa empresa) {
 		this.empresa = empresa;
 	}
-
-	
 
 	public FichaRegistro getFichaRegistro() {
 		return fichaRegistro;
@@ -115,15 +110,6 @@ public class RegistroVMA implements Serializable {
 		this.username = username;
 	}
 
-	public List<Archivo> getArchivo() {
-		return archivo;
-	}
 
-	public void setArchivo(List<Archivo> archivo) {
-		this.archivo = archivo;
-	}
-	
-	
-	
 	
 }

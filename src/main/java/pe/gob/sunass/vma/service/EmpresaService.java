@@ -21,6 +21,7 @@ import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 
+
 @Service
 public class EmpresaService {
 
@@ -66,7 +67,7 @@ public class EmpresaService {
 	  
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public EmpresaDTO registrar(EmpresaDTO dto) throws Exception {
-	    if (dto == null) {
+	    /*if (dto == null) {
 	      throw new Exception("datos son obligatorios");
 	    }
 	    else if (dto.getNombre() == null || dto.getNombre().isEmpty()) {
@@ -77,18 +78,22 @@ public class EmpresaService {
 	    }
 	    else if (dto.getTipo() == null || dto.getTipo().isEmpty()) {
 		      throw new Exception("[tipo] es obligatorio");
-		}
+		}*/
 	    
 	  
-	    List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre());
-	    if (list != null && list.size() > 0) {
+	    List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
+	    /*if (list != null && list.size() > 0) {
 	      throw new FailledValidationException("[eps] ya se encuentra registrado");
+	    }*/
+	    if (list != null && list.size() > 0) {
+	    	 throw new FailledValidationException("La empresa "+ dto.getNombre() +" ya existe, registre uno nuevo.");
+	          // throw new BusinessException("El Username ya existe, registre otro por favor.");
 	    }
 
 
 	    Empresa empresa = new Empresa();
 	    
-	    empresa.setNombre(dto.getNombre());
+	    empresa.setNombre(dto.getNombre().toUpperCase());
 	    empresa.setRegimen(dto.getRegimen());
 	    empresa.setTipo(dto.getTipo());
 	    empresa.setEstado(true);
@@ -116,12 +121,12 @@ public class EmpresaService {
 	     
 	      if (dto.getNombre() != null && !dto.getNombre().isEmpty()) {
 	        if (!dto.getNombre().equals(empresa.getNombre())) {
-	          List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre());
+	          List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
 
 	          if (list != null && list.size() > 0) {
-	            throw new FailledValidationException("[eps] ya se encuentra registrado");
+	        	  throw new FailledValidationException("La empresa "+ dto.getNombre() +" ya existe, registre uno nuevo.");
 	          }
-	          empresa.setNombre(dto.getNombre());
+	          empresa.setNombre(dto.getNombre().toUpperCase());
 	        }
 	      }
 
@@ -145,7 +150,7 @@ public class EmpresaService {
 	      
 	      empresa.setUpdatedAt(new Date());
 	      empresa.setIdUsuarioRegistro(null);
-		    empresa.setIdUsuarioActualizacion(null);
+	      empresa.setIdUsuarioActualizacion(null);
 	      empresa = this.empresaRepository.save(empresa);
 	    }
 
@@ -174,6 +179,4 @@ public class EmpresaService {
 //	  }
 
 	
-	  
-	  
 }

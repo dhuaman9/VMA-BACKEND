@@ -21,8 +21,6 @@ public class RegistroVMADTO implements Serializable{
 	    
 	private EmpresaDTO empresa;
 		
-	//private List<Archivo> archivos;
-		
 	private FichaDTO fichaRegistro;
 		
 	private String estado;

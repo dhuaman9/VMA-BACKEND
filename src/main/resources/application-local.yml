@@ -31,6 +31,11 @@ spring:
   jpa:
     hibernate:
      ddl-auto: update
+     
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB 
 
 myapp:
   datasource:
@@ -47,7 +52,7 @@ cors:
         
 security:
   jwt:
-    expiration-minutes: 30
+    expiration-minutes: 60
     secret-key: RDN2M2wwcDNyIDNuIFN1TjRTUyBWNE0wNTY3IDEyMzQ1Njc4OSBBQkNhYmM=
 
 ldap:

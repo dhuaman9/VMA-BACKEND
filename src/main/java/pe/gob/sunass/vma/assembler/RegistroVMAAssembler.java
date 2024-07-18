@@ -24,7 +24,7 @@ public class RegistroVMAAssembler {
 	      dto.setEmpresa(EmpresaAssembler.buildDtoModel(registroVMA.getEmpresa()));
 	      dto.setEstado(registroVMA.getEstado());
 	      dto.setFichaRegistro(FichaAssembler.buildDtoModel(registroVMA.getFichaRegistro()));
-	      dto.setUsername(null);
+	      dto.setUsername(registroVMA.getUsername());
 	      dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
 	    		  registroVMA.getCreatedAt()));
 	      dto.setUpdatedAt(registroVMA.getUpdatedAt() == null ? null :

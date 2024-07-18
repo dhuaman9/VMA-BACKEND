@@ -109,7 +109,7 @@ public class UsuarioService   {
 
 	    if (opt.isPresent()) {
 	    	Usuario user = opt.get();
-            dto = UsuarioAssembler.buildDtoDomain(user);
+          dto = UsuarioAssembler.buildDtoDomain(user);
 	    }
 	    return dto;
 	  }
@@ -133,8 +133,7 @@ public class UsuarioService   {
 	    /*if (!optRole.isPresent()) {  //para evitar esto, que el front muestre los roles de la bd
 //	      throw new FailledValidationException("[role.id] no se encuentra");
 	    }*/
-
-	    Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getEmpresa().getIdEmpresa());
+	    logger.info("id empresa - "+dto.getEmpresa().getIdEmpresa());
 	    
 	    Usuario usuario = new Usuario();
 	    
@@ -142,15 +141,15 @@ public class UsuarioService   {
 	    	
 	    	usuario.setTipo("SUNASS");  //dhr, por mejorar
 	    	usuario.setRole(optRole.get());
-	    	usuario.setNombres(dto.getNombres());//dhr , se otiene del AD 
-			usuario.setApellidos(dto.getApellidos());//dhr , se otiene del AD 
-			usuario.setUserName(dto.getUserName());//dhr , se otiene del AD 
+	    	usuario.setNombres(dto.getNombres().toUpperCase());
+			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setUserName(dto.getUserName().toLowerCase());
 			usuario.setPassword("");
 		
 	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); //dhr , se otiene del AD 
 	    	usuario.setCorreo(dto.getCorreo()); //dhr , se otiene del AD 
-	    	Optional<Empresa> optEmpresa2 = this.empresaRepository.findEmpresaByName("SUNASS");
-			usuario.setEmpresa(optEmpresa2.get()); //debe ir un metodo con parametro  optEmpresa.get()
+	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+			usuario.setEmpresa(optEmpresa1.get()); //debe ir un metodo con parametro  optEmpresa.get()
 			
 			//usuario.setEps("Sunass");
 			usuario.setTelefono(dto.getTelefono());
@@ -160,16 +159,18 @@ public class UsuarioService   {
 			
 		} else if(dto.getTipo().equals("EPS")) {
 			
+			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
+		    
 			 usuario.setTipo(dto.getTipo());
 			 usuario.setRole(optRole.get());
-			 usuario.setNombres(dto.getNombres());
-			 usuario.setApellidos(dto.getApellidos());
-			 usuario.setUserName(dto.getUserName());
+			 usuario.setNombres(dto.getNombres().toUpperCase());
+			 usuario.setApellidos(dto.getApellidos().toUpperCase());
+			 usuario.setUserName(dto.getUserName().toLowerCase());
 			 usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 			 usuario.setUnidadOrganica("");
 			 usuario.setCorreo(dto.getCorreo());
 			 //usuario.setEps(dto.getEps());
-			 usuario.setEmpresa(optEmpresa.get());
+			 usuario.setEmpresa(optEmpresa2.get());
 			 usuario.setTelefono(dto.getTelefono());
 			 usuario.setEstado(new Boolean(true));
 			 usuario.setCreatedAt(new Date());
@@ -186,7 +187,7 @@ public class UsuarioService   {
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public UsuarioDTO update(UsuarioDTO dto) throws Exception {
 	    if (dto == null) {
-	      throw new FailledValidationException("datos son obligatorios");
+	      throw new FailledValidationException("Los datos son obligatorios");
 	    }
 //	    else if (dto.getId() == null) {
 //	      throw new FailledValidationException("[id] es obligatorio");
@@ -200,13 +201,13 @@ public class UsuarioService   {
 
 	      if (dto.getUserName() != null && !dto.getUserName().isEmpty()) {
 	        if (!dto.getUserName().equals(usuario.getUserName())) {
-	          List<Usuario> list = this.usuarioRepository.findByUserNameAndIdNotAndEstado(dto.getUserName(),
+	          List<Usuario> list = this.usuarioRepository.findByUserNameAndIdNotAndEstado(dto.getUserName().toLowerCase(),
 	        		  dto.getId(),  new Boolean(true));
 	        
 	          if (list != null && list.size() > 0) {
 	        	  throw new FailledValidationException("El Username ya existe, registre otro por favor.");  // para validar en el front
 	          }
-	          usuario.setUserName(dto.getUserName());
+	          usuario.setUserName(dto.getUserName().toLowerCase());
 	        }
 	      }
 	      if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
@@ -222,12 +223,12 @@ public class UsuarioService   {
 	      }
 	      if (dto.getNombres() != null && !dto.getNombres().isEmpty()) {
 		        if (!dto.getNombres().equals(usuario.getNombres())) {
-		        	usuario.setNombres(dto.getNombres());
+		        	usuario.setNombres(dto.getNombres().toUpperCase());
 		        }
 		      }
 	      if (dto.getApellidos() != null && !dto.getApellidos().isEmpty()) {
 		        if (!dto.getApellidos().equals(usuario.getApellidos())) {
-		        	usuario.setApellidos(dto.getApellidos());
+		        	usuario.setApellidos(dto.getApellidos().toUpperCase());
 		        }
 		      }
 	      if (dto.getCorreo() != null && !dto.getCorreo().isEmpty()) {
@@ -240,12 +241,7 @@ public class UsuarioService   {
 		        	usuario.setTelefono(dto.getTelefono());
 		        }
 		      }
-	      if (dto.getEps() != null && !dto.getEps().isEmpty()) {
-		        if (!dto.getEps().equals(usuario.getEps())) {
-		        	usuario.setEps(dto.getEps());
-		        }
-		      }
-	 
+	   
 	      //Se agrego este fragmento de codigo para actualizar el campo estado
 	      if (dto.getEstado() != null ) {
 	        if (dto.getEstado() !=usuario.getEstado() ) {
@@ -304,7 +300,7 @@ public class UsuarioService   {
 		catch (Exception ex) {
 			item =  null;
 			StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
+          PrintWriter pw = new PrintWriter(sw);
 			ex.printStackTrace(pw);
 		}
 		

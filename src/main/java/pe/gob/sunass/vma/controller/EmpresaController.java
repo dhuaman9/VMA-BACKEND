@@ -23,8 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.EmpresaDTO;
+import pe.gob.sunass.vma.dto.UsuarioDTO;
+import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.service.EmpresaService;
+
 
 @RestController
 @RequestMapping("/empresa")
@@ -40,8 +43,7 @@ public class EmpresaController {
 	  }
 
 	
-	  @GetMapping(path="/list",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
+	  @GetMapping(path="/list",produces=MediaType.APPLICATION_JSON_VALUE)
 	  //@PreAuthorize("hasAuthority('Administrador2')") //dhr
 	  public ResponseEntity<?> getList() {
 	    ResponseEntity<?> response = null;
@@ -71,8 +73,7 @@ public class EmpresaController {
 	  }
 
 
-	  @GetMapping(path="/page/{num}/{size}",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
+	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)
 	
 	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
 	                                   @PathVariable(name="size") Integer size) {
@@ -104,8 +105,7 @@ public class EmpresaController {
 	    return response;
 	  }
 
-	  @GetMapping(path="/findbyid/{id}",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
+	  @GetMapping(path="/findbyid/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
 	 
 	  public ResponseEntity<?> findById(@PathVariable(name="id") Integer id) {
 	    ResponseEntity<?> response = null;
@@ -141,18 +141,20 @@ public class EmpresaController {
 	    ResponseEntity<?> response = null;
 	    //long startProcess = System.currentTimeMillis();
 
-	    logger.info(Constants.Logger.Method.Initialize);
+	    //logger.info(Constants.Logger.Method.Initialize);
 
 	    try {
 	    	EmpresaDTO dto = this.empresaService.registrar(request);
-	         response = new ResponseEntity<EmpresaDTO>(dto,
-	                                                HttpStatus.CREATED);
+	         response = new ResponseEntity<>(dto,HttpStatus.CREATED);
+	    }
+	    catch (FailledValidationException ex) {  //BadRequestException ex
+	    	
+	    	throw ex;
 	    }
 	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                            HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		      logger.error(ex.getMessage(), ex);
+		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
+		 }
 	    finally {
 	       logger.info(Constants.Logger.Method.Finalize);
 	    }
@@ -174,14 +176,16 @@ public class EmpresaController {
 	        response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
 	      }
 	      else {
-	        response = new ResponseEntity<EmpresaDTO>(dto,
-	                                                  HttpStatus.ACCEPTED);
+	        response = new ResponseEntity<EmpresaDTO>(dto,HttpStatus.ACCEPTED);
 	      }
 	    }
+	    catch (FailledValidationException ex) {  //BadRequestException ex
+	    	
+	    	throw ex;
+	    }
 	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                            HttpStatus.INTERNAL_SERVER_ERROR);
+	    	logger.error(ex.getMessage(), ex);
+		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	    finally {
 	      logger.info(Constants.Logger.Method.Finalize);
@@ -226,5 +230,4 @@ public class EmpresaController {
 //	    return response;
 //	  }
 
-	
 }

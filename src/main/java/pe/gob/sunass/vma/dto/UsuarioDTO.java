@@ -37,8 +37,6 @@ public class UsuarioDTO implements Serializable {
 	
 	private String correo;
 	
-	private String eps;
-	
 	private EmpresaDTO empresa;
 	
 	private String telefono;
@@ -169,12 +167,6 @@ public class UsuarioDTO implements Serializable {
 		this.estado = estado;
 	}
 
-	public String getEps() {
-		return eps;
-	}
-
-	public void setEps(String eps) {
-		this.eps = eps;
-	}
+	
 
 }

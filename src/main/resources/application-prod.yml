@@ -27,6 +27,11 @@ spring:
   output:
     ansi:
       enabled: DETECT
+  
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 
 myapp:
   datasource:
@@ -42,7 +47,7 @@ cors:
         
 security:
   jwt:
-    expiration-minutes: 30
+    expiration-minutes: 60
 
 ldap:
   cn: OU=Usuarios,DC=sunass,DC=gob,DC=pe

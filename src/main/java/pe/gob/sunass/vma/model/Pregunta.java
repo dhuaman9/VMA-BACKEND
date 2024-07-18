@@ -51,6 +51,10 @@ public class Pregunta  implements Serializable{
 	@Column(name="id_usuario_actualizacion", nullable=true)
 	private Integer idUsuarioActualizacion;
 
+	@OneToOne
+	@JoinColumn(name = "pregunta_dependiente_id")
+	private Pregunta preguntaDependiente;
+
 	public Integer getIdPregunta() {
 		return idPregunta;
 	}
@@ -137,5 +141,13 @@ public class Pregunta  implements Serializable{
 
 	public void setAlternativas(List<Alternativa> alternativas) {
 		this.alternativas = alternativas;
+	}
+
+	public Pregunta getPreguntaDependiente() {
+		return preguntaDependiente;
+	}
+
+	public void setPreguntaDependiente(Pregunta preguntaDependiente) {
+		this.preguntaDependiente = preguntaDependiente;
 	}
 }
