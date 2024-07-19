@@ -127,8 +127,8 @@ public class AlfrescoService {
 	    }
 	    
 	    //descarga de ficheros
-	    public ResponseEntity<byte[]> downloadFile(String nodeId) {
-	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
+	    public ResponseEntity<byte[]> downloadFile(ArchivoDTO archivoDTO) {
+	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + archivoDTO.getIdAlfresco() + "/content";
 
 	        HttpHeaders headers = new HttpHeaders();
 	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
@@ -138,15 +138,38 @@ public class AlfrescoService {
 	        try {
 	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
 
+	            // Obtener el tipo de contenido del archivo desde la respuesta
+	            String contentType = response.getHeaders().getContentType().toString();
+	            String filename = archivoDTO.getNombreArchivo(); // ArchivoDTO tiene un campo fileName
+
+	            // Establecer el tipo de contenido MIME adecuado y el nombre del archivo
+	            MediaType mediaType = getMediaType(contentType, filename);
+
 	            HttpHeaders responseHeaders = new HttpHeaders();
-	            responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-	            responseHeaders.setContentDisposition(ContentDisposition.attachment().filename("archivo.pdf").build());
+	            responseHeaders.setContentType(mediaType);
+	            responseHeaders.setContentDisposition(ContentDisposition.attachment().filename(filename).build());
 
 	            return new ResponseEntity<>(response.getBody(), responseHeaders, HttpStatus.OK);
 	        } catch (Exception e) {
-	            // Log the error or handle it as needed
+	            // Registra el error o maneja la excepción según sea necesario
+	            e.printStackTrace();
 	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
+	    }
+
+	    private MediaType getMediaType(String contentType, String filename) {
+	        if (contentType != null) {
+	            if (contentType.contains("pdf")) {
+	                return MediaType.APPLICATION_PDF;
+	            } else if (contentType.contains("word") || filename.endsWith(".doc") || filename.endsWith(".docx")) {
+	                return MediaType.APPLICATION_OCTET_STREAM; // Word es generalmente octet-stream
+	            } else if (contentType.contains("excel") || filename.endsWith(".xls") || filename.endsWith(".xlsx")) {
+	                return MediaType.APPLICATION_OCTET_STREAM; // Excel es generalmente octet-stream
+	            }
+	        }
+
+	        // Retorno predeterminado si no se puede determinar el tipo de contenido
+	        return MediaType.APPLICATION_OCTET_STREAM;
 	    }
 	    
 	    

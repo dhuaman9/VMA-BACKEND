@@ -25,10 +25,10 @@ import pe.gob.sunass.vma.service.AlfrescoService;
 
 @RestController
 @RequestMapping("/api/files")
-public class FileUploadController {
+public class ArchivosController {
 
 	
-	 private static Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+	 private static Logger logger = LoggerFactory.getLogger(ArchivosController.class);
 	 
 		@Autowired
 	    private AlfrescoService alfrescoService;
@@ -116,10 +116,11 @@ public class FileUploadController {
 				 }
 		    }*/
 	   
+	//descarga de ficheros
 	
-	 @GetMapping("/{nodeId}/download")
+	 /*@GetMapping("/{nodeId}/download")
 	    public ResponseEntity<byte[]> downloadFile(@PathVariable String nodeId) {
 	        return alfrescoService.downloadFile(nodeId);
-	    }
+	    }*/
 	    
 }
