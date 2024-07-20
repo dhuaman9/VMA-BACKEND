@@ -28,12 +28,27 @@ public class GlobalExceptionHandler {
     //se utiliza para el front
     @ExceptionHandler(FailledValidationException.class)
     public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
-    	logger.info("Error controlado : FailledValidationException"+ ex.getMessage());
+    	logger.info("BAD REQUEST : FailledValidationException"+ ex.getMessage());
     	 ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
 	     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
       
     }
     
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceException(ResourceNotFoundException ex) {
+    	logger.info("BAD REQUEST : ResourceNotFoundException"+ ex.getMessage());
+    	 ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
+	     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); //falta cambiar el tipo de status
+      
+    }
+    
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflictException(ConflictException ex) {
+    	logger.info("BAD REQUEST : ResourceNotFoundException"+ ex.getMessage());
+    	 ErrorResponse errorResponse = new ErrorResponse("CONFLICT", ex.getMessage());
+	     return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+      
+    }
     
     
 	@ExceptionHandler(LocalNotFoundException.class)

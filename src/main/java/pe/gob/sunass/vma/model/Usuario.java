@@ -56,7 +56,6 @@ public class Usuario implements UserDetails{
 	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
 	private Empresa empresa;
 
-	
 	@Column(name="unidad_organica")
 	private String unidadOrganica;
 	
@@ -80,8 +79,6 @@ public class Usuario implements UserDetails{
 	@Column(name="updated_at", nullable=true)
 	private Date updatedAt;
 
-	
-	
 	public Integer getId() {
 		return id;
 	}

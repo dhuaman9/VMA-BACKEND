@@ -25,7 +25,7 @@ public class Archivo  implements Serializable  {
 	 	@Id
 		@GeneratedValue(strategy=GenerationType.IDENTITY)
 	 	@Column(name="id_archivo")
-		private Integer idArchivo;
+		private Integer idArchivo;//idArchivo
 
 	    @Column(name="nombre_archivo", nullable=false)
 		private String nombreArchivo;

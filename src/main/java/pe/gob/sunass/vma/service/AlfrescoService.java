@@ -3,15 +3,18 @@ package pe.gob.sunass.vma.service;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,11 +22,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pe.gob.sunass.vma.configuration.AlfrescoProperties;
 import pe.gob.sunass.vma.dto.ArchivoDTO;
+import pe.gob.sunass.vma.exception.ConflictException;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Archivo;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
+
+import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AlfrescoService {
@@ -34,12 +42,19 @@ public class AlfrescoService {
 	@Autowired
     ArchivoRepository archivoRepository;
 	
-	 public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
-	        validateFile(file);
-//	        return processFile(file);
-	        return new ArchivoDTO();
-	    }
-
+	private final RestTemplate restTemplate;
+	
+	
+    public AlfrescoService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+	
+	public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
+        validateFile(file);
+        return processFile(file);
+    }
+	
+	 
 	    private void validateFile(MultipartFile file) {
 	        String fileType = file.getContentType();
 	        long fileSize = file.getSize();
@@ -114,4 +129,160 @@ public class AlfrescoService {
 	            throw new RuntimeException("Failed to upload file, status code: " + response.getStatusLine().getStatusCode());
 	        }
 	    }
+	    
+	   
+	    
+	    
+	    //descarga de ficheros
+	    public ResponseEntity<byte[]> downloadFile(String nodeId) {
+	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+
+	        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+	        try {
+	            // Realiza la solicitud GET para obtener el archivo
+	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+
+	            // Obtén el tipo de contenido desde los encabezados de la respuesta de Alfresco
+	            String contentType = response.getHeaders().getContentType().toString();
+
+	            // Determina el nombre del archivo basado en el tipo de contenido
+	            String fileName = determineFileName(contentType);
+
+	            // Configura los encabezados para la descarga del archivo
+	            HttpHeaders responseHeaders = new HttpHeaders();
+	            responseHeaders.setContentType(MediaType.parseMediaType(contentType));
+	            responseHeaders.setContentDispositionFormData("attachment", fileName);
+
+	            // Retorna el contenido del archivo y los encabezados configurados
+	            return new ResponseEntity<>(response.getBody(), responseHeaders, HttpStatus.OK);
+	        } catch (Exception e) {
+	            
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    }
+	    
+	    private String determineFileName(String contentType) {
+	        if (contentType.contains("pdf")) {
+	            return "archivo.pdf";
+	        } else if (contentType.contains("msword")) {
+	            return "archivo.docx";
+	        } else if (contentType.contains("excel")) {
+	            return "archivo.xlsx";
+	        } else if (contentType.contains("plain")) {
+	            return "archivo.txt";
+	        } else {
+	            return "archivo.descargado";
+	        }
+	    }
+	    
+	    
+	    //borrar archivo
+	    public ResponseEntity<Void> deleteFile(String nodeId) {
+	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId;
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+
+	        try {
+	            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+	            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	        } catch (Exception e) {
+	            // Log the error or handle it as needed
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    }
+	    
+	    //process file 2, para actualizar
+	   
+	    @Transactional
+	    public ArchivoDTO updateFile(Integer id, MultipartFile file) throws IOException {
+	        validateFile(file);
+
+	        Optional<Archivo> archivoOptional = archivoRepository.findByIdArchivo(id);
+	        if (!archivoOptional.isPresent()) {
+	            throw new ConflictException("Archivo con ID " + id + " no encontrado.");
+	        }
+
+	        Archivo archivo = archivoOptional.get();
+
+	        // Check if a file with the same name already exists (optional business rule)
+	        if (archivoRepository.existsByNombreArchivoAndIdArchivoNot(file.getOriginalFilename(), id)) {
+	            throw new ConflictException("El archivo ya existe.");
+	        }
+
+	        // borrando el archivo anteriro del  Alfresco
+	        if (archivo.getIdAlfresco() != null) {
+	            deleteFileFromAlfresco(archivo.getIdAlfresco());
+	        }
+	        
+	        // subiendo file al Alfresco
+	        String alfrescoFileId = uploadFileToAlfresco(file);
+
+	        // Update los datos en la tabla
+	        archivo.setNombreArchivo(file.getOriginalFilename());
+	        archivo.setIdAlfresco(alfrescoFileId);
+	        archivo.setUpdatedAt(new Date());
+
+	        archivo = archivoRepository.save(archivo);
+
+	        ArchivoDTO archivoDTO = new ArchivoDTO();
+	        archivoDTO.setIdArchivo(archivo.getIdArchivo());
+	        archivoDTO.setNombreArchivo(archivo.getNombreArchivo());
+	        archivoDTO.setIdAlfresco(archivo.getIdAlfresco());
+
+	        return archivoDTO;
+	    }
+
+	    private String uploadFileToAlfresco(MultipartFile file) throws IOException {
+	        String uploadUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
+	                + alfrescoProperties.getSpaceStore() + "/children";
+	        CloseableHttpClient client = HttpClients.createDefault();
+	        HttpPost post = new HttpPost(uploadUrl);
+
+	        post.addHeader("Authorization", "Basic " + Base64.getEncoder()
+	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
+	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+	        builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY, file.getOriginalFilename());
+	        builder.addTextBody("name", file.getOriginalFilename(), ContentType.TEXT_PLAIN);
+	        builder.addTextBody("relativePath", alfrescoProperties.getCarpeta(), ContentType.TEXT_PLAIN);
+
+	        post.setEntity(builder.build());
+
+	        HttpResponse response = client.execute(post);
+	        String responseString = EntityUtils.toString(response.getEntity());
+	        client.close();
+
+	        if (response.getStatusLine().getStatusCode() == 201) {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            JsonNode responseJson = objectMapper.readTree(responseString);
+	            return responseJson.get("entry").get("id").asText();
+	        } else if (response.getStatusLine().getStatusCode() == 409) {
+	            throw new ConflictException("Conflict occurred while updating file in Alfresco.");
+	        } else {
+	            throw new RuntimeException("Failed to upload file to Alfresco, status code: " + response.getStatusLine().getStatusCode());
+	        }
+	    }
+	    
+	    private void deleteFileFromAlfresco(String alfrescoFileId) throws IOException {
+	        String deleteUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + alfrescoFileId;
+
+	        CloseableHttpClient client = HttpClients.createDefault();
+	        HttpDelete delete = new HttpDelete(deleteUrl);
+
+	        delete.addHeader("Authorization", "Basic " + Base64.getEncoder()
+	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
+
+	        HttpResponse response = client.execute(delete);
+	        client.close();
+
+	        if (response.getStatusLine().getStatusCode() != 204) {
+	            throw new RuntimeException("Failed to delete file from Alfresco, status code: " + response.getStatusLine().getStatusCode());
+	        }
+	    }
+	    
+	    
 }
