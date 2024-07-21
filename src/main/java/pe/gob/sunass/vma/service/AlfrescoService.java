@@ -28,7 +28,10 @@ import pe.gob.sunass.vma.model.Archivo;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,10 +133,8 @@ public class AlfrescoService {
 	        }
 	    }
 	    
-	   
-	    
-	    
-	    //descarga de ficheros
+	   //descarga
+
 	    public ResponseEntity<byte[]> downloadFile(String nodeId) {
 	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
 
@@ -146,39 +147,52 @@ public class AlfrescoService {
 	            // Realiza la solicitud GET para obtener el archivo
 	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
 
-	            // Obtén el tipo de contenido desde los encabezados de la respuesta de Alfresco
-	            String contentType = response.getHeaders().getContentType().toString();
+	            // Obtener el encabezado Content-Disposition desde la respuesta de Alfresco
+	            List<String> contentDispositionList = response.getHeaders().get("Content-Disposition");
+	            String fileName = "archivo.descargado"; // Valor por defecto
 
-	            // Determina el nombre del archivo basado en el tipo de contenido
-	            String fileName = determineFileName(contentType);
+	            if (contentDispositionList != null && !contentDispositionList.isEmpty()) {
+	                String contentDisposition = contentDispositionList.get(0);
+	                Pattern pattern = Pattern.compile("filename=\"?([^\";]*)\"?");
+	                Matcher matcher = pattern.matcher(contentDisposition);
+	                if (matcher.find()) {
+	                    fileName = matcher.group(1);
+	                }
+	            } else {
+	                // Usa el tipo de contenido para determinar la extensión si no se proporciona un nombre
+	                String contentType = response.getHeaders().getContentType().toString();
+	                fileName = determineFileName(contentType);
+	            }
 
 	            // Configura los encabezados para la descarga del archivo
 	            HttpHeaders responseHeaders = new HttpHeaders();
-	            responseHeaders.setContentType(MediaType.parseMediaType(contentType));
-	            responseHeaders.setContentDispositionFormData("attachment", fileName);
-
+	            responseHeaders.setContentType(response.getHeaders().getContentType());
+	            responseHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+	            responseHeaders.set("X-Filename", fileName);
 	            // Retorna el contenido del archivo y los encabezados configurados
-	            return new ResponseEntity<>(response.getBody(), responseHeaders, HttpStatus.OK);
+	            return new ResponseEntity<>(response.getBody(), responseHeaders, response.getStatusCode());
 	        } catch (Exception e) {
-	            
 	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
 	    }
-	    
+
 	    private String determineFileName(String contentType) {
-	        if (contentType.contains("pdf")) {
-	            return "archivo.pdf";
-	        } else if (contentType.contains("msword")) {
-	            return "archivo.docx";
-	        } else if (contentType.contains("excel")) {
-	            return "archivo.xlsx";
-	        } else if (contentType.contains("plain")) {
-	            return "archivo.txt";
-	        } else {
-	            return "archivo.descargado";
+	        switch (contentType) {
+	            case "application/pdf":
+	                return "documento.pdf";
+	            case "application/msword":
+	                return "documento.doc";
+	            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+	                return "documento.docx";
+	            case "application/vnd.ms-excel":
+	                return "documento.xls";
+	            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+	                return "documento.xlsx";
+	            // Agrega más casos según sea necesario
+	            default:
+	                return "archivo.bin"; // Valor por defecto si no se reconoce el tipo
 	        }
 	    }
-	    
 	    
 	    //borrar archivo
 	    public ResponseEntity<Void> deleteFile(String nodeId) {

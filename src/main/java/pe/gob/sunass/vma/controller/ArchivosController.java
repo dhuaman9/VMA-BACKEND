@@ -89,14 +89,14 @@ public class ArchivosController {
 //  
 	 @GetMapping("/{nodeId}/download")
 	  public ResponseEntity<byte[]> downloadFile(@PathVariable String nodeId) {
-		 String textContent = "Hello, this is a sample text file!";
-		 byte[] content = textContent.getBytes();
-
-		 HttpHeaders headers = new HttpHeaders();
-		 headers.set(HttpHeaders.CONTENT_TYPE, "text/plain");
-		 headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.txt\"");
-//	        return alfrescoService.downloadFile(nodeId);
-		 return new ResponseEntity<>(content, headers, HttpStatus.OK);
+//		 String textContent = "Hello, this is a sample text file!";
+//		 byte[] content = textContent.getBytes();
+//
+//		 HttpHeaders headers = new HttpHeaders();
+//		 headers.set(HttpHeaders.CONTENT_TYPE, "text/plain");
+//		 headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.txt\"");
+	        return alfrescoService.downloadFile(nodeId);
+		// return new ResponseEntity<>(content, headers, HttpStatus.OK);
 	  }
 	 
 	  
