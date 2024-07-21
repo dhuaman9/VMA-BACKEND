@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -88,7 +89,7 @@ public class ArchivosController {
 //    }
 //  
 	 @GetMapping("/{nodeId}/download")
-	  public ResponseEntity<byte[]> downloadFile(@PathVariable String nodeId) {
+	  public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
 //		 String textContent = "Hello, this is a sample text file!";
 //		 byte[] content = textContent.getBytes();
 //

@@ -29,6 +29,7 @@ import pe.gob.sunass.vma.repository.ArchivoRepository;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -135,7 +136,7 @@ public class AlfrescoService {
 	    
 	   //descarga
 
-	    public ResponseEntity<byte[]> downloadFile(String nodeId) {
+	    public ResponseEntity<Map<String, String>> downloadFile(String nodeId) {
 	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
 
 	        HttpHeaders headers = new HttpHeaders();
@@ -144,12 +145,12 @@ public class AlfrescoService {
 	        HttpEntity<String> entity = new HttpEntity<>(headers);
 
 	        try {
-	            // Realiza la solicitud GET para obtener el archivo
+	            // Make the GET request to retrieve the file
 	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
 
-	            // Obtener el encabezado Content-Disposition desde la respuesta de Alfresco
+	            // Extract Content-Disposition header to get the filename
 	            List<String> contentDispositionList = response.getHeaders().get("Content-Disposition");
-	            String fileName = "archivo.descargado"; // Valor por defecto
+	            String fileName = "archivo.descargado"; // Default value
 
 	            if (contentDispositionList != null && !contentDispositionList.isEmpty()) {
 	                String contentDisposition = contentDispositionList.get(0);
@@ -159,23 +160,32 @@ public class AlfrescoService {
 	                    fileName = matcher.group(1);
 	                }
 	            } else {
-	                // Usa el tipo de contenido para determinar la extensión si no se proporciona un nombre
+	                // Determine the filename based on content type if not provided
 	                String contentType = response.getHeaders().getContentType().toString();
 	                fileName = determineFileName(contentType);
 	            }
 
-	            // Configura los encabezados para la descarga del archivo
+	            // Encode the file content in Base64
+	            String encodedContent = Base64.getEncoder().encodeToString(response.getBody());
+
+	            // Create a response body with filename and content
+	            Map<String, String> responseBody = Map.of(
+	                "filename", fileName,
+	                "content", encodedContent
+	            );
+
+	            // Set headers
 	            HttpHeaders responseHeaders = new HttpHeaders();
-	            responseHeaders.setContentType(response.getHeaders().getContentType());
-	            responseHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-	            responseHeaders.set("X-Filename", fileName);
-	            // Retorna el contenido del archivo y los encabezados configurados
-	            return new ResponseEntity<>(response.getBody(), responseHeaders, response.getStatusCode());
+	            responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+	            // Return response entity
+	            return new ResponseEntity<>(responseBody, responseHeaders, HttpStatus.OK);
 	        } catch (Exception e) {
 	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
+	        
 	    }
-
+	    
 	    private String determineFileName(String contentType) {
 	        switch (contentType) {
 	            case "application/pdf":
