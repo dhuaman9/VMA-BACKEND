@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma.service;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,20 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
-import pe.gob.sunass.vma.dto.RegistroVMADTO;
-import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
-import pe.gob.sunass.vma.dto.RegistroVMARequest;
-import pe.gob.sunass.vma.dto.RespuestaDTO;
-import pe.gob.sunass.vma.model.Empresa;
-import pe.gob.sunass.vma.model.RegistroVMA;
-import pe.gob.sunass.vma.model.RespuestaVMA;
-import pe.gob.sunass.vma.model.Usuario;
-import pe.gob.sunass.vma.repository.FichaRepository;
-import pe.gob.sunass.vma.repository.RegistroVMARepository;
-import pe.gob.sunass.vma.repository.RegistroVMARepositoryCustom;
-import pe.gob.sunass.vma.repository.RespuestaVMARepository;
-import pe.gob.sunass.vma.repository.UsuarioRepository;
+import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.model.*;
+import pe.gob.sunass.vma.repository.*;
 
 @Service
 public class RegistroVMAService {
@@ -52,6 +44,12 @@ public class RegistroVMAService {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	@Autowired
+	private AlfrescoService alfrescoService;
+
+	@Autowired
+	private ArchivoRepository archivoRepository;
 	 
 	 
 	 @Autowired
@@ -85,13 +83,14 @@ public class RegistroVMAService {
 	  }
 
 	  @Transactional
-	  public void saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
+	  public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
 		  RegistroVMA registroVMA;
 		 if(idRegistroVMA != null) {
 			 registroVMA  = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			 registroVMA.setUpdatedAt(new Date());
 			 registroVMA.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
 			 saveRespuestas(registroRequest.getRespuestas(), registroVMA);
+			 return registroVMA.getIdRegistroVma();
 		 } else {
 			 Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 			 RegistroVMA nuevoRegistro = new RegistroVMA();
@@ -104,7 +103,32 @@ public class RegistroVMAService {
 			 nuevoRegistro.setCreatedAt(new Date());
 			 RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			 saveRespuestas(registroRequest.getRespuestas(), registroDB);
+			 return registroDB.getIdRegistroVma();
 		 }
+	  }
+
+	  @Transactional
+	  public void saveRespuestaVMAArchivo(MultipartFile file, Integer registroVMAId, Integer preguntaId, Integer respuestaId) throws IOException {
+
+
+		 ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
+
+		 if(Objects.nonNull(respuestaId)) {
+
+			 Optional<RespuestaVMA> respuestaOpt = respuestaVMARepository.findById(respuestaId);
+             respuestaOpt.ifPresent(respuestaVMA -> {
+				 Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
+				 if(Objects.nonNull(archivoByIdAlfresco)) {
+					 archivoRepository.deleteById(archivoByIdAlfresco.getIdArchivo());
+				 }
+
+				 alfrescoService.deleteFile(respuestaVMA.getRespuesta());
+			 });
+		 }
+
+		  RegistroVMA registroVMA = new RegistroVMA();
+		  registroVMA.setIdRegistroVma(registroVMAId);
+		  respuestaVMARepository.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));
 	  }
 
 	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year, String username) {

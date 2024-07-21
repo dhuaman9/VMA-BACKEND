@@ -6,13 +6,15 @@ import java.util.List;
 
 public class MetadatoArchivoDto {
     private Integer id;
+    private boolean requerido;
     private List<TipoArchivo> tipoArchivosPermitidos;
     private Long maxSizeInMB;
 
-    public MetadatoArchivoDto(Integer id, List<TipoArchivo> tipoArchivosPermitidos, Long maxSizeInMB) {
-        this.id = id;
+    public MetadatoArchivoDto(List<TipoArchivo> tipoArchivosPermitidos, Long maxSizeInMB, boolean requerido, Integer id) {
         this.tipoArchivosPermitidos = tipoArchivosPermitidos;
         this.maxSizeInMB = maxSizeInMB;
+        this.requerido = requerido;
+        this.id = id;
     }
 
     public MetadatoArchivoDto() {
@@ -40,5 +42,13 @@ public class MetadatoArchivoDto {
 
     public void setMaxSizeInMB(Long maxSizeInMB) {
         this.maxSizeInMB = maxSizeInMB;
+    }
+
+    public boolean isRequerido() {
+        return requerido;
+    }
+
+    public void setRequerido(boolean requerido) {
+        this.requerido = requerido;
     }
 }

@@ -17,10 +17,12 @@ public class MetadatoArchivo {
     @Column(name = "tipos_archivos_permitidos")
     @Type(type = "pe.gob.sunass.vma.model.EnumArrayFileType")
     @Enumerated(EnumType.STRING)
-    private List<TipoArchivo> tipoArchivosPermitodos;
+    private List<TipoArchivo> tipoArchivosPermitidos;
 
     @Column(name = "max_size_in_mb")
     private Long maxSizeInMB;
+
+    private boolean requerido;
 
     public Integer getId() {
         return id;
@@ -30,12 +32,12 @@ public class MetadatoArchivo {
         this.id = id;
     }
 
-    public List<TipoArchivo> getTipoArchivosPermitodos() {
-        return tipoArchivosPermitodos;
+    public List<TipoArchivo> getTipoArchivosPermitidos() {
+        return tipoArchivosPermitidos;
     }
 
-    public void setTipoArchivosPermitodos(List<TipoArchivo> tipoArchivosPermitodos) {
-        this.tipoArchivosPermitodos = tipoArchivosPermitodos;
+    public void setTipoArchivosPermitidos(List<TipoArchivo> tipoArchivosPermitidos) {
+        this.tipoArchivosPermitidos = tipoArchivosPermitidos;
     }
 
     public Long getMaxSizeInMB() {
@@ -44,5 +46,13 @@ public class MetadatoArchivo {
 
     public void setMaxSizeInMB(Long maxSizeInMB) {
         this.maxSizeInMB = maxSizeInMB;
+    }
+
+    public boolean isRequerido() {
+        return requerido;
+    }
+
+    public void setRequerido(boolean requerido) {
+        this.requerido = requerido;
     }
 }

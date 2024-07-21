@@ -141,6 +141,6 @@ public class CuestionarioService {
     }
 
     private MetadatoArchivoDto mapToMetadatoArchivoDTO(MetadatoArchivo metadatoArchivo) {
-        return new MetadatoArchivoDto(metadatoArchivo.getId(), metadatoArchivo.getTipoArchivosPermitodos(), metadatoArchivo.getMaxSizeInMB());
+        return new MetadatoArchivoDto(metadatoArchivo.getTipoArchivosPermitidos(), metadatoArchivo.getMaxSizeInMB(), metadatoArchivo.isRequerido(), metadatoArchivo.getId());
     }
 }

@@ -210,6 +210,7 @@ public class AlfrescoService {
 	        Archivo archivo = archivoOptional.get();
 
 	        // Check if a file with the same name already exists (optional business rule)
+			//AGREGAR AL GUARDAR EL ARCHIVO CON LOS MILISECONDS ACTUALES
 	        if (archivoRepository.existsByNombreArchivoAndIdArchivoNot(file.getOriginalFilename(), id)) {
 	            throw new ConflictException("El archivo ya existe.");
 	        }

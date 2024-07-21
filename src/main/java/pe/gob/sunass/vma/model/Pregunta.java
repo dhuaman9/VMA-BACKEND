@@ -30,7 +30,7 @@ public class Pregunta  implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private TipoPregunta tipoPregunta;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name = "id_metadata", nullable = true)
 	private MetadatoArchivo metadatoArchivo;
 

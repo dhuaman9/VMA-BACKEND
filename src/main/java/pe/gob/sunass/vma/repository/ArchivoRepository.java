@@ -26,6 +26,6 @@ public interface ArchivoRepository extends CrudRepository<Archivo, Integer> {
 
 	boolean existsByNombreArchivoAndIdArchivoNot(String nombreArchivo, Integer idArchivo);
 
-	
+	Archivo findArchivoByIdAlfresco(String idAlfresco);
 	
 }

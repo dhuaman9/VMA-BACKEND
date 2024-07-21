@@ -1,11 +1,8 @@
 package pe.gob.sunass.vma.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import pe.gob.sunass.vma.dto.ArchivoDTO;
-import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.ConflictException;
 import pe.gob.sunass.vma.exception.FailledValidationException;
-import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.service.AlfrescoService;
+import pe.gob.sunass.vma.service.RegistroVMAService;
 
 @RestController
 @RequestMapping("/archivo")
@@ -37,27 +33,20 @@ public class ArchivosController {
 	 
 	@Autowired
 	private AlfrescoService alfrescoService;
+
+	@Autowired
+	private RegistroVMAService registroVMAService;
 		
 	  
 
 	@PostMapping("/upload")
-	public ResponseEntity<List<ArchivoDTO>> uploadFiles(@RequestParam(value = "pdf", required = false) MultipartFile pdf,
-											@RequestParam(value = "pdfWord", required = false) MultipartFile pdfWord,
-											@RequestParam(value = "excel", required = false) MultipartFile excel) {
+	public ResponseEntity<?> uploadFiles(@RequestParam(value = "file") MultipartFile file,
+										@RequestParam(value = "registroVMAId") Integer registroVMAId,
+										@RequestParam(value = "preguntaId") Integer preguntaId,
+										 @RequestParam(value = "respuestaId", required = false) Integer respuestaId) {
 		try {
-			List<ArchivoDTO> archivosDTO = new ArrayList<>();
-			if(Objects.nonNull(pdf)) {
-				archivosDTO.add(alfrescoService.uploadFile(pdf));
-			}
-
-			if(Objects.nonNull(pdfWord)) {
-				archivosDTO.add(alfrescoService.uploadFile(pdfWord));
-			}
-			if(Objects.nonNull(excel)) {
-				archivosDTO.add(alfrescoService.uploadFile(excel));
-			}
-
-			return new ResponseEntity<>(archivosDTO, HttpStatus.OK);
+			registroVMAService.saveRespuestaVMAArchivo(file, registroVMAId, preguntaId, respuestaId);
+			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (FailledValidationException ex) {  //BadRequestException ex
 
@@ -100,7 +89,14 @@ public class ArchivosController {
 //  
 	 @GetMapping("/{nodeId}/download")
 	  public ResponseEntity<byte[]> downloadFile(@PathVariable String nodeId) {
-	        return alfrescoService.downloadFile(nodeId);
+		 String textContent = "Hello, this is a sample text file!";
+		 byte[] content = textContent.getBytes();
+
+		 HttpHeaders headers = new HttpHeaders();
+		 headers.set(HttpHeaders.CONTENT_TYPE, "text/plain");
+		 headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.txt\"");
+//	        return alfrescoService.downloadFile(nodeId);
+		 return new ResponseEntity<>(content, headers, HttpStatus.OK);
 	  }
 	 
 	  

@@ -39,15 +39,15 @@ public class RegistroVMAController {
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@RequestBody RegistroVMARequest request,
 			@RequestHeader("Authorization") String token) {
-		registroVMAService.saveRegistroVMA(null, request, getUsername(token));
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		Integer registroVMAId = registroVMAService.saveRegistroVMA(null, request, getUsername(token));
+		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}
 
 	@PutMapping(path = "/{idRegistroVMA}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@PathVariable Integer idRegistroVMA,
 			@RequestBody RegistroVMARequest request) {
-		registroVMAService.saveRegistroVMA(idRegistroVMA, request, null);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		Integer registroVMAId = registroVMAService.saveRegistroVMA(idRegistroVMA, request, null);
+		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}
 
 	@GetMapping(path = "/activo", produces = MediaType.APPLICATION_JSON_VALUE)
