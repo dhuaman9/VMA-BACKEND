@@ -37,6 +37,7 @@ public class HttpSecurityConfig {
 						.antMatchers("/", "/home/index", "/swagger/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger.json/**").permitAll()
 						.antMatchers(HttpMethod.POST, "/auth/**").permitAll()
 						.antMatchers("/auth/admin-access").hasAuthority("Administrador OTI")
+						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DAP", "CONSULTOR")
 						/*.antMatchers("/usuario/**","/empresa/**","/ficharegistro/**","/registrovma/**","/reportesvma/**").hasAuthority("ADMIN") //dhr
 						.antMatchers("/empresa/**","/ficharegistro/**","/registrovma/**","/reportesvma/**").hasAuthority("ADMIN2")
 						.antMatchers("/registrovma/**","/reportesvma/**").hasAuthority("REGISTRADOR")

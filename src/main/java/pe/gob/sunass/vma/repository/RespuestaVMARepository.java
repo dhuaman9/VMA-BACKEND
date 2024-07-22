@@ -21,4 +21,8 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = ?1 and r.registroVMA.empresa.tipo = ?2 AND YEAR(r.registroVMA.createdAt) = ?3")
 	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, int anio);
+
+	@Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END " +
+			"FROM RespuestaVMA r WHERE r.idPregunta = :idPregunta AND r.registroVMA.idRegistroVma = :idRegistroVMA")
+	boolean isRespuestaArchivoInformacionCompleto(Integer idPregunta, Integer idRegistroVMA);
 }

@@ -54,8 +54,13 @@ public class RegistroVMAService {
 	 
 	 @Autowired
 	 private RegistroVMARepositoryCustom registroVMARepositorycustom;
-	 
-	 @Transactional(Transactional.TxType.REQUIRES_NEW)
+
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
+	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
+
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
 		 Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		 List<RegistroVMA> listRegistroVMA = null;
@@ -129,6 +134,28 @@ public class RegistroVMAService {
 		  RegistroVMA registroVMA = new RegistroVMA();
 		  registroVMA.setIdRegistroVma(registroVMAId);
 		  respuestaVMARepository.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));
+	  }
+
+	  public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
+		  List<Empresa> empresasDB = empresaRepository.findAll();
+		  empresasDB.sort(Comparator.comparing(Empresa::getTipo));
+		  return empresasDB.stream().map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)).collect(Collectors.toList());
+	  }
+
+	  private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
+		  RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
+		  boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio) && registroVmaPorAnhio.getEstado().equals("COMPLETO");
+		  boolean remitioInforme = false;
+		  if(Objects.nonNull(registroVmaPorAnhio)) {
+			  remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(ID_PREGUNTA_REMITIO_INFORME, registroVmaPorAnhio.getIdRegistroVma());
+		  }
+
+		  return new AnexoRegistroVmaDTO(
+				  empresa.getNombre(),
+				  empresa.getTipo(),
+				  empresa.getRegimen().equals("RAT"),
+				  registroCompleto,
+				  registroCompleto && remitioInforme);
 	  }
 
 	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year, String username) {
