@@ -33,7 +33,9 @@ public class ReporteService {
         List<Empresa> empresas = empresaRepository.findAll();
 
         Map<String, List<Empresa>> empresasPorTipo =
-                empresas.stream().collect(Collectors.groupingBy(Empresa::getTipo));
+                empresas.stream().filter(empresa -> !"NINGUNO".equals(empresa.getTipo()))
+                .collect(Collectors.groupingBy(Empresa::getTipo));
+
         List<BarraDto> dataList = new ArrayList<>();
         empresasPorTipo.forEach((tipo, lista) -> {
             long cantidadRegistro = registroVMARepository.registrosPorTipoEmpresa(tipo, anio);
@@ -46,8 +48,11 @@ public class ReporteService {
     public List<BarraDto> reporteSiNo(int anio) {
         List<Empresa> empresas = empresaRepository.findAll();
         List<BarraDto> dataList = new ArrayList<>();
+        
         Map<String, List<Empresa>> empresasPorTipo =
-                empresas.stream().collect(Collectors.groupingBy(Empresa::getTipo));
+                empresas.stream().filter(empresa -> !"NINGUNO".equals(empresa.getTipo()))
+                .collect(Collectors.groupingBy(Empresa::getTipo));
+
 
         empresasPorTipo.forEach((tipo, lista) -> {
             List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(PREGUNTA_SI_NO_ID, tipo, anio);

@@ -138,8 +138,18 @@ public class RegistroVMAService {
 
 	  public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		  List<Empresa> empresasDB = empresaRepository.findAll();
-		  empresasDB.sort(Comparator.comparing(Empresa::getTipo));
-		  return empresasDB.stream().map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)).collect(Collectors.toList());
+		  
+		 // empresasDB.sort(Comparator.comparing(Empresa::getTipo)); 
+		 // return empresasDB.stream().map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)).collect(Collectors.toList());
+		  
+		  
+		// Filtrar empresas de tipo "NINGUNO", ordenar por tipo y mapear a DTO
+		    return empresasDB.stream()
+		        .filter(empresa -> !"NINGUNO".equals(empresa.getTipo())) // Filtrar empresas de tipo "NINGUNO"
+		        .sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo, si es necesario
+		        .map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
+		        .collect(Collectors.toList()); // Colectar en una lista
+		  
 	  }
 
 	  private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {

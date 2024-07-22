@@ -1,6 +1,8 @@
 package pe.gob.sunass.vma.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -99,7 +101,8 @@ public class AlfrescoService {
 	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
 	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 	        builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY, file.getOriginalFilename());
-	        builder.addTextBody("name", file.getOriginalFilename(), ContentType.TEXT_PLAIN);
+	        builder.addTextBody("name", getFilenameWithTimestamp(file.getOriginalFilename()), ContentType.TEXT_PLAIN);//  getFilenameWithTimestamp(originalFilename);
+	       //builder.addTextBody("name", file.getOriginalFilename(), ContentType.TEXT_PLAIN);
 	        builder.addTextBody("relativePath", alfrescoProperties.getCarpeta(), ContentType.TEXT_PLAIN);
 
 	        post.setEntity(builder.build());
@@ -114,7 +117,7 @@ public class AlfrescoService {
 	            String idAlfresco = responseJson.get("entry").get("id").asText();
 
 	            Archivo archivo = new Archivo();
-	            archivo.setNombreArchivo(file.getOriginalFilename());
+	            archivo.setNombreArchivo(getFilenameWithTimestamp(file.getOriginalFilename()));
 	            archivo.setIdAlfresco(idAlfresco);
 	            archivo.setCreatedAt(new Date());
 	            archivo.setUpdatedAt(null);
@@ -306,5 +309,26 @@ public class AlfrescoService {
 	        }
 	    }
 	    
+	    
+	    public String getFilenameWithTimestamp(String originalFilename) {
+	        // Obtener la fecha y hora actual
+	        LocalDateTime now = LocalDateTime.now();
+	        
+	        // Crear un formato para la fecha y hora
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+	        
+	        // Formatear la fecha y hora como cadena
+	        String timestamp = now.format(formatter);
+	        
+	        // Obtener la extensión del archivo
+	        String extension = "";
+	        int dotIndex = originalFilename.lastIndexOf('.');
+	        if (dotIndex != -1 && dotIndex < originalFilename.length() - 1) {
+	            extension = originalFilename.substring(dotIndex);
+	        }
+
+	        // Construir el nuevo nombre del archivo
+	        return originalFilename+"_" + timestamp + extension;
+	    }
 	    
 }
