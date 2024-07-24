@@ -1,17 +1,17 @@
 package pe.gob.sunass.vma.dto;
 
-public class BarraDto {
+public class RegistroEmpresaChartDto {
     private String tipo;
     private Integer cantidadRegistradoPorEmpresa;
     private Integer cantidadTotalRegistradoPorEmpresa;
 
-    public BarraDto(String tipo, Integer cantidadRegistradoPorEmpresa, Integer cantidadTotalRegistradoPorEmpresa) {
+    public RegistroEmpresaChartDto(String tipo, Integer cantidadRegistradoPorEmpresa, Integer cantidadTotalRegistradoPorEmpresa) {
         this.tipo = tipo;
         this.cantidadRegistradoPorEmpresa = cantidadRegistradoPorEmpresa;
         this.cantidadTotalRegistradoPorEmpresa = cantidadTotalRegistradoPorEmpresa;
     }
 
-    public BarraDto() {
+    public RegistroEmpresaChartDto() {
     }
 
     public String getTipo() {

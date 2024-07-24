@@ -53,9 +53,12 @@ public class AlfrescoService {
     }
 	
 	public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
-        validateFile(file);
-        return processFile(file);
-    }
+        //validateFile(file);
+        //return processFile(file);
+		ArchivoDTO archivoDTO = new ArchivoDTO();
+		archivoDTO.setIdAlfresco(UUID.randomUUID().toString());
+		return archivoDTO;
+	}
 	
 	 
 	    private void validateFile(MultipartFile file) {
