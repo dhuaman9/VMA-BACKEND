@@ -104,7 +104,7 @@ public class ReporteService {
     private RegistroPromedioTrabajadorVMAChartDto mapToRegistroPromedioTrrabajadorVMA(String tipo, List<Integer> idsRegistrosVma) {
         Integer sumaTrabajadoresDesdicadosRegistroVMA = respuestaVMARepository.getSumaTrabajadoresDesdicadosRegistroVMA(idsRegistrosVma, PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID);
         double promedio = (double) sumaTrabajadoresDesdicadosRegistroVMA / idsRegistrosVma.size();
-        return new RegistroPromedioTrabajadorVMAChartDto(tipo, promedio, idsRegistrosVma.size());
+        return new RegistroPromedioTrabajadorVMAChartDto(tipo, promedio, sumaTrabajadoresDesdicadosRegistroVMA, idsRegistrosVma.size());
     }
 
     private List<Integer> mapToIdsRegistrosVma(List<RegistroVMA> registrosVma) {
