@@ -4,9 +4,9 @@ import java.util.List;
 
 public class GraficoDto {
     private String titulo;
-    private List<BarraDto> datos;
+    private List<RegistroEmpresaChartDto> datos;
 
-    public GraficoDto(String titulo, List<BarraDto> datos) {
+    public GraficoDto(String titulo, List<RegistroEmpresaChartDto> datos) {
         this.titulo = titulo;
         this.datos = datos;
     }
@@ -22,11 +22,11 @@ public class GraficoDto {
         this.titulo = titulo;
     }
 
-    public List<BarraDto> getDatos() {
+    public List<RegistroEmpresaChartDto> getDatos() {
         return datos;
     }
 
-    public void setDatos(List<BarraDto> datos) {
+    public void setDatos(List<RegistroEmpresaChartDto> datos) {
         this.datos = datos;
     }
 }

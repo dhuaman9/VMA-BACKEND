@@ -55,7 +55,7 @@ public class AlfrescoService {
 	public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
         validateFile(file);
         return processFile(file);
-    }
+	}
 	
 	 
 	    private void validateFile(MultipartFile file) {
@@ -320,15 +320,19 @@ public class AlfrescoService {
 	        // Formatear la fecha y hora como cadena
 	        String timestamp = now.format(formatter);
 	        
-	        // Obtener la extensión del archivo
+	        // Obtener la extensión del archivo y obtener nombre del archivo sin la extensión
+	        String filenameWithoutExtension;
 	        String extension = "";
 	        int dotIndex = originalFilename.lastIndexOf('.');
 	        if (dotIndex != -1 && dotIndex < originalFilename.length() - 1) {
 	            extension = originalFilename.substring(dotIndex);
+	            filenameWithoutExtension = originalFilename.substring(0, dotIndex);
+	        }else {
+	            filenameWithoutExtension = originalFilename; // No hay extensión
 	        }
 
 	        // Construir el nuevo nombre del archivo
-	        return originalFilename+"_" + timestamp + extension;
+	        return filenameWithoutExtension+"_" + timestamp + extension;
 	    }
 	    
 }

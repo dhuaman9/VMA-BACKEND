@@ -215,6 +215,7 @@ public class RegistroVMAService {
 
 	public boolean isRegistroCompletado(String username) {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
+		logger.info("boo+leano registrovma- "+registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa()));
 		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
 	

@@ -16,12 +16,22 @@ public class ReporteController {
     private ReporteService reporteService;
 
     @GetMapping("/registros")
-    public ResponseEntity<?> generarReporteRegistro(@RequestParam("anio") int anio) {
+    public ResponseEntity<?> generarReporteRegistro(@RequestParam("anio") String anio) {
         return ResponseEntity.ok(reporteService.reporteBarraRegistros(anio));
     }
 
     @GetMapping("/respuesta-si-no")
-    public ResponseEntity<?> generarReporteRespuestaSiNo(@RequestParam("anio") int anio) {
+    public ResponseEntity<?> generarReporteRespuestaSiNo(@RequestParam("anio") String anio) {
         return ResponseEntity.ok(reporteService.reporteSiNo(anio));
+    }
+
+    @GetMapping("/trabajadores-dedicados-registro")
+    public ResponseEntity<?> generarReporteTrabajadoresDedicadosRegistro(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteNumeroPromedioDeTrabajadoresDedicadosVMA(anio));
+    }
+
+    @GetMapping("/numero-total-und")
+    public ResponseEntity<?> generarReporteNumeroTotalUND(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteNumeroTotalUND(anio));
     }
 }
