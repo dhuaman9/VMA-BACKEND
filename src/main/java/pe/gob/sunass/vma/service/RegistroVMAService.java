@@ -59,6 +59,8 @@ public class RegistroVMAService {
     private EmpresaRepository empresaRepository;
 
 	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
+	private final int PREGUNTA_SI_NO_ID = 1;
+	private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
@@ -150,6 +152,32 @@ public class RegistroVMAService {
 		        .map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
 		        .collect(Collectors.toList()); // Colectar en una lista
 		  
+	  }
+
+	  public List<AnexoRespuestaSiDTO> listaDeAnexosRegistroMarcaronSi(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoRespuestaSiDTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+			  RespuestaVMA respuesta = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_SI_NO_ID, registroVMA.getIdRegistroVma());
+			  RespuestaVMA respuestaNroTrabajadores = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID, registroVMA.getIdRegistroVma());
+
+			  anexos.add(new AnexoRespuestaSiDTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  respuesta.getRespuesta(),
+					  Integer.parseInt(respuestaNroTrabajadores.getRespuesta()))
+			  );
+		  });
+
+		  return anexos;
 	  }
 
 	  private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {

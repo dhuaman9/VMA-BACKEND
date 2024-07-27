@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma.controller;
 
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
 import pe.gob.sunass.vma.model.RegistroVMA;
 import pe.gob.sunass.vma.security.jwt.JWTProvider;
+import pe.gob.sunass.vma.service.GenerarExcelService;
 import pe.gob.sunass.vma.service.RegistroVMAService;
 
 @RestController
@@ -31,6 +34,9 @@ public class RegistroVMAController {
 
 	@Autowired
 	private JWTProvider jwtProvider;
+
+	@Autowired
+	private GenerarExcelService excelService;
 
 	public RegistroVMAController() {
 		super();
@@ -122,4 +128,20 @@ public class RegistroVMAController {
 	    return registroVMAService.filterRegistros(filterDTO);
 	 }
 
+	 @GetMapping("/descargar-excel")
+	 public ResponseEntity<byte[]> generarExcel(
+			 @RequestParam(required = false) Integer empresaId,
+			 @RequestParam(required = false) String estado,
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			 @RequestParam(required = false) String year,
+			 @RequestHeader("Authorization") String token) {
+		 ByteArrayInputStream byteArrayExcel = excelService
+				 .generarExcelActivos(empresaId, estado, startDate, endDate, year, getUsername(token));
+
+		 HttpHeaders headers = new HttpHeaders();
+		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+
+		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+	 }
 }

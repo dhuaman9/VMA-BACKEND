@@ -19,4 +19,9 @@ public class AnexoController {
     public ResponseEntity<?> getAnexos(@RequestParam(name = "anio") String anio) {
         return ResponseEntity.ok(registroVMAService.listaDeAnexosRegistrosVmaDTO(anio));
     }
+
+    @GetMapping("/respuestas-si")
+    public ResponseEntity<?> getRespuestasMarcaronSi(@RequestParam(name = "anio") String anio) {
+        return ResponseEntity.ok(registroVMAService.listaDeAnexosRegistroMarcaronSi(anio));
+    }
 }
