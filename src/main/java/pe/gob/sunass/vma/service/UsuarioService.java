@@ -130,14 +130,11 @@ public class UsuarioService   {
 //
 	    Optional<Role> optRole = this.roleRepository.findById(dto.getRole().getIdRole());
 	    
-	    /*if (!optRole.isPresent()) {  //para evitar esto, que el front muestre los roles de la bd
-//	      throw new FailledValidationException("[role.id] no se encuentra");
-	    }*/
-	    logger.info("id empresa - "+dto.getEmpresa().getIdEmpresa());
 	    
 	    Usuario usuario = new Usuario();
 	    
 	    if (dto.getTipo().equals("SUNASS")) {
+	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
 	    	
 	    	usuario.setTipo("SUNASS");  //dhr, por mejorar
 	    	usuario.setRole(optRole.get());
@@ -148,7 +145,7 @@ public class UsuarioService   {
 		
 	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); //dhr , se otiene del AD 
 	    	usuario.setCorreo(dto.getCorreo()); //dhr , se otiene del AD 
-	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+	    	
 			usuario.setEmpresa(optEmpresa1.get()); //debe ir un metodo con parametro  optEmpresa.get()
 			
 			//usuario.setEps("Sunass");
@@ -159,7 +156,7 @@ public class UsuarioService   {
 			
 		} else if(dto.getTipo().equals("EPS")) {
 			
-			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
+			 Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
 		    
 			 usuario.setTipo(dto.getTipo());
 			 usuario.setRole(optRole.get());
@@ -189,9 +186,6 @@ public class UsuarioService   {
 	    if (dto == null) {
 	      throw new FailledValidationException("Los datos son obligatorios");
 	    }
-//	    else if (dto.getId() == null) {
-//	      throw new FailledValidationException("[id] es obligatorio");
-//	    }
 
 	    Usuario  usuario = null;
 	    Optional<Usuario> optUser = this.usuarioRepository.findById(dto.getId());

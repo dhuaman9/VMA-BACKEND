@@ -2,19 +2,12 @@ package pe.gob.sunass.vma.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Date;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
-
-import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.model.RegistroVMA;
 
 @Repository
@@ -27,9 +20,12 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
 
-	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipo = :tipoEmpresa AND YEAR(r.createdAt) = :anio")
-	long registrosPorTipoEmpresa(String tipoEmpresa, int anio);
-	
+	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipo = :tipoEmpresa AND r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
+	long registrosPorTipoEmpresa(String tipoEmpresa, String anio);
+
+	@Query("FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa AND r.fichaRegistro.anio = :anio")
+	RegistroVMA findRegistroVmaPorAnhio(Integer idEmpresa, String anio);
+
 	public Optional<RegistroVMA> findById(Integer id);
 	
 	// ** query para obtener el listado de registros VMA, segun el usuario en sesion.
@@ -41,10 +37,23 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndEPS(@Param("nombre") String nombre);
 
 
-	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+	/*@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
 			"FROM RegistroVMA e " +
 			"WHERE e.empresa.idEmpresa = ?1")
-    boolean isRegistroCompletado(Integer idEmpresa);
+    boolean isRegistroCompletado(Integer idEmpresa);*/
+	
+	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+		       "FROM RegistroVMA e " +
+		       "INNER JOIN e.fichaRegistro fr " +
+		       "WHERE e.empresa.idEmpresa = :idEmpresa " +
+		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) " +
+		       "OR (CURRENT_DATE < fr.fechaInicio OR CURRENT_DATE > fr.fechaFin)")
+    boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
+
+	
+	
+	@Query("FROM RegistroVMA r WHERE r.estado = 'COMPLETO' AND r.fichaRegistro.anio = :anio")
+	List<RegistroVMA> findRegistrosCompletos(String anio);
 	
 	
 	// List<RegistroVMA> findByFilters(RegistroVMAFilterDTO filters);  //para filtros

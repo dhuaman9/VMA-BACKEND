@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma.service;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,20 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.multipart.MultipartFile;
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
-import pe.gob.sunass.vma.dto.RegistroVMADTO;
-import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
-import pe.gob.sunass.vma.dto.RegistroVMARequest;
-import pe.gob.sunass.vma.dto.RespuestaDTO;
-import pe.gob.sunass.vma.model.Empresa;
-import pe.gob.sunass.vma.model.RegistroVMA;
-import pe.gob.sunass.vma.model.RespuestaVMA;
-import pe.gob.sunass.vma.model.Usuario;
-import pe.gob.sunass.vma.repository.FichaRepository;
-import pe.gob.sunass.vma.repository.RegistroVMARepository;
-import pe.gob.sunass.vma.repository.RegistroVMARepositoryCustom;
-import pe.gob.sunass.vma.repository.RespuestaVMARepository;
-import pe.gob.sunass.vma.repository.UsuarioRepository;
+import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.model.*;
+import pe.gob.sunass.vma.repository.*;
 
 @Service
 public class RegistroVMAService {
@@ -52,12 +44,25 @@ public class RegistroVMAService {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+
+	@Autowired
+	private AlfrescoService alfrescoService;
+
+	@Autowired
+	private ArchivoRepository archivoRepository;
 	 
 	 
 	 @Autowired
 	 private RegistroVMARepositoryCustom registroVMARepositorycustom;
-	 
-	 @Transactional(Transactional.TxType.REQUIRES_NEW)
+
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
+	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
+	private final int PREGUNTA_SI_NO_ID = 1;
+	private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
+
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
 		 Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		 List<RegistroVMA> listRegistroVMA = null;
@@ -85,13 +90,14 @@ public class RegistroVMAService {
 	  }
 
 	  @Transactional
-	  public void saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
+	  public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
 		  RegistroVMA registroVMA;
 		 if(idRegistroVMA != null) {
 			 registroVMA  = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			 registroVMA.setUpdatedAt(new Date());
 			 registroVMA.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
 			 saveRespuestas(registroRequest.getRespuestas(), registroVMA);
+			 return registroVMA.getIdRegistroVma();
 		 } else {
 			 Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 			 RegistroVMA nuevoRegistro = new RegistroVMA();
@@ -104,7 +110,90 @@ public class RegistroVMAService {
 			 nuevoRegistro.setCreatedAt(new Date());
 			 RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			 saveRespuestas(registroRequest.getRespuestas(), registroDB);
+			 return registroDB.getIdRegistroVma();
 		 }
+	  }
+
+	  @Transactional
+	  public void saveRespuestaVMAArchivo(MultipartFile file, Integer registroVMAId, Integer preguntaId, Integer respuestaId) throws IOException {
+
+
+		 ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
+
+		 if(Objects.nonNull(respuestaId)) {
+
+			 Optional<RespuestaVMA> respuestaOpt = respuestaVMARepository.findById(respuestaId);
+             respuestaOpt.ifPresent(respuestaVMA -> {
+				 Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
+				 if(Objects.nonNull(archivoByIdAlfresco)) {
+					 archivoRepository.deleteById(archivoByIdAlfresco.getIdArchivo());
+				 }
+
+				 alfrescoService.deleteFile(respuestaVMA.getRespuesta());
+			 });
+		 }
+
+		  RegistroVMA registroVMA = new RegistroVMA();
+		  registroVMA.setIdRegistroVma(registroVMAId);
+		  respuestaVMARepository.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));
+	  }
+
+	  public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
+		  List<Empresa> empresasDB = empresaRepository.findAll();
+		  
+		 // empresasDB.sort(Comparator.comparing(Empresa::getTipo)); 
+		 // return empresasDB.stream().map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)).collect(Collectors.toList());
+		  
+		  
+		// Filtrar empresas de tipo "NINGUNO", ordenar por tipo y mapear a DTO
+		    return empresasDB.stream()
+		        .filter(empresa -> !"NINGUNO".equals(empresa.getTipo())) // Filtrar empresas de tipo "NINGUNO"
+		        .sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo, si es necesario
+		        .map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
+		        .collect(Collectors.toList()); // Colectar en una lista
+		  
+	  }
+
+	  public List<AnexoRespuestaSiDTO> listaDeAnexosRegistroMarcaronSi(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoRespuestaSiDTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+			  RespuestaVMA respuesta = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_SI_NO_ID, registroVMA.getIdRegistroVma());
+			  RespuestaVMA respuestaNroTrabajadores = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID, registroVMA.getIdRegistroVma());
+
+			  anexos.add(new AnexoRespuestaSiDTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  respuesta.getRespuesta(),
+					  Integer.parseInt(respuestaNroTrabajadores.getRespuesta()))
+			  );
+		  });
+
+		  return anexos;
+	  }
+
+	  private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
+		  RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
+		  boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio) && registroVmaPorAnhio.getEstado().equals("COMPLETO");
+		  boolean remitioInforme = false;
+		  if(Objects.nonNull(registroVmaPorAnhio)) {
+			  remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(ID_PREGUNTA_REMITIO_INFORME, registroVmaPorAnhio.getIdRegistroVma());
+		  }
+
+		  return new AnexoRegistroVmaDTO(
+				  empresa.getNombre(),
+				  empresa.getTipo(),
+				  empresa.getRegimen().equals("RAT"),
+				  registroCompleto,
+				  registroCompleto && remitioInforme);
 	  }
 
 	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year, String username) {
@@ -154,6 +243,7 @@ public class RegistroVMAService {
 
 	public boolean isRegistroCompletado(String username) {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
+		logger.info("boo+leano registrovma- "+registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa()));
 		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
 	

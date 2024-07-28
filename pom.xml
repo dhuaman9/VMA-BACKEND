@@ -178,6 +178,18 @@
 	        <groupId>org.apache.httpcomponents</groupId>
 	        <artifactId>httpmime</artifactId>
 	    </dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version> <!-- or the latest version -->
+		</dependency>
 	        
 	</dependencies>
 

@@ -121,7 +121,8 @@ public class CuestionarioService {
                         .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
                         .collect(Collectors.toList()),
                 respuestaDTO,
-                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma) : null
+                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma) : null,
+                Objects.nonNull(pregunta.getMetadatoArchivo()) ? mapToMetadatoArchivoDTO(pregunta.getMetadatoArchivo()) : null
                 );
     }
 
@@ -137,5 +138,9 @@ public class CuestionarioService {
         return new AlternativaDTO(alternativa.getIdAlternativa(),
                 alternativa.getNombreCampo(),
                 respuesta != null ? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta()) : null);
+    }
+
+    private MetadatoArchivoDto mapToMetadatoArchivoDTO(MetadatoArchivo metadatoArchivo) {
+        return new MetadatoArchivoDto(metadatoArchivo.getTipoArchivosPermitidos(), metadatoArchivo.getMaxSizeInMB(), metadatoArchivo.isRequerido(), metadatoArchivo.getId());
     }
 }
