@@ -1,17 +1,15 @@
 package pe.gob.sunass.vma.dto;
 
-import java.util.List;
-
-public class GraficoDto {
+public class BarChartBasicoDto {
     private String label;
-    private List<Double> datos;
+    private Double value;
 
-    public GraficoDto(String label, List<Double> datos) {
+    public BarChartBasicoDto(String label, Double value) {
         this.label = label;
-        this.datos = datos;
+        this.value = value;
     }
 
-    public GraficoDto() {
+    public BarChartBasicoDto() {
     }
 
     public String getLabel() {
@@ -22,11 +20,11 @@ public class GraficoDto {
         this.label = label;
     }
 
-    public List<Double> getDatos() {
-        return datos;
+    public Double getValue() {
+        return value;
     }
 
-    public void setDatos(List<Double> datos) {
-        this.datos = datos;
+    public void setValue(Double value) {
+        this.value = value;
     }
 }

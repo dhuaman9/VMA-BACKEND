@@ -34,4 +34,9 @@ public class ReporteController {
     public ResponseEntity<?> generarReporteNumeroTotalUND(@RequestParam("anio") String anio) {
         return ResponseEntity.ok(reporteService.reporteNumeroTotalUND(anio));
     }
+
+    @GetMapping("/diagrama-flujo-balance")
+    public ResponseEntity<?> generarReporteDiagramaFlujoYBalance(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteDiagramaFlujoYBalance(anio));
+    }
 }

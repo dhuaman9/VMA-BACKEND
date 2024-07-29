@@ -34,5 +34,5 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	Integer getSumaTrabajadoresDesdicadosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
 	@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_alternativa = :alternativaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
-	Integer getSumaTotalPorTipoEmpresaUNDIngresadas(List<Integer> registroVMAIds, Integer alternativaId);
+	Integer getSumaTotalRespuestaAlternativaPorRegistros(List<Integer> registroVMAIds, Integer alternativaId);
 }

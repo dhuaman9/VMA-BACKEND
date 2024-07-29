@@ -2,6 +2,7 @@ package pe.gob.sunass.vma.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.gob.sunass.vma.dto.BarChartBasicoDto;
 import pe.gob.sunass.vma.dto.PieChartBasicoDto;
 import pe.gob.sunass.vma.dto.RegistroEmpresaChartDto;
 import pe.gob.sunass.vma.dto.RegistroPromedioTrabajadorVMAChartDto;
@@ -33,6 +34,8 @@ public class ReporteService {
     private final int PREGUNTA_SI_NO_ID = 1;
     private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
     private final int ALTERNATIVA_PARCIAL_ID = 16;
+    private final int ALTERNATIVA_TOTAL_INSPECCIONADOS_ID = 22;
+    private final int ALTERNATIVA_PRESENTACION_DIAGRAMA_FLUJO_ID = 24;
 
 
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
@@ -89,16 +92,42 @@ public class ReporteService {
                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
 
         List<PieChartBasicoDto> listaNumeroTotalUND = new ArrayList<>();
-        Integer sumaTotalEmpresasUNDIngresadas = respuestaVMARepository.getSumaTotalPorTipoEmpresaUNDIngresadas(mapToIdsRegistrosVma(registrosCompletos), ALTERNATIVA_PARCIAL_ID);
+        Integer sumaTotalEmpresasUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(registrosCompletos), ALTERNATIVA_PARCIAL_ID);
 
         registrosPorTipo.forEach((tipo, lista) -> {
-            Integer sumaTotalPorTipoEmpresaUNDIngresadas = respuestaVMARepository.getSumaTotalPorTipoEmpresaUNDIngresadas(mapToIdsRegistrosVma(lista), ALTERNATIVA_PARCIAL_ID);
+            Integer sumaTotalPorTipoEmpresaUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_PARCIAL_ID);
             double porcentaje = ((double) sumaTotalPorTipoEmpresaUNDIngresadas / sumaTotalEmpresasUNDIngresadas) * 100;
             listaNumeroTotalUND.add(
                     new PieChartBasicoDto(tipo, porcentaje)
             );
         });
         return listaNumeroTotalUND;
+    }
+
+    public List<BarChartBasicoDto> reporteDiagramaFlujoYBalance(String anio) {
+        List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+        Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
+                .stream()
+                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+        List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+        registrosPorTipo.forEach((tipo, lista) -> {
+            Integer totalDiagrama = respuestaVMARepository
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_PRESENTACION_DIAGRAMA_FLUJO_ID);
+            Integer totalInspeccionados = respuestaVMARepository
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_INSPECCIONADOS_ID);
+
+            double porcentaje = ((double) totalDiagrama / totalInspeccionados) * 100;
+            listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
+        });
+
+        double sumaPorcentaje = listaChart
+                .stream()
+                .mapToDouble(BarChartBasicoDto::getValue).sum();
+
+        listaChart.add(new BarChartBasicoDto("Promedio", sumaPorcentaje / listaChart.size()));
+
+        return listaChart;
     }
 
     private RegistroPromedioTrabajadorVMAChartDto mapToRegistroPromedioTrrabajadorVMA(String tipo, List<Integer> idsRegistrosVma) {
@@ -112,5 +141,12 @@ public class ReporteService {
                 .stream()
                 .map(RegistroVMA::getIdRegistroVma)
                 .collect(Collectors.toList());
+    }
+
+    private Map<String, List<RegistroVMA>> getRegistrosPorTipoEmpresa(String anio) {
+        List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+        return registrosCompletos
+                .stream()
+                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
     }
 }
