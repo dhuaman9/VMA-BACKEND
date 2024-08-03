@@ -61,6 +61,9 @@ public class RegistroVMAService {
 	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
 	private final int PREGUNTA_SI_NO_ID = 1;
 	private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
+	private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
+    private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22;
+    private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
@@ -194,7 +197,7 @@ public class RegistroVMAService {
 				  empresa.getRegimen().equals("RAT"),
 				  registroCompleto,
 				  registroCompleto && remitioInforme);
-	  }
+	   }
 
 	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate, String year, String username) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -243,7 +246,7 @@ public class RegistroVMAService {
 
 	public boolean isRegistroCompletado(String username) {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
-		logger.info("boo+leano registrovma- "+registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa()));
+		logger.info("booleano registrovma- "+registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa()));
 		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
 	
@@ -260,4 +263,24 @@ public class RegistroVMAService {
 		calendar.set(Calendar.MILLISECOND, 999);
 		return calendar.getTime();
 	}
+	
+	
+	//anexo 3 - Relación de las EP que han realizado avances en la inspección y/o inscripción en sus registros de los UND bajo su ámbito de influencia
+	/*private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
+    private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22;
+    private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;**/
+	
+	
+	
+	//anexo 4 - Detalle de porcentaje de toma de muestra inopinada de las EP
+	
+	
+	
+	
+	//anexo 5 - Detalle de las EP que han realizado la evaluación de los VMA del Anexo 1 del reglamento de VMA
+	
+	
+	
+	
+	
 }

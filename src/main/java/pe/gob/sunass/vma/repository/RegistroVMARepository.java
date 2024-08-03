@@ -21,7 +21,10 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
 
 	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipo = :tipoEmpresa AND r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
-	long registrosPorTipoEmpresa(String tipoEmpresa, String anio);
+	long registrosCompletadosPorTipoEmpresa(String tipoEmpresa, String anio);
+	
+	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE  r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
+	long registrosCompletadosEmpresas( String anio);
 
 	@Query("FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa AND r.fichaRegistro.anio = :anio")
 	RegistroVMA findRegistroVmaPorAnhio(Integer idEmpresa, String anio);
@@ -52,8 +55,8 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 
 	
 	
-	@Query("FROM RegistroVMA r WHERE r.estado = 'COMPLETO' AND r.fichaRegistro.anio = :anio")
-	List<RegistroVMA> findRegistrosCompletos(String anio);
+	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
+	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
 	
 	
 	// List<RegistroVMA> findByFilters(RegistroVMAFilterDTO filters);  //para filtros
