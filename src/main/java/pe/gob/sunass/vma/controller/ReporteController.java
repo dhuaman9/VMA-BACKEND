@@ -53,6 +53,13 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.reporteDiagramaFlujoYBalancePresentados(anio));
     }
     
+    //grafico 9  , Comparativo de los UND registrados, inspeccionados e identificados
+    @GetMapping("/comparativo-UND")
+    public ResponseEntity<?> generarReporteComparativoUND(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteComparativoUND(anio));
+    }
+    
+    
     //grafico 10 , Porcentaje de UND que cuentan con caja de registro o dispositivo similar en la parte externa de su predio, según tamaño de la EP
     @GetMapping("/porcentaje-und-caja-registro")
     public ResponseEntity<?> generarReportePorcentajesUNDCajaRegistro(@RequestParam("anio") String anio) {
@@ -65,10 +72,41 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.reportePorcentajeUNDTomaMuestraInopinada(anio));
     }
     
- // grafico 12  Porcentaje de UND a los que se realizó la toma de muestra inopinada, según tamaño de la EP
+ // grafico 12  Porcentaje de toma de muestra inopinada, según tamaño de la EP  
     @GetMapping("/porcentaje-total-muestras-inopinadas")
     public ResponseEntity<?> generarReportePorcentajesTotalMuestrasInopinadas(@RequestParam("anio") String anio) {
         return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
     }
+    
+ // grafico 13  Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 1 del REGLAMENTO VMA, según tamaño de la EP
+    @GetMapping("/porcentaje-und-sobrepasan-parametro-anexo1")
+    public ResponseEntity<?> generarReportePorcentajesUNDSobrepasanParametrosAnexoUno(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDSobrepasanParametroAnexo1(anio));
+    }
+    
+ // grafico 14  Porcentaje de UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración, según tamaño de la EP
+    @GetMapping("/porcentaje-und-facturado-pago-adicional")
+    public ResponseEntity<?> generarReportePorcentajesUNDfacturadoPagoAdicional(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDFacturadoPorConceptoAdicional(anio));
+    }
+    
+ // grafico 15  Porcentaje de UND que realizaron el Pago adicional por exceso de concentración, según tamaño de la EP
+    @GetMapping("/porcentaje-und-pago-adicional")
+    public ResponseEntity<?> generarReporteUNDPagoAdicional(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDPagoAdicional(anio));
+    }
+    
+    /*
+ // grafico 16  Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA, según tamaño de la EP 
+    @GetMapping("/porcentaje-total-muestras-inopinadas")
+    public ResponseEntity<?> generarReportePorcentajesTUNDParametroAnexo2(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
+    }
+    
+ // grafico 17  Porcentaje de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con el fin de implementar las acciones de mejora y acreditar el cumplimiento de los VMA, según tamaño de la EP
+    @GetMapping("/porcentaje-total-muestras-inopinadas")
+    public ResponseEntity<?> generarReporteUNDPlazoAdicional(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
+    }*/
     
 }

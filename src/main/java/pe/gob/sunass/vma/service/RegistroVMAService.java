@@ -64,6 +64,20 @@ public class RegistroVMAService {
 	private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
     private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22;
     private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;
+    private final int PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID= 11;
+    
+    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 3;
+    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 35;
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 1;
+    
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 26;
+    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 28;
+    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 30;
+    private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
+    private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID= 23;
+    
+    
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
@@ -270,16 +284,267 @@ public class RegistroVMAService {
     private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22;
     private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;**/
 	
+	public List<AnexoTresListadoEPDTO> listaDeAnexosRelacionEPInspeccionados(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoTresListadoEPDTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+//			  RespuestaVMA respuesta = respuestaVMARepository
+//					  .findRespuestaByPreguntaIdAndRegistro(ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+//			  
+			  RespuestaVMA UNDidentificados = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDinspeccionados = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDinscritos = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_INSCRITOS_ID, registroVMA.getIdRegistroVma());
+			  
+			 
+			  anexos.add(new AnexoTresListadoEPDTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  Integer.parseInt(UNDidentificados.getRespuesta()),
+					  Integer.parseInt(UNDinspeccionados.getRespuesta()),
+					  Integer.parseInt(UNDinscritos.getRespuesta())
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
 	
-	
-	//anexo 4 - Detalle de porcentaje de toma de muestra inopinada de las EP
-	
-	
-	
+	//anexo 4 - Detalle de porcentaje de toma de muestra inopinada de las EP  PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID
+	/*
+	 * 
+	 */
+	public List<AnexoPorcentajeMuestraInopinadaDTO> listaDeAnexosTomaDeMuestrasInopinadas(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoPorcentajeMuestraInopinadaDTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+
+			 // RespuestaVMA UNDidentificados = respuestaVMARepository
+			 //		  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+			 
+			  RespuestaVMA UNDinscritos = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_INSCRITOS_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA muestrasInopinadas = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID, registroVMA.getIdRegistroVma());
+			 
+			  int muestrasInopinadasvalor =  Integer.parseInt(muestrasInopinadas.getRespuesta());
+			  int UNDinscritosvalor =  Integer.parseInt(UNDinscritos.getRespuesta());
+			  double porcentaje =  ((double) muestrasInopinadasvalor / (double) UNDinscritosvalor) * 100;
+			  
+			// Redondea a un decimal usando Math.round
+		        double porcentajeRedondeado = Math.round(porcentaje * 10.0) / 10.0;
+		        
+		        
+			  //int muestrasInopinadas = Integer.parseInt(muestrasInopinadas.);
+		       // int UNDinscritos = Integer.parseInt(UNDinscritosRespuesta);
+			  //  MUESTRA INOPINADA  se debe calcular (N° MUESTRAS INOPINADAS / N° UND INSCRITOS EN EL REGISTRO DE UND) * 100
+			  anexos.add(new AnexoPorcentajeMuestraInopinadaDTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  UNDinscritosvalor,
+					  muestrasInopinadasvalor,
+					  porcentajeRedondeado
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
 	
 	//anexo 5 - Detalle de las EP que han realizado la evaluación de los VMA del Anexo 1 del reglamento de VMA
+	/*
+	 * N° MUESTRAS INOPINADAS  Se debe indicar el valor colocado en la pregunta “Número total de UND a los que se ha realizado la toma de muestra inopinada. (Parcial)” del formulario para el año seleccionado para la EPS indicada.
+N° UND QUE SOPREPASAN PARAMETROS DEL ANEXO 1 Se debe indicar el valor colocado en la pregunta “Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 1 del Reglamento de VMA(Parcial)” del formulario para el año seleccionado para la EPS indicada.
+N° UND FACTURADOS POR ANEXO 1 Se debe indicar el valor colocado en la pregunta “Número de UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración. (Parcial)” del formulario para el año seleccionado para la EPS indicada.
+N° UND QUE REALIZARON PAGO POR ANEXO 1
+	 */
 	
 	
+	public List<AnexoEvaluacionVmaAnexo1DTO> listaDeAnexosEPevaluaronVMAAnexo1(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoEvaluacionVmaAnexo1DTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+
+			  
+			  RespuestaVMA muestrasInopinadas = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID, registroVMA.getIdRegistroVma());
+			 
+			  RespuestaVMA UNDSobrepasanParametroAnexo1 = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDFacturadosPagoAdicional = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDRealizaronPagoAdicional = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID, registroVMA.getIdRegistroVma());
+		
+			  anexos.add(new AnexoEvaluacionVmaAnexo1DTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  Integer.parseInt(muestrasInopinadas.getRespuesta()),
+					  Integer.parseInt(UNDSobrepasanParametroAnexo1.getRespuesta()),
+					  Integer.parseInt(UNDFacturadosPagoAdicional.getRespuesta()),
+					  Integer.parseInt(UNDRealizaronPagoAdicional.getRespuesta())
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
+	
+	//anexo 6 - Detalle de las EP que han realizado la evaluación de los VMA del Anexo 2 del reglamento de VMA
+	/*
+	 *  N° MUESTRAS INOPINADAS  Se debe indicar el valor colocado en la pregunta “Número total de UND a los que se ha realizado la toma de muestra inopinada. (Parcial)” del formulario para el año seleccionado para la EPS indicada.
+		 N° UND QUE SOPREPASAN PARAMETROS DEL ANEXO 2 Se debe indicar el valor colocado en la pregunta “Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA.(Parcial)” del formulario para el año seleccionado para la EPS indicada.
+		 N° UND CON PLAZO ADICIONAL  Se debe indicar el valor colocado en la pregunta “Número de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con el fin de implementar las acciones de mejora y acreditar el cumplimiento de los VMA. (Parcial)” del formulario para el año seleccionado para la EPS indicada.
+		 N° UND CON ACUERDO SUSCRITO  Se debe indicar el valor colocado en la pregunta “Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar las acciones de mejora y acreditar el cumplimiento de los VMA.” 
+	 */
+	public List<AnexoEvaluacionVmaAnexo2DTO> listaDeAnexosEPevaluaronVMAAnexo2(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoEvaluacionVmaAnexo2DTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+			  
+			  RespuestaVMA muestrasInopinadas = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID, registroVMA.getIdRegistroVma());
+			 
+			  RespuestaVMA UNDSobrepasanParametroAnexo2 = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDConPlazoAdicional = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDSuscritoAcuerdo = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID, registroVMA.getIdRegistroVma());
+		
+			  anexos.add(new AnexoEvaluacionVmaAnexo2DTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  Integer.parseInt(muestrasInopinadas.getRespuesta()),
+					  Integer.parseInt(UNDSobrepasanParametroAnexo2.getRespuesta()),
+					  Integer.parseInt(UNDConPlazoAdicional.getRespuesta()),
+					  Integer.parseInt(UNDSuscritoAcuerdo.getRespuesta())
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
+	
+	//anexo 7 - Detalle de las EP que han realizado la atención de reclamos referidos a VMA
+		/*
+		 * 	EMPRESA PRESTADORA
+			TAMAÑO
+			N° UND INSCRITOS EN EL REGISTRO DE UND
+			N° RECLAMOS POR VMA
+			N° RECLAMOS RESULTOS FUNDADOS
+
+		 */
+	
+	public List<AnexoReclamosVMADTO> listaDeAnexosEPSAtendieronReclamos(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoReclamosVMADTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+			  
+			  RespuestaVMA UNDinscritos = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_INSCRITOS_ID, registroVMA.getIdRegistroVma());
+			
+			  RespuestaVMA reclamosRecibidosVMA = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID, registroVMA.getIdRegistroVma());
+					  
+			  RespuestaVMA reclamosFundadosVMA = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID, registroVMA.getIdRegistroVma());
+			  
+			  anexos.add(new AnexoReclamosVMADTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  Integer.parseInt(UNDinscritos.getRespuesta()),
+					  Integer.parseInt(reclamosRecibidosVMA.getRespuesta()),
+					  Integer.parseInt(reclamosFundadosVMA.getRespuesta())
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
+	
+	
+	//anexo 8 - Detalle de los costos de identificación, inspección y registro de los UND
+	
+	
+	// 
+	/*
+	 * COSTO EN IDENTIFICACIÓN, INSPECCIÓN Y REGISTRO DE UND (S/)  PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID
+	N° UND IDENTIFICADOS (CANT)
+		COSTO ANUAL POR UND (S/) Se calcula realizando la siguiente formula por cada EPS COSTO EN IDENTIFICACIÓN,
+	//INSPECCIÓN Y REGISTRO DE UND (S/)/ N° UND IDENTIFICADOS (CANT)  por cada EPS 
+	 */
+	public List<AnexoCostoTotalUNDDTO> anexoDetalleCostosUND(String anhio) {
+		  List<RegistroVMA> registrosCompletos = registroVMARepository
+				  .findRegistrosCompletos(anhio)
+				  .stream()
+				  .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo()))
+				  .collect(Collectors.toList());
+
+		  List<AnexoCostoTotalUNDDTO> anexos = new ArrayList<>();
+
+		  registrosCompletos.forEach(registroVMA -> {
+			  
+			 
+			  RespuestaVMA costoTotalAnualUND = respuestaVMARepository
+					  .findRespuestaByPreguntaIdAndRegistro(PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID, registroVMA.getIdRegistroVma());
+			  
+			  RespuestaVMA UNDidentificados = respuestaVMARepository
+					  .findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+			  
+			 double costoAnual = (double) (Double.parseDouble(costoTotalAnualUND.getRespuesta()) / Double.parseDouble(UNDidentificados.getRespuesta()));
+			  
+			  anexos.add(new AnexoCostoTotalUNDDTO(
+					  registroVMA.getEmpresa().getNombre(),
+					  registroVMA.getEmpresa().getTipo(),
+					  Double.parseDouble(costoTotalAnualUND.getRespuesta()),
+					  Double.parseDouble(UNDidentificados.getRespuesta()),
+					  costoAnual
+					  )
+			  );
+		  });
+
+		  return anexos;
+	  }
 	
 	
 	

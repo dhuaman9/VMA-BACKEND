@@ -18,6 +18,9 @@ public class Alternativa implements Serializable {
     @Column(name = "nombre_campo")
     private String nombreCampo;
 
+    @Column(name = "requerido")
+	private Boolean requerido;
+    
 	public Integer getIdAlternativa() {
 		return idAlternativa;
 	}
@@ -32,6 +35,14 @@ public class Alternativa implements Serializable {
 
 	public void setNombreCampo(String nombreCampo) {
 		this.nombreCampo = nombreCampo;
+	}
+
+	public Boolean getRequerido() {
+		return requerido;
+	}
+
+	public void setRequerido(Boolean requerido) {
+		this.requerido = requerido;
 	}
     
     

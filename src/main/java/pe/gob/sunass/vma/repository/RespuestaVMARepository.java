@@ -23,12 +23,18 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 //	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
 //	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
 	
-	@Query("SELECT r FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId AND r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
-	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(@Param("preguntaId") Integer preguntaId, @Param("tipoEmpresa") String tipoEmpresa, @Param("anio") String anio);
-
+	
+	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
+	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
 
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.idRegistroVma = :registroId")
 	RespuestaVMA findRespuestaByPreguntaIdAndRegistro(Integer preguntaId, Integer registroId);
+	
+	//para anexos
+	
+	//@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_alternativa = :alternativaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
+	@Query("FROM RespuestaVMA r WHERE r.idAlternativa = :alternativaId and r.registroVMA.idRegistroVma = :registroId")
+	RespuestaVMA findRespuestaAlternativaPorRegistros(Integer alternativaId, Integer registroId);
 
 	@Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END " +
 			"FROM RespuestaVMA r WHERE r.idPregunta = :idPregunta AND r.registroVMA.idRegistroVma = :idRegistroVMA")

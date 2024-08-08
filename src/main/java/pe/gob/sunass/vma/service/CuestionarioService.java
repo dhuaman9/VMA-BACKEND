@@ -10,6 +10,7 @@ import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 import pe.gob.sunass.vma.repository.SeccionRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -118,6 +119,7 @@ public class CuestionarioService {
                 pregunta.getTipoPregunta(),
                 pregunta.getAlternativas()
                         .stream()
+                        .sorted(Comparator.comparing(Alternativa::getIdAlternativa))
                         .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
                         .collect(Collectors.toList()),
                 respuestaDTO,

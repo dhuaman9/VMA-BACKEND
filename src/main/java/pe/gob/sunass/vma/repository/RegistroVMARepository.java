@@ -45,15 +45,26 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 			"WHERE e.empresa.idEmpresa = ?1")
     boolean isRegistroCompletado(Integer idEmpresa);*/
 	
+//	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+//		       "FROM RegistroVMA e " +
+//		       "INNER JOIN e.fichaRegistro fr " +
+//		       "WHERE e.empresa.idEmpresa = :idEmpresa " +
+//		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) " +
+//		       "OR (CURRENT_DATE < fr.fechaInicio OR CURRENT_DATE > fr.fechaFin)")
+//    boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
+
 	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
 		       "FROM RegistroVMA e " +
 		       "INNER JOIN e.fichaRegistro fr " +
-		       "WHERE e.empresa.idEmpresa = :idEmpresa " +
-		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) " +
-		       "OR (CURRENT_DATE < fr.fechaInicio OR CURRENT_DATE > fr.fechaFin)")
-    boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
+			   "WHERE e.fichaRegistro.idFichaRegistro IN ( " +
+			   "    SELECT fr.idFichaRegistro " +
+			   "    FROM FichaRegistro fr " +
+			   "    WHERE CURRENT_DATE >= fr.fechaInicio AND CURRENT_DATE <= fr.fechaFin " +
+			   ") " +
+		       "AND e.empresa.idEmpresa = :idEmpresa " +
+		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) ")
+	boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
 
-	
 	
 	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
 	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
