@@ -109,4 +109,18 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
     }*/
     
+  //grafico 18
+    
+    
+    
+  //grafico 19
+    
+    
+  //grafico 20 
+    
+    
+    
+  //grafico 21 y 22
+    
+    
 }
