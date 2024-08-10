@@ -4,11 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.gob.sunass.vma.dto.BarChartBasicoDto;
-import pe.gob.sunass.vma.dto.GraficoComparativoDTO;
-import pe.gob.sunass.vma.dto.PieChartBasicoDto;
-import pe.gob.sunass.vma.dto.RegistroEmpresaChartDto;
-import pe.gob.sunass.vma.dto.RegistroPromedioTrabajadorVMAChartDto;
+import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.RegistroVMA;
 import pe.gob.sunass.vma.model.RespuestaVMA;
@@ -16,9 +12,9 @@ import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -58,7 +54,9 @@ public class ReporteService {
     private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 30;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
-    
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID = 23;
+    private final int PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID = 29;
+
 
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
         List<Empresa> empresas = empresaRepository.findAll();
@@ -586,6 +584,67 @@ public class ReporteService {
            listaChart.add(new BarChartBasicoDto("Promedio", sumaPorcentaje / listaChart.size()));
            return listaChart;
     
+     }
+
+     public CostoAnualIncurridoCompletoDTO reporteCostoTotalIncurrido(String anio) {
+         List<RegistroVMA> registros = registroVMARepository.findRegistros(anio);
+         Map<String, List<RegistroVMA>> registrosPorTipo = registros
+                 .stream()
+                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+
+         List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+        registros.forEach(registro -> {
+            if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
+                    registro.getEstado().equals("COMPLETO")) {
+                BigDecimal costoAnual = respuestaVMARepository
+                        .getCostoAnualIncurridoPorReigstro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
+            }
+        });
+
+        List<CostoAnualIncurridoDTO> lista = new ArrayList<>();
+
+        registrosPorTipo.forEach((tipoEmpresa, listaRegistros) -> {
+            List<RegistroVMA> registrosCompletos = listaRegistros
+                    .stream()
+                    .filter(registro -> registro.getEstado().equals("COMPLETO"))
+                    .collect(Collectors.toList());
+
+            List<Integer> idsVmaCompleto = mapToIdsRegistrosVma(registrosCompletos);
+
+            if(!idsVmaCompleto.isEmpty()) {
+                BigDecimal cantidadVmaCompletos = BigDecimal.valueOf(idsVmaCompleto.size());
+                BigDecimal sumaCostoTotalPorTipoEmpresaVmaCompleto = respuestaVMARepository
+                        .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+
+                BigDecimal promedio = sumaCostoTotalPorTipoEmpresaVmaCompleto.divide(cantidadVmaCompletos, 2, RoundingMode.HALF_UP);
+                lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), sumaCostoTotalPorTipoEmpresaVmaCompleto, promedio));
+            } else {
+                lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), BigDecimal.ZERO, BigDecimal.ZERO));
+            }
+        });
+        return new CostoAnualIncurridoCompletoDTO(listaChart, lista);
+     }
+
+     public List<BarChartBasicoDto> reporteCostoAnualPorOtrosGastos(String anio) {
+         List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+         Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
+                 .stream()
+                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+         List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+         registrosPorTipo.forEach((tipo, lista) -> {
+             BigDecimal totalReclamosRecibidosVMA = respuestaVMARepository
+                     .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID);
+             listaChart.add(new BarChartBasicoDto(tipo, totalReclamosRecibidosVMA.doubleValue()));
+         });
+
+         double total = listaChart.stream().mapToDouble(BarChartBasicoDto::getValue).sum();
+
+         listaChart.add(new BarChartBasicoDto("TOTAL", total));
+
+        return listaChart;
      }
     
     

@@ -95,6 +95,16 @@ public class ReporteController {
     public ResponseEntity<?> generarReporteUNDPagoAdicional(@RequestParam("anio") String anio) {
         return ResponseEntity.ok(reporteService.reportePorcentajeUNDPagoAdicional(anio));
     }
+
+    @GetMapping("/costo-total-incurrido")
+    public ResponseEntity<?> generarReporteCostoTotalIncurrido(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoTotalIncurrido(anio));
+    }
+
+    @GetMapping("/costo-total-incurrido-otros")
+    public ResponseEntity<?> generarReporteCostoTotalIncurridoOtros(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoAnualPorOtrosGastos(anio));
+    }
     
     /*
  // grafico 16  Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA, según tamaño de la EP 
