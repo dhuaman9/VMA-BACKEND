@@ -71,7 +71,9 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 
 	@Query("SELECT r FROM RegistroVMA r WHERE r.fichaRegistro.anio = :anio")
 	List<RegistroVMA> findRegistros(@Param("anio") String anio);
-	
+
+	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids")
+	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids);
 	
 	// List<RegistroVMA> findByFilters(RegistroVMAFilterDTO filters);  //para filtros
 }

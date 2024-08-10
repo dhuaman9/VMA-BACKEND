@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import pe.gob.sunass.vma.constants.Constants;
@@ -129,15 +130,11 @@ public class RegistroVMAController {
 	 }
 
 	 @GetMapping("/descargar-excel")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
 	 public ResponseEntity<byte[]> generarExcel(
-			 @RequestParam(required = false) Integer empresaId,
-			 @RequestParam(required = false) String estado,
-			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-			 @RequestParam(required = false) String year,
-			 @RequestHeader("Authorization") String token) {
+			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
-				 .generarExcelActivos(empresaId, estado, startDate, endDate, year, getUsername(token));
+				 .generarExcelCuestionario(idsVma);
 
 		 HttpHeaders headers = new HttpHeaders();
 		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
