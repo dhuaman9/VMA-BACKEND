@@ -573,6 +573,17 @@ public class RegistroVMAService {
 		  return anexos;
 	  }
 
-	
-	
+
+	public void actualizarEstadoIncompleto(Integer id) {
+		Optional<RegistroVMA> registro = registroVMARepository.findById(id);
+
+		if(registro.isPresent()){
+			RegistroVMA registroVMA = registro.get();
+			registroVMA.setEstado("INCOMPLETO");
+			registroVMA.setUpdatedAt(new Date());
+			registroVMARepository.save(registroVMA);
+		} else {
+			throw new RuntimeException("Registro no encontrado");
+		}
+	}
 }

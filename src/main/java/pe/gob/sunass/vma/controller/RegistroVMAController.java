@@ -141,4 +141,10 @@ public class RegistroVMAController {
 
 		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
 	 }
+
+	@PutMapping("/estado-incompleto/{id}")
+	public ResponseEntity<Void> actualizarEstadoIncompleto(@PathVariable Integer id) {
+		 this.registroVMAService.actualizarEstadoIncompleto(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	 }
 }
