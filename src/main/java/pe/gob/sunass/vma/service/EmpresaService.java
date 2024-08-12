@@ -41,6 +41,7 @@ public class EmpresaService {
 	    return listDTO;
 	  }
 
+	  //paginacion
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
 	    Page<Empresa> pageDomain = this.empresaRepository.findAllByOrderByIdEmpresa(pageable);
