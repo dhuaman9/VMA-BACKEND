@@ -443,7 +443,6 @@ public class ReporteService {
                
                double porcentaje = ((double) totalUNDRealizaronPagoAdicional / totalUNDFacturaronPagoAdicional) * 100;
                
-              
 //               sumaTotalUNDRealizaronPagoAdicionalAllEPS.addAndGet(totalUNDRealizaronPagoAdicional);
 //               //double sumaDoubleUNDRealizaronPagoAdicionalAllEPS = sumaTotalUNDRealizaronPagoAdicionalAllEPS.get();
 //               sumaTotalUNDFacturaronPagoAdicionalAllEPS.addAndGet(totalUNDFacturaronPagoAdicional);
@@ -537,11 +536,17 @@ public class ReporteService {
       // Gráfico 18: Porcentaje de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, 
       // ....el cumplimiento de los VMA, según tamaño de la EP
     
+
     /*
      *  formula = Sumatoria de Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado,.. ..los VMA de las EPS por tamaño/
      *  Sumatoria de las Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño
           promedio la formula = Sumatoria del Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar las acciones de mejora y acreditar el cumplimiento de los VMA de todas las EPS /Sumatoria del Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de todas las EPS 
      */
+
+    
+   // grafico 19-  Porcentaje de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar ...segun tamaño eps
+    
+
     
       public List<BarChartBasicoDto> reportePorcentajeUNDSuscritoAcuerdo(String anio) {
    	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
@@ -566,7 +571,20 @@ public class ReporteService {
    
       }
     
+
       // grafico 19-  Gráfico 19: Porcentaje de recibidos por VMA, según tamaño de la EP
+
+    // grafico 20-  Porcentaje de recibidos por VMA, según tamaño de la EP
+    /*
+     * formula :
+     * Sumatoria de Número de reclamos recibidos por VMA.  de las EPS por tamaño  / 
+     * Sumatoria de las Número total de UND inscritos en el Registro de UND. de las EPS por tamaño.
+     * 
+     * 
+     * promedio =   Sumatoria del Número de reclamos recibidos por VMA de todas las EPS /
+     * Sumatoria del Número total de UND inscritos en el Registro de UND de todas las EPS 
+     */
+
     
    
     public List<BarChartBasicoDto> reportePorcentajeRecibidosVMA(String anio) {
@@ -593,6 +611,7 @@ public class ReporteService {
      }
     
     
+
     
  // grafico 20-  Porcentaje de reclamos por VMA resueltos fundados, según tamaño de la EP
     
@@ -692,9 +711,11 @@ public class ReporteService {
  
     //Gráfico 23: Costo anual por conexión incurrido en la identificación, inspección e inscripción de los UND
     //pendiente, parecido al grafico 22
+
     
     /*
      * 
+     * promedio...
      */
     
     // Gráfico 27: Costo anual por otros gastos incurridos en la implementación de los VMA, según tamaño de la EP 
@@ -725,18 +746,6 @@ public class ReporteService {
          return listaChart;
   
       }*/
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
 }

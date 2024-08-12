@@ -144,9 +144,25 @@ public class ReporteController {
     
     //grafico 27
     
+
 //    @GetMapping("/costo-anual-vma")
 //    public ResponseEntity<?> generarReporteCostoTotalAnualGastosVMA(@RequestParam("anio") String anio) {
 //        return ResponseEntity.ok(reporteService.reporteCostoTotalAnualGastosVMA(anio));
 //    }
 //    
+
+  //grafico 18
+    
+    
+    
+  //grafico 19
+    
+    
+  //grafico 20 
+    
+    
+    
+  //grafico 21 y 22
+    
+
 }
