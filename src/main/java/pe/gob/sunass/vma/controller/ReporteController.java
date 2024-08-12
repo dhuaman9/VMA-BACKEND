@@ -96,17 +96,57 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.reportePorcentajeUNDPagoAdicional(anio));
     }
     
-    /*
+    
  // grafico 16  Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA, según tamaño de la EP 
-    @GetMapping("/porcentaje-total-muestras-inopinadas")
-    public ResponseEntity<?> generarReportePorcentajesTUNDParametroAnexo2(@RequestParam("anio") String anio) {
-        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
+    @GetMapping("/porcentaje-und-parametro-anexo2")
+    public ResponseEntity<?> generarReportePorcentajesUNDParametroAnexo2(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDParametrosAnexo2(anio));
     }
     
  // grafico 17  Porcentaje de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con el fin de implementar las acciones de mejora y acreditar el cumplimiento de los VMA, según tamaño de la EP
-    @GetMapping("/porcentaje-total-muestras-inopinadas")
-    public ResponseEntity<?> generarReporteUNDPlazoAdicional(@RequestParam("anio") String anio) {
-        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
-    }*/
+    @GetMapping("/porcentaje-und-plazo-adicional")
+    public ResponseEntity<?> generarReporteUNDPlazoAdicionalOtorgado(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDOtorgadoPlazoAdicinal(anio));
+    }
     
+  //grafico 18 , Porcentaje de UND que han suscrito un acuerdo en ....  reportePorcentajeUNDSuscritoAcuerdo
+    @GetMapping("/porcentaje-und-suscritos")
+    public ResponseEntity<?> generarReportePorcentajeUNDSuscritoAcuerdo(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDSuscritoAcuerdo(anio));
+    }
+    
+    
+  //grafico 19
+    
+    @GetMapping("/porcentaje-reclamos-recibidos-vma")
+    public ResponseEntity<?> generarReportePorcentajeReclamosRecibidosVMA(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeRecibidosVMA(anio));
+    }
+    
+  //grafico 20 
+    
+    @GetMapping("/porcentaje-reclamos-fundados-vma")
+    public ResponseEntity<?> generarReporteReclamosFundadosVMA(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteReclamosFundadosVMA(anio));
+    }
+    
+  //grafico 21 y 22
+    
+    @GetMapping("/costo-total-incurrido")
+    public ResponseEntity<?> generarReporteCostoTotalIncurrido(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoTotalIncurrido(anio));
+    }
+
+    @GetMapping("/costo-total-incurrido-otros")
+    public ResponseEntity<?> generarReporteCostoTotalIncurridoOtros(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoAnualPorOtrosGastos(anio));
+    }
+    
+    //grafico 27
+    
+//    @GetMapping("/costo-anual-vma")
+//    public ResponseEntity<?> generarReporteCostoTotalAnualGastosVMA(@RequestParam("anio") String anio) {
+//        return ResponseEntity.ok(reporteService.reporteCostoTotalAnualGastosVMA(anio));
+//    }
+//    
 }

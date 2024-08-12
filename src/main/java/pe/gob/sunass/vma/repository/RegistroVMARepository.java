@@ -69,6 +69,7 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
 	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
 	
-	
-	// List<RegistroVMA> findByFilters(RegistroVMAFilterDTO filters);  //para filtros
+
+	@Query("SELECT r FROM RegistroVMA r WHERE r.fichaRegistro.anio = :anio")
+	List<RegistroVMA> findRegistros(@Param("anio") String anio);
 }

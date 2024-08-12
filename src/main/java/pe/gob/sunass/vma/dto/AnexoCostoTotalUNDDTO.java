@@ -6,7 +6,7 @@ public class AnexoCostoTotalUNDDTO {
     private String tamanioEmpresa;
     private double costoTotalUND;
     private double nroUNDidentificados;
-    private double porcentajeCostoAnualUND;
+    private double costoAnualPorUND;
     
     
 	public AnexoCostoTotalUNDDTO() {
@@ -15,13 +15,13 @@ public class AnexoCostoTotalUNDDTO {
 
 
 	public AnexoCostoTotalUNDDTO(String nombreEmpresa, String tamanioEmpresa, double costoTotalUND,
-			double nroUNDidentificados, double porcentajeCostoAnualUND) {
+			double nroUNDidentificados, double costoAnualPorUND) {
 		super();
 		this.nombreEmpresa = nombreEmpresa;
 		this.tamanioEmpresa = tamanioEmpresa;
 		this.costoTotalUND = costoTotalUND;
 		this.nroUNDidentificados = nroUNDidentificados;
-		this.porcentajeCostoAnualUND = porcentajeCostoAnualUND;
+		this.costoAnualPorUND = costoAnualPorUND;
 	}
 
 
@@ -65,14 +65,16 @@ public class AnexoCostoTotalUNDDTO {
 	}
 
 
-	public double getPorcentajeCostoAnualUND() {
-		return porcentajeCostoAnualUND;
+	public double getCostoAnualPorUND() {
+		return costoAnualPorUND;
 	}
 
 
-	public void setPorcentajeCostoAnualUND(double porcentajeCostoAnualUND) {
-		this.porcentajeCostoAnualUND = porcentajeCostoAnualUND;
+	public void setCostoAnualPorUND(double costoAnualPorUND) {
+		this.costoAnualPorUND = costoAnualPorUND;
 	}
+
+
 	
 	
 	

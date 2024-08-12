@@ -12,7 +12,7 @@ public class GraficoComparativoDTO {
 	  //  private int total;
 	    
 	    
-	    public GraficoComparativoDTO() {// total
+	    public GraficoComparativoDTO() {
 			
 		}
 	    

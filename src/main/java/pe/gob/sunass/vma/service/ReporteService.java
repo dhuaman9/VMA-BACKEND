@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.BarChartBasicoDto;
+import pe.gob.sunass.vma.dto.CostoAnualIncurridoCompletoDTO;
+import pe.gob.sunass.vma.dto.CostoAnualIncurridoDTO;
 import pe.gob.sunass.vma.dto.GraficoComparativoDTO;
 import pe.gob.sunass.vma.dto.PieChartBasicoDto;
 import pe.gob.sunass.vma.dto.RegistroEmpresaChartDto;
@@ -16,9 +18,12 @@ import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,10 +60,11 @@ public class ReporteService {
     private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 26;
     private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 28;
     private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 30;
-   // private final int ALTERNATIVA_UND_FACTURADO_CONCEPTO_ADICIONAL_ID= 13;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
-    
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID = 23;
+    private final int PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID = 29;
 
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
         List<Empresa> empresas = empresaRepository.findAll();
@@ -126,11 +132,10 @@ public class ReporteService {
         return listaNumeroTotalUND;
     }
 
-  //dhr graf 6
-    //observar formula -
-    
+  // graf 6
+   
     //formula - Sumatoria de UND inspeccionadas de las EPS por tamaño/Sumatoria UND identificadas de las EPS por tamaño.
-    //Para la barra del promedio la formula   Sumatoria de UND inspeccionadas de todas las EPS /Sumatoria UND identificadas de todas las EPS
+    //Para la barra del promedio la formula  = Sumatoria de UND inspeccionadas de todas las EPS /Sumatoria UND identificadas de todas las EPS
     
     public List<BarChartBasicoDto> reporteNumeroTotalUNDInspeccionados(String anio) {
         List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
@@ -233,7 +238,7 @@ public class ReporteService {
         return listaChart;
     }
 
-    //grafico 9
+    // dhr grafico9 , falta mejorar
     
     public List<GraficoComparativoDTO> reporteComparativoUND(String anio){
     	
@@ -371,6 +376,8 @@ public class ReporteService {
             double porcentaje = ((double) totalUNDParametroAnexo1 / totalUNDTomaMuestraInopinada) * 100;
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
+        logger.info("lista size - " + listaChart.size());
+        
         double sumaPorcentaje = listaChart
                 .stream()
                 .mapToDouble(BarChartBasicoDto::getValue).sum();
@@ -382,17 +389,7 @@ public class ReporteService {
     
     //Gráfico 14: Porcentaje de UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración, según tamaño de la EP
     
-    /*
-     * Sumatoria de UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración de las EPS por tamaño/
-     * Sumatoria UND que sobrepasan algún(os) parámetro(s) del Anexo N° 1 del Reglamento de VMA de las EPS por tamaño.
-		Para la barra del promedio la formula:
-		  Sumatoria de UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración de todas las EPS /
-		  Sumatoria UND que sobrepasan algún(os) parámetro(s) del Anexo N° 1 del Reglamento de VMA de todas las EPS 
-     * 
-     * 
-     */
-    
-    
+   
     
     public List<BarChartBasicoDto> reportePorcentajeUNDFacturadoPorConceptoAdicional(String anio) {
         List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
@@ -409,6 +406,9 @@ public class ReporteService {
             double porcentaje = ((double) totalUNDFacturaronPagoAdicional / totalUNDParametroAnexo1) * 100;
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
+        
+        logger.info("lista size - " + listaChart.size());
+        
         double sumaPorcentaje = listaChart
                 .stream()
                 .mapToDouble(BarChartBasicoDto::getValue).sum();
@@ -420,41 +420,65 @@ public class ReporteService {
     //grafico 15
     /*
         formula Sumatoria de UND que realizaron el Pago adicional por exceso de concentración de las EPS por tamaño / Sumatoria de las UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración de las EPS por tamaño
-	     promedio -  Sumatoria de UND que realizaron el Pago adicional por exceso de concentración todas las EPS / Sumatoria UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración de todas las EPS 
-
+	     promedio -  Sumatoria de UND que realizaron el Pago adicional por exceso de concentración todas las EPS / 
+	     Sumatoria UND a los que se ha facturado por concepto de Pago adicional por exceso de concentración de todas las EPS 
+	     
      * */
-    
+
     public List<BarChartBasicoDto> reportePorcentajeUNDPagoAdicional(String anio) {
     	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
            Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
                    .stream()
                    .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
            List<BarChartBasicoDto> listaChart = new ArrayList<>();
-
+       
+           AtomicInteger sumaTotalUNDRealizaronPagoAdicionalAllEPS = new AtomicInteger(0);
+           AtomicInteger sumaTotalUNDFacturaronPagoAdicionalAllEPS = new AtomicInteger(0);
+           
            registrosPorTipo.forEach((tipo, lista) -> {
-               Integer totalUNDFacturaronPagoAdicional = respuestaVMARepository
+               Integer totalUNDRealizaronPagoAdicional = respuestaVMARepository
                		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID);
-               Integer totalUNDParametroAnexo1 = respuestaVMARepository
+               Integer totalUNDFacturaronPagoAdicional = respuestaVMARepository
                        .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID);
-               double porcentaje = ((double) totalUNDFacturaronPagoAdicional / totalUNDParametroAnexo1) * 100;
+               
+               double porcentaje = ((double) totalUNDRealizaronPagoAdicional / totalUNDFacturaronPagoAdicional) * 100;
+               
+              
+//               sumaTotalUNDRealizaronPagoAdicionalAllEPS.addAndGet(totalUNDRealizaronPagoAdicional);
+//               //double sumaDoubleUNDRealizaronPagoAdicionalAllEPS = sumaTotalUNDRealizaronPagoAdicionalAllEPS.get();
+//               sumaTotalUNDFacturaronPagoAdicionalAllEPS.addAndGet(totalUNDFacturaronPagoAdicional);
+//               //double sumaDoubleUNDFacturaronPagoAdicionalAllEPS = sumaTotalUNDFacturaronPagoAdicionalAllEPS.get();
+//               logger.info("suma de pago adicional - " + sumaTotalUNDRealizaronPagoAdicionalAllEPS);
+//               logger.info("suma de facturaron adicional - " + sumaTotalUNDRealizaronPagoAdicionalAllEPS);
+               
                listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
            });
+//           double sumaDoubleUNDRealizaronPagoAdicionalAllEPS = sumaTotalUNDRealizaronPagoAdicionalAllEPS.get();
+//           logger.info(" sumaDoubleUNDRealizaronPagoAdicionalAllEPS  - " + sumaDoubleUNDRealizaronPagoAdicionalAllEPS);
+//           double sumaDoubleUNDFacturaronPagoAdicionalAllEPS = sumaTotalUNDFacturaronPagoAdicionalAllEPS.get();
+//           logger.info(" sumaDoubleUNDFacturaronPagoAdicionalAllEPS  - " + sumaDoubleUNDFacturaronPagoAdicionalAllEPS);
+//           
+           logger.info("lista size - " + listaChart.size());
            double sumaPorcentaje = listaChart
                    .stream()
                    .mapToDouble(BarChartBasicoDto::getValue).sum();
-           listaChart.add(new BarChartBasicoDto("Promedio", sumaPorcentaje / listaChart.size()));
+           
+//           double promedio= sumaDoubleUNDRealizaronPagoAdicionalAllEPS / sumaDoubleUNDFacturaronPagoAdicionalAllEPS;
+//           logger.info(" promedio - " + promedio);
+           listaChart.add(new BarChartBasicoDto("Promedio", sumaPorcentaje/ listaChart.size() ));
            return listaChart;
     
     }
     
   //grafico 16  - Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA, según tamaño de la EP 
     /*
-        formula - Sumatoria de Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño/Sumatoria de las Número total de UND a los que se ha realizado la toma de muestra inopinada de las EPS por tamaño
+        formula - Sumatoria de Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño/
+        Sumatoria de las Número total de UND a los que se ha realizado la toma de muestra inopinada de las EPS por tamaño
           promedio -  Sumatoria del Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de todas las EPS /Sumatoria del Número total de UND a los que se ha realizado la toma de muestra inopinada de todas las EPS 
 
      * */
     
-    public List<BarChartBasicoDto> reportePorcentajeUNDSobrepasanParametrossAnexo2(String anio) {
+    public List<BarChartBasicoDto> reportePorcentajeUNDParametrosAnexo2(String anio) {
  	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
         Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
                 .stream()
@@ -479,7 +503,7 @@ public class ReporteService {
     
     //grafico 17  - Porcentaje de UND a los que les ha otorgado un plazo adicional (hasta 18 meses), según tamaño de la EP
     /*
-       formulaSumatoria de Número de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con..... de EPS por tamaño/
+       formula = Sumatoria de Número de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con..... de EPS por tamaño/
        Sumatoria de las Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño
        
        promedio =  Sumatoria del Número de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con el .... de todas las EPS /
@@ -510,18 +534,16 @@ public class ReporteService {
      }
     
 
+      // Gráfico 18: Porcentaje de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, 
+      // ....el cumplimiento de los VMA, según tamaño de la EP
     
-    
-   // grafico 19-  Porcentaje de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar ...segun tamaño eps
-    
-    /**
-     * 
-     * formula - Sumatoria de Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez  de las EPS por tamaño/
-     * 	Sumatoria de las Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño
+    /*
+     *  formula = Sumatoria de Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado,.. ..los VMA de las EPS por tamaño/
+     *  Sumatoria de las Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño
+          promedio la formula = Sumatoria del Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar las acciones de mejora y acreditar el cumplimiento de los VMA de todas las EPS /Sumatoria del Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de todas las EPS 
      */
-
     
-    public List<BarChartBasicoDto> reportePorcentajeUNDSuscritos(String anio) {
+      public List<BarChartBasicoDto> reportePorcentajeUNDSuscritoAcuerdo(String anio) {
    	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
           Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
                   .stream()
@@ -529,11 +551,11 @@ public class ReporteService {
           List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
           registrosPorTipo.forEach((tipo, lista) -> {
-              Integer totalUNDsuscritoAcuerdo = respuestaVMARepository
+              Integer totalUNDSuscritoPlazo = respuestaVMARepository
               		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID);
               Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID);
-              double porcentaje = ((double) totalUNDsuscritoAcuerdo / totalUNDSobrepasanParametroAnexo2) * 100;
+              double porcentaje = ((double) totalUNDSuscritoPlazo / totalUNDSobrepasanParametroAnexo2) * 100;
               listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
           });
           double sumaPorcentaje = listaChart
@@ -544,17 +566,9 @@ public class ReporteService {
    
       }
     
-    // grafico 20-  Porcentaje de recibidos por VMA, según tamaño de la EP
-    /*
-     * formula :
-     * Sumatoria de Número de reclamos recibidos por VMA.  de las EPS por tamaño  / 
-     * Sumatoria de las Número total de UND inscritos en el Registro de UND. de las EPS por tamaño.
-     * 
-     * 
-     * promedio la formula  Sumatoria del Número de reclamos recibidos por VMA de todas las EPS /
-     * Sumatoria del Número total de UND inscritos en el Registro de UND de todas las EPS 
-     */
+      // grafico 19-  Gráfico 19: Porcentaje de recibidos por VMA, según tamaño de la EP
     
+   
     public List<BarChartBasicoDto> reportePorcentajeRecibidosVMA(String anio) {
     	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
            Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
@@ -579,15 +593,150 @@ public class ReporteService {
      }
     
     
-//    private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
- 
     
- // grafico 21-  Porcentaje de reclamos por VMA resueltos fundados, según tamaño de la EP
+ // grafico 20-  Porcentaje de reclamos por VMA resueltos fundados, según tamaño de la EP
+    
     /*
-     * formula
-     * Sumatoria de Número de reclamos recibidos por VMA.  de las EPS por tamaño  / 
-     * Sumatoria de las Número total de UND inscritos en el Registro de UND. de las EPS por tamaño.
+     * 
+     * formula = Sumatoria de Número de reclamos por VMA resueltos fundados. de las EPS por tamaño / Sumatoria de las Número de reclamos recibidos por VMA, de las EPS por tamaño
+         promedio =  Sumatoria del Número de reclamos por VMA resueltos fundados. / Sumatoria del Número de reclamos recibidos por VMA 
+     *  PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID
      * 
      */
+    
+    public List<BarChartBasicoDto> reporteReclamosFundadosVMA(String anio) {
+ 	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+        Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
+                .stream()
+                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+        List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+        registrosPorTipo.forEach((tipo, lista) -> {
+            Integer totalReclamosFundadosVMA = respuestaVMARepository
+            		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID);
+            Integer totalReclamosRecibidosVMA = respuestaVMARepository
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista),PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID);
+            double porcentaje = ((double) totalReclamosFundadosVMA / totalReclamosRecibidosVMA) * 100;
+            listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
+        });
+        double sumaPorcentaje = listaChart
+                .stream()
+                .mapToDouble(BarChartBasicoDto::getValue).sum();
+        listaChart.add(new BarChartBasicoDto("Promedio", sumaPorcentaje / listaChart.size()));
+        return listaChart;
+ 
+     }
+    
+    
+    public CostoAnualIncurridoCompletoDTO reporteCostoTotalIncurrido(String anio) {
+        List<RegistroVMA> registros = registroVMARepository.findRegistros(anio);
+        Map<String, List<RegistroVMA>> registrosPorTipo = registros
+                .stream()
+                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+
+        List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+       registros.forEach(registro -> {
+           if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
+                   registro.getEstado().equals("COMPLETO")) {
+               BigDecimal costoAnual = respuestaVMARepository
+                       .getCostoAnualIncurridoPorReigstro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+               listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
+           }
+       });
+
+       List<CostoAnualIncurridoDTO> lista = new ArrayList<>();
+
+       registrosPorTipo.forEach((tipoEmpresa, listaRegistros) -> {
+           List<RegistroVMA> registrosCompletos = listaRegistros
+                   .stream()
+                   .filter(registro -> registro.getEstado().equals("COMPLETO"))
+                   .collect(Collectors.toList());
+
+           List<Integer> idsVmaCompleto = mapToIdsRegistrosVma(registrosCompletos);
+
+           if(!idsVmaCompleto.isEmpty()) {
+               BigDecimal cantidadVmaCompletos = BigDecimal.valueOf(idsVmaCompleto.size());
+               BigDecimal sumaCostoTotalPorTipoEmpresaVmaCompleto = respuestaVMARepository
+                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+
+               BigDecimal promedio = sumaCostoTotalPorTipoEmpresaVmaCompleto.divide(cantidadVmaCompletos, 2, RoundingMode.HALF_UP);
+               lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), sumaCostoTotalPorTipoEmpresaVmaCompleto, promedio));
+           } else {
+               lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), BigDecimal.ZERO, BigDecimal.ZERO));
+           }
+       });
+       return new CostoAnualIncurridoCompletoDTO(listaChart, lista);
+    }
+
+    public List<BarChartBasicoDto> reporteCostoAnualPorOtrosGastos(String anio) {
+        List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+        Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
+                .stream()
+                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+        List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+        registrosPorTipo.forEach((tipo, lista) -> {
+            BigDecimal totalReclamosRecibidosVMA = respuestaVMARepository
+                    .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID);
+            listaChart.add(new BarChartBasicoDto(tipo, totalReclamosRecibidosVMA.doubleValue()));
+        });
+
+        double total = listaChart.stream().mapToDouble(BarChartBasicoDto::getValue).sum();
+
+        listaChart.add(new BarChartBasicoDto("TOTAL", total));
+
+       return listaChart;
+    }
+   
+ 
+    //Gráfico 23: Costo anual por conexión incurrido en la identificación, inspección e inscripción de los UND
+    //pendiente, parecido al grafico 22
+    
+    /*
+     * 
+     */
+    
+    // Gráfico 27: Costo anual por otros gastos incurridos en la implementación de los VMA, según tamaño de la EP 
+    
+    /*
+     * formula  Se debe calcular realizando la sumatoria de todas las EPS agrupadas por tamaño y se debe sumar el valor del siguiente campo :
+     * “Costo total anual por otros gastos incurridos en la impl ..”
+     *  private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
+     */
+    
+   /* public List<BarChartBasicoDto> reporteCostoTotalAnualGastosVMA(String anio) {
+  	   List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+         Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos
+                 .stream()
+                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+         List<BarChartBasicoDto> listaChart = new ArrayList<>();
+
+         registrosPorTipo.forEach((tipo, lista) -> {
+        	 double costoTotalAnualMuestrasInopinadas = (double)(respuestaVMARepository
+             		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID));
+            
+             listaChart.add(new BarChartBasicoDto(tipo, costoTotalAnualMuestrasInopinadas));
+         });
+         double sumacostoTotalAnualMuestrasInopinadas = listaChart
+                 .stream()
+                 .mapToDouble(BarChartBasicoDto::getValue).sum();
+         listaChart.add(new BarChartBasicoDto("Total", sumacostoTotalAnualMuestrasInopinadas));
+         return listaChart;
+  
+      }*/
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 }

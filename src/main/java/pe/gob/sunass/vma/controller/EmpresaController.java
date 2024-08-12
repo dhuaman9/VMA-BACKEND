@@ -72,9 +72,8 @@ public class EmpresaController {
 	    return response;
 	  }
 
-
+	  //paginacion
 	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)
-	
 	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
 	                                   @PathVariable(name="size") Integer size) {
 	    ResponseEntity<?> response = null;
@@ -98,7 +97,6 @@ public class EmpresaController {
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	    finally {
-	     // logger.info(" > " + DateUtil.timeElapsed(System.currentTimeMillis() - startProcess) + " took");
 	      logger.info(Constants.Logger.Method.Finalize);
 	    }
 

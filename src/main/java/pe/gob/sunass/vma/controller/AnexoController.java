@@ -28,7 +28,6 @@ public class AnexoController {
     }
     
     //anexo3
-    
     @GetMapping("/registros-und")
     public ResponseEntity<?> getRegistrosUND(@RequestParam(name = "anio") String anio) {
         return ResponseEntity.ok(registroVMAService.listaDeAnexosRelacionEPInspeccionados(anio));
@@ -58,20 +57,30 @@ public class AnexoController {
         return ResponseEntity.ok(registroVMAService.listaDeAnexosEPSAtendieronReclamos(anio));
     }
     
-  //anexo8  . Detalle de los costos de identificación, inspección y registro de los UND
+    //anexo8  Detalle de los costos de identificación, inspección y registro de los UND
     @GetMapping("/registros-costos-und")
-    public ResponseEntity<?> getCostosIdentificacionUND(@RequestParam(name = "anio") String anio) {
-        return ResponseEntity.ok(registroVMAService.listaDeAnexosEPSAtendieronReclamos(anio));
+    public ResponseEntity<?> getCostosUND(@RequestParam(name = "anio") String anio) {
+        return ResponseEntity.ok(registroVMAService.anexoDetalleCostosUND(anio));
     }
     
     
-  //anexo9  Detalle de los costos totales por toma de muestras inopinadas
+    //anexo9  Detalle de los costos totales por toma de muestras inopinadas
     @GetMapping("/registros-costos-totales-muestras-inopinadas")
     public ResponseEntity<?> getDetalleCostosTotalesxMuestrasInopinadas(@RequestParam(name = "anio") String anio) {
-        return ResponseEntity.ok(registroVMAService.listaDeAnexosEPSAtendieronReclamos(anio));
+        return ResponseEntity.ok(registroVMAService.listaAnexosCostosMuestrasInopinadas(anio));
     }
     
+    //anexo10  Detalle de los costos totales incurridos por las Empresas Prestadoras
+    @GetMapping("/registros-costos-totales-incurridos")
+    public ResponseEntity<?> getDetalleCostosTotalesIncurridos(@RequestParam(name = "anio") String anio) {
+        return ResponseEntity.ok(registroVMAService.listaAnexosCostosTotalesIncurridos(anio));
+    }
     
-    
+    //anexo11  Detalle de los ingresos facturados durante el año actual, por conceptos de VMA
+    @GetMapping("/registros-ingresos-vma")
+    public ResponseEntity<?> getIngresosVMA(@RequestParam(name = "anio") String anio) {
+        return ResponseEntity.ok(registroVMAService.listaDeAnexosIngresosVMA(anio));
+    }
+
     
 }

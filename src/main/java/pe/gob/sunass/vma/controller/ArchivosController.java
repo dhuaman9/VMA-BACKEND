@@ -38,8 +38,6 @@ public class ArchivosController {
 	@Autowired
 	private RegistroVMAService registroVMAService;
 		
-	  
-
 	@PostMapping("/upload")
 	public ResponseEntity<?> uploadFiles(@RequestParam(value = "file") MultipartFile file,
 										@RequestParam(value = "registroVMAId") Integer registroVMAId,
