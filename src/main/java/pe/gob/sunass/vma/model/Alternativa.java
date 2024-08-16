@@ -1,7 +1,5 @@
 package pe.gob.sunass.vma.model;
 
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,7 +8,12 @@ import java.io.Serializable;
 @Table(schema = "vma", name = "alternativas")
 public class Alternativa implements Serializable {
 
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_alternativa")
     private Integer idAlternativa;

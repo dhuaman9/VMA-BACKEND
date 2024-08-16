@@ -36,6 +36,7 @@ public class Pregunta  implements Serializable{
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_pregunta", nullable = true)
+	@OrderBy("idAlternativa ASC")
 	private List<Alternativa> alternativas;
 	
 	@Column(name="estado",  nullable=false)
