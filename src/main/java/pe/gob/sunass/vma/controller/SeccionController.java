@@ -31,8 +31,7 @@ public class SeccionController {
 	  public ResponseEntity<?> getList() {
 	    ResponseEntity<?> response = null;
 
-	    logger.info(Constants.Logger.Method.Initialize);
-
+	   
 	    try {
 	      List<SeccionDTO> list = this.seccionesService.findAll();
 
@@ -48,9 +47,7 @@ public class SeccionController {
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	    
 
 	    return response;
 	  }

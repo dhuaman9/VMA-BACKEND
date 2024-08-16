@@ -16,13 +16,31 @@ import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
+
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
 import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalMuestrasInopinadasDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalUNDDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalesIncurridosDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoEvaluacionVmaAnexo1DTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoEvaluacionVmaAnexo2DTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoIngresosImplVmaDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoPorcentajeMuestraInopinadaDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoReclamosVMADTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoRegistroVmaDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoRespuestaSiDTO;
+import pe.gob.sunass.vma.dto.anexos.AnexoTresListadoEPDTO;
 import pe.gob.sunass.vma.model.*;
+import pe.gob.sunass.vma.model.cuestionario.Archivo;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
 import pe.gob.sunass.vma.repository.*;
+import pe.gob.sunass.vma.constants.Constants;
 
 @Service
 public class RegistroVMAService {
@@ -57,18 +75,16 @@ public class RegistroVMAService {
 	@Autowired
 	private EmpresaRepository empresaRepository;
 
-	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
+	
 	private final int PREGUNTA_SI_NO_ID = 1;
 	private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
 	private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
-	private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22;
+	private final int ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID = 22;
 	private final int ALTERNATIVA_UND_INSCRITOS_ID = 18;
 	private final int PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID = 11;
-
 	private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID = 3;
 	private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID = 35;
 	private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID = 1;
-
 	private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID = 26;
 	private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID = 28;
 	private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID = 30;
@@ -78,13 +94,15 @@ public class RegistroVMAService {
 	private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
 	private final int PREGUNTA_COSTO_OTROS_GASTOS_IMPLEMENTACION_ID = 29;
 	private final int PREGUNTA_INGRESOS_FACTURADOS_VMA_ID = 21;
+	private final int ID_PREGUNTA_REMITIO_INFORME = 31;
 	
 	
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		List<RegistroVMA> listRegistroVMA = null;
-		if (usuario.getRole().getIdRol() == 2) {
+		if (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_AdministradorDAP ||
+				usuario.getRole().getIdRol() == Constants.Security.Roles.ID_Consultor ) {
 			listRegistroVMA = this.registroVMARepository.findAllByOrderByIdRegistroVma();
 		} else {
 			listRegistroVMA = this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
@@ -93,6 +111,17 @@ public class RegistroVMAService {
 		List<RegistroVMADTO> listRegistroVMADTO = RegistroVMAAssembler.buildDtoDomainCollection(listRegistroVMA);
 		return listRegistroVMADTO;
 	}
+	
+	 //paginacion
+	  @Transactional(Transactional.TxType.REQUIRES_NEW)
+	  public Page<RegistroVMADTO> findAllOrderById(Pageable pageable) throws Exception {
+	    Page<RegistroVMA> pageDomain = this.registroVMARepository.findAllByOrderByIdRegistroVma(pageable);
+	    Page<RegistroVMADTO> pageDTO = RegistroVMAAssembler.buildDtoModelCollection(pageDomain);
+
+	    return pageDTO;
+	  }
+
+	  
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO findById(Integer id) throws Exception {
@@ -113,7 +142,7 @@ public class RegistroVMAService {
 		if (idRegistroVMA != null) {
 			registroVMA = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			registroVMA.setUpdatedAt(new Date());
-			registroVMA.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
+			registroVMA.setEstado(registroRequest.isRegistroValido() ? Constants.ESTADO_COMPLETO : Constants.ESTADO_INCOMPLETO);
 			saveRespuestas(registroRequest.getRespuestas(), registroVMA);
 			return registroVMA.getIdRegistroVma();
 		} else {
@@ -123,7 +152,7 @@ public class RegistroVMAService {
 			empresa.setIdEmpresa(registroRequest.getIdEmpresa());
 			nuevoRegistro.setEmpresa(usuario.getEmpresa());
 			nuevoRegistro.setUsername(username);
-			nuevoRegistro.setEstado(registroRequest.isRegistroValido() ? "COMPLETO" : "INCOMPLETO");
+			nuevoRegistro.setEstado(registroRequest.isRegistroValido() ? Constants.ESTADO_COMPLETO : Constants.ESTADO_INCOMPLETO);
 			nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			nuevoRegistro.setCreatedAt(new Date());
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
@@ -134,9 +163,12 @@ public class RegistroVMAService {
 
 	@Transactional
 	public void saveRespuestaVMAArchivo(MultipartFile file, Integer registroVMAId, Integer preguntaId,
-			Integer respuestaId) throws IOException {
+		Integer respuestaId) throws IOException {
 
-		ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
+		Optional<RegistroVMA> optRegistroVMA = this.registroVMARepository.findByIdRegistroVma(registroVMAId);
+		
+		//ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
+		ArchivoDTO archivoDTO = alfrescoService.uploadFile(file, optRegistroVMA.get());
 
 		if (Objects.nonNull(respuestaId)) {
 
@@ -154,9 +186,10 @@ public class RegistroVMAService {
 		RegistroVMA registroVMA = new RegistroVMA();
 		registroVMA.setIdRegistroVma(registroVMAId);
 		respuestaVMARepository
-				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));
+				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));  // pendiente  de guardar fechas y/o usuario, x auditoria
 	}
 
+	//anexo 1
 	public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		List<Empresa> empresasDB = empresaRepository.findAll();
 
@@ -165,14 +198,14 @@ public class RegistroVMAService {
 		// anhio)).collect(Collectors.toList());
 
 		// Filtrar empresas de tipo "NINGUNO", ordenar por tipo y mapear a DTO
-		return empresasDB.stream().filter(empresa -> !"NINGUNO".equals(empresa.getTipo())) // Filtrar empresas de tipo
-																							// "NINGUNO"
+		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_SUNASS.equals(empresa.getTipo()))
 				.sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo, si es necesario
 				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
 				.collect(Collectors.toList()); // Colectar en una lista
 
 	}
 
+	//anexo 2
 	public List<AnexoRespuestaSiDTO> listaDeAnexosRegistroMarcaronSi(String anhio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
@@ -195,14 +228,14 @@ public class RegistroVMAService {
 	private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
 		RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
 		boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio)
-				&& registroVmaPorAnhio.getEstado().equals("COMPLETO");
+				&& registroVmaPorAnhio.getEstado().equals(Constants.ESTADO_COMPLETO);
 		boolean remitioInforme = false;
 		if (Objects.nonNull(registroVmaPorAnhio)) {
 			remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(ID_PREGUNTA_REMITIO_INFORME,
 					registroVmaPorAnhio.getIdRegistroVma());
 		}
 
-		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipo(), empresa.getRegimen().equals("RAT"),
+		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipo(), empresa.getRegimen().equals(Constants.Regimen.RAT),
 				registroCompleto, registroCompleto && remitioInforme);
 	}
 
@@ -253,8 +286,7 @@ public class RegistroVMAService {
 
 	public boolean isRegistroCompletado(String username) {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
-		logger.info("booleano registrovma- "
-				+ registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa()));
+	
 		return registroVMARepository.isRegistroCompletado(usuario.getEmpresa().getIdEmpresa());
 	}
 
@@ -274,11 +306,7 @@ public class RegistroVMAService {
 
 	// anexo 3 - Relación de las EP que han realizado avances en la inspección y/o
 	// inscripción en sus registros de los UND bajo su ámbito de influencia
-	/*
-	 * private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16; private
-	 * final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 22; private final int
-	 * ALTERNATIVA_UND_INSCRITOS_ID= 18;
-	 **/
+
 
 	public List<AnexoTresListadoEPDTO> listaDeAnexosRelacionEPInspeccionados(String anhio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
@@ -294,7 +322,7 @@ public class RegistroVMAService {
 					ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
 
 			RespuestaVMA UNDinspeccionados = respuestaVMARepository.findRespuestaAlternativaPorRegistros(
-					ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
+					ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
 
 			RespuestaVMA UNDinscritos = respuestaVMARepository
 					.findRespuestaAlternativaPorRegistros(ALTERNATIVA_UND_INSCRITOS_ID, registroVMA.getIdRegistroVma());
@@ -359,7 +387,7 @@ public class RegistroVMAService {
 
 			RespuestaVMA muestrasInopinadas = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID, registroVMA.getIdRegistroVma());
-
+			logger.info(" Integer.parseInt(muestrasInopinadas.getRespuesta()) preg11- "+Integer.parseInt(muestrasInopinadas.getRespuesta()));
 			RespuestaVMA UNDSobrepasanParametroAnexo1 = respuestaVMARepository.findRespuestaAlternativaPorRegistros(
 					ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID, registroVMA.getIdRegistroVma());
 
@@ -573,6 +601,17 @@ public class RegistroVMAService {
 		  return anexos;
 	  }
 
-	
-	
+
+	public void actualizarEstadoIncompleto(Integer id) {
+		Optional<RegistroVMA> registro = registroVMARepository.findById(id);
+
+		if(registro.isPresent()){
+			RegistroVMA registroVMA = registro.get();
+			registroVMA.setEstado("INCOMPLETO");
+			registroVMA.setUpdatedAt(new Date());
+			registroVMARepository.save(registroVMA);
+		} else {
+			throw new RuntimeException("Registro no encontrado");
+		}
+	}
 }

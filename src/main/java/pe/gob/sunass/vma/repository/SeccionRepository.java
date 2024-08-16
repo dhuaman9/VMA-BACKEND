@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import pe.gob.sunass.vma.model.Empresa;
-import pe.gob.sunass.vma.model.Seccion;
+import pe.gob.sunass.vma.model.cuestionario.Seccion;
 
 
 @Repository

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.SeccionAssembler;
 import pe.gob.sunass.vma.dto.SeccionDTO;
-import pe.gob.sunass.vma.model.Seccion;
+import pe.gob.sunass.vma.model.cuestionario.Seccion;
 import pe.gob.sunass.vma.repository.SeccionRepository;
 
 @Service

@@ -1,8 +1,8 @@
 package pe.gob.sunass.vma.dto;
 
-import pe.gob.sunass.vma.model.TipoArchivo;
-
 import java.util.List;
+
+import pe.gob.sunass.vma.model.cuestionario.TipoArchivo;
 
 public class MetadatoArchivoDto {
     private Integer id;

@@ -33,7 +33,7 @@ import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.FichaDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
-import pe.gob.sunass.vma.model.Cuestionario;
+import pe.gob.sunass.vma.model.cuestionario.Cuestionario;
 import pe.gob.sunass.vma.service.FichaService;
 import pe.gob.sunass.vma.service.UsuarioService;
 
@@ -55,7 +55,7 @@ public class FichasController {
 	  public ResponseEntity<?> getList() {
 	    ResponseEntity<?> response = null;
 
-	    logger.info(Constants.Logger.Method.Initialize);
+	
 
 	    try {
 	      List<FichaDTO> list = this.fichaService.findAll();
@@ -72,9 +72,7 @@ public class FichasController {
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	    
 
 	    return response;
 	  }
@@ -86,8 +84,7 @@ public class FichasController {
 	  public ResponseEntity<?> findById(@PathVariable(name="id") Integer id) {
 	    ResponseEntity<?> response = null;
 	    
-	    logger.info(Constants.Logger.Method.Initialize);
-
+	
 	    try {
 	    	FichaDTO dto = this.fichaService.findById(id);
 
@@ -103,9 +100,7 @@ public class FichasController {
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	   
 
 	    return response;
 	  }
@@ -127,9 +122,6 @@ public class FichasController {
 			      logger.error(ex.getMessage(), ex);
 			      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 			 }
-		    finally {
-		      logger.info(Constants.Logger.Method.Finalize);
-		    }
 
 	    return response;
 	  }
@@ -138,8 +130,7 @@ public class FichasController {
 	  public ResponseEntity<?> update(@RequestBody FichaDTO request) {
 	    ResponseEntity<?> response = null;
 
-	    logger.info(Constants.Logger.Method.Initialize);
-
+	    
 	    try {
 	    	FichaDTO dto = this.fichaService.update(request);
 	    	response = new ResponseEntity<>(dto,HttpStatus.ACCEPTED);
@@ -151,10 +142,7 @@ public class FichasController {
 		      logger.error(ex.getMessage(), ex);
 		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 		 }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
-
+	  
 	    return response;
 	  }
 	  
@@ -191,9 +179,6 @@ public class FichasController {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
 	    }
 	
 	    return response;

@@ -4,33 +4,35 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.gob.sunass.vma.model.RegistroVMA;
+import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.repository.RegistroVMARepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GenerarExcelService {
 
     @Autowired
-    private RegistroVMAService registroVMAService;
+    private RegistroVMARepository registroVMARepository;
 
-    public ByteArrayInputStream generarExcelActivos(Integer empresaId, String estado, Date fechaDesde, Date fechaHasta, String anio, String username) {
-        List<RegistroVMA> registros = registroVMAService.searchRegistroVMA(empresaId, estado, fechaDesde, fechaHasta, anio, username);
+    @Autowired
+    private CuestionarioService cuestionarioService;
+
+    public ByteArrayInputStream generarExcelCuestionario(List<Integer> registrosIds) {
+        List<RegistroVMA> registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Lista de registros VMA");
 
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"N°", "Empresa EPS", "Tamaño de la EPS", "Régimen", "Estado", "Fecha de registro", "Año"};
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-            }
+            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Fecha registro", "Año"));
+
 
             CellStyle headerStyle = workbook.createCellStyle();
             headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
@@ -43,49 +45,64 @@ public class GenerarExcelService {
             CellStyle centeredStyle = workbook.createCellStyle();
             centeredStyle.setAlignment(HorizontalAlignment.CENTER);
 
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
-            }
-
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
             int rowIdx = 1;
+            int indexRowPregunta = 0;
             for (RegistroVMA registro : registros) {
                 Row row = sheet.createRow(rowIdx++);
+                agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
+                agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
+                agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo());
+                agregarCelda(3, row, centeredStyle, formatter.format(registro.getCreatedAt()));
+                agregarCelda(4, row, centeredStyle, registro.getFichaRegistro().getAnio());
 
+                CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
+                List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
 
-                Cell cell0 = row.createCell(0);
-                cell0.setCellValue(rowIdx - 1);
-                cell0.setCellStyle(centeredStyle);
+                int columnaIndex = 4;
+                for (PreguntaDTO pregunta: preguntas) {
+                    columnaIndex++;
+                    if(indexRowPregunta == 0) {
+                        headersList.add(pregunta.getDescripcion());
+                    }
 
-                Cell cell1 = row.createCell(1);
-                cell1.setCellValue(registro.getEmpresa().getNombre());
-                cell1.setCellStyle(centeredStyle);
+                    switch(pregunta.getTipoPregunta()) {
+                        case TEXTO:
+                        case RADIO:
+                            agregarCelda(columnaIndex, row, centeredStyle, getRepuesta(pregunta.getRespuestaDTO()));
+                            break;
+                        case NUMERICO:
+                            StringBuilder respuesta = new StringBuilder();
+                            if(!pregunta.getAlternativas().isEmpty()) {
+                                for (AlternativaDTO altenativa: pregunta.getAlternativas()) {
+                                    respuesta.append(altenativa.getNombreCampo()).append(": ").append(getRepuesta(altenativa.getRespuestaDTO())).append("; ");
+                                }
+                            }else {
+                                respuesta.append(getRepuesta(pregunta.getRespuestaDTO()));
+                            }
 
-                Cell cell2 = row.createCell(2);
-                cell2.setCellValue(registro.getEmpresa().getTipo());
-                cell2.setCellStyle(centeredStyle);
-
-                Cell cell3 = row.createCell(3);
-                cell3.setCellValue(registro.getEmpresa().getRegimen());
-                cell3.setCellStyle(centeredStyle);
-
-                Cell cell4 = row.createCell(4);
-                cell4.setCellValue(registro.getEstado());
-                cell4.setCellStyle(centeredStyle);
-
-                Cell cell5 = row.createCell(5);
-                cell5.setCellValue(formatter.format(registro.getCreatedAt()));
-                cell5.setCellStyle(centeredStyle);
-
-                Cell cell6 = row.createCell(6);
-                cell6.setCellValue(registro.getFichaRegistro().getAnio());
-                cell6.setCellStyle(centeredStyle);
+                            agregarCelda(columnaIndex, row, centeredStyle, respuesta.toString());
+                            break;
+                        case ARCHIVO:
+                            String respuestaArchivo = "";
+                            if(Objects.nonNull(pregunta.getRespuestaDTO())) {
+                                respuestaArchivo = "SÍ SUBIÓ";
+                            }else {
+                                respuestaArchivo = "NO SUBIÓ";
+                            }
+                            agregarCelda(columnaIndex, row, centeredStyle, respuestaArchivo);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                indexRowPregunta++;
             }
 
-            for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
+            for (int i = 0; i < headersList.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headersList.get(i));
+                cell.setCellStyle(headerStyle);
             }
 
             workbook.write(out);
@@ -94,4 +111,15 @@ public class GenerarExcelService {
             throw new RuntimeException("Error al generar el excel" + e.getMessage());
         }
     }
+
+    private String getRepuesta(RespuestaDTO respuestaDTO) {
+        return Objects.nonNull(respuestaDTO) ? respuestaDTO.getRespuesta() : " ";
+    }
+
+    private void agregarCelda(int columna, Row row, CellStyle cellStyle, String valor) {
+        Cell cell6 = row.createCell(columna);
+        cell6.setCellValue(valor);
+        cell6.setCellStyle(cellStyle);
+    }
+
 }

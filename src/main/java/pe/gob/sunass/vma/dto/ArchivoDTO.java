@@ -29,6 +29,9 @@ public class ArchivoDTO implements Serializable {
 		@JsonProperty("fechaActualizacion")
 		private String updatedAt;
 
+		@JsonProperty("username")
+		private String username;
+		
 		
 		public Integer getIdArchivo() {
 			return idArchivo;
@@ -78,5 +81,14 @@ public class ArchivoDTO implements Serializable {
 			this.updatedAt = updatedAt;
 		}
 
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		
 
 }

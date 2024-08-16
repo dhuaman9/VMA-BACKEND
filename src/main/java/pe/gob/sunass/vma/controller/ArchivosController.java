@@ -29,7 +29,6 @@ import pe.gob.sunass.vma.service.RegistroVMAService;
 @RequestMapping("/archivo")
 public class ArchivosController {
 
-	
 	private static Logger logger = LoggerFactory.getLogger(ArchivosController.class);
 	 
 	@Autowired
@@ -38,8 +37,6 @@ public class ArchivosController {
 	@Autowired
 	private RegistroVMAService registroVMAService;
 		
-	  
-
 	@PostMapping("/upload")
 	public ResponseEntity<?> uploadFiles(@RequestParam(value = "file") MultipartFile file,
 										@RequestParam(value = "registroVMAId") Integer registroVMAId,
@@ -58,46 +55,30 @@ public class ArchivosController {
 		}
 	}
 	    
-	@PutMapping("/{id}")
-    public ResponseEntity<ArchivoDTO> updateFile(@PathVariable("id") Integer archivoId,
-                                                  @RequestParam("file") MultipartFile file) {
-        try {
-            // Llamar al servicio para actualizar el archivo
-            ArchivoDTO updatedArchivoDTO = alfrescoService.updateFile(archivoId, file);
-            // Devolver una respuesta con el archivo actualizado
-            
-           //return ResponseEntity.ok(updatedArchivoDTO);
-            return new ResponseEntity<ArchivoDTO>(updatedArchivoDTO,
-                    HttpStatus.ACCEPTED);
-        } catch (ConflictException e) {
-            throw e; // Let the GlobalExceptionHandler handle it
-        }catch (IOException e) {
-            
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-	
-//	@PutMapping("/{id}")
-//    public ResponseEntity<ArchivoDTO> updateFile2(@PathVariable Integer id,
-//            @RequestParam("file") MultipartFile file) {
+//	@PutMapping("/{id}")  //dhr se usa? 
+//    public ResponseEntity<ArchivoDTO> updateFile(@PathVariable("id") Integer archivoId,
+//                                                  @RequestParam("file") MultipartFile file) {
 //        try {
-//            ArchivoDTO updatedArchivo = alfrescoService.updateFile(id, file);
-//            return ResponseEntity.ok(updatedArchivo);
-//        } catch (RuntimeException | IOException e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//            // Llamar al servicio para actualizar el archivo
+//            ArchivoDTO updatedArchivoDTO = alfrescoService.updateFile(archivoId, file);
+//            // Devolver una respuesta con el archivo actualizado
+//            
+//           //return ResponseEntity.ok(updatedArchivoDTO);
+//            return new ResponseEntity<ArchivoDTO>(updatedArchivoDTO,
+//                    HttpStatus.ACCEPTED);
+//        } catch (ConflictException e) {
+//            throw e; // Let the GlobalExceptionHandler handle it
+//        }catch (IOException e) {
+//            
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //        }
 //    }
+	
+
 //  
 	 @GetMapping("/{nodeId}/download")
 	  public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
-//		 String textContent = "Hello, this is a sample text file!";
-//		 byte[] content = textContent.getBytes();
-//
-//		 HttpHeaders headers = new HttpHeaders();
-//		 headers.set(HttpHeaders.CONTENT_TYPE, "text/plain");
-//		 headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"sample.txt\"");
-	        return alfrescoService.downloadFile(nodeId);
-		// return new ResponseEntity<>(content, headers, HttpStatus.OK);
+		 	return alfrescoService.downloadFile(nodeId);
 	  }
 	 
 	  

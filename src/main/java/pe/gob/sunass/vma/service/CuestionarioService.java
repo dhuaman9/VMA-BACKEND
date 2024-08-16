@@ -5,12 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.model.*;
+import pe.gob.sunass.vma.model.cuestionario.Alternativa;
+import pe.gob.sunass.vma.model.cuestionario.Cuestionario;
+import pe.gob.sunass.vma.model.cuestionario.MetadatoArchivo;
+import pe.gob.sunass.vma.model.cuestionario.Pregunta;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
+import pe.gob.sunass.vma.model.cuestionario.Seccion;
+import pe.gob.sunass.vma.model.cuestionario.TipoPregunta;
 import pe.gob.sunass.vma.repository.CuestionarioRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 import pe.gob.sunass.vma.repository.SeccionRepository;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -119,7 +126,6 @@ public class CuestionarioService {
                 pregunta.getTipoPregunta(),
                 pregunta.getAlternativas()
                         .stream()
-                        .sorted(Comparator.comparing(Alternativa::getIdAlternativa))
                         .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
                         .collect(Collectors.toList()),
                 respuestaDTO,
@@ -139,6 +145,7 @@ public class CuestionarioService {
     private AlternativaDTO mapToAlternativaDTO(Alternativa alternativa, RespuestaVMA respuesta) {
         return new AlternativaDTO(alternativa.getIdAlternativa(),
                 alternativa.getNombreCampo(),
+                alternativa.getRequerido(),
                 respuesta != null ? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta()) : null);
     }
 

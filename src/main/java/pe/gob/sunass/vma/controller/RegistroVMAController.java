@@ -7,18 +7,23 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import pe.gob.sunass.vma.constants.Constants;
+import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
-import pe.gob.sunass.vma.model.RegistroVMA;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.security.jwt.JWTProvider;
 import pe.gob.sunass.vma.service.GenerarExcelService;
 import pe.gob.sunass.vma.service.RegistroVMAService;
@@ -66,8 +71,7 @@ public class RegistroVMAController {
 	public ResponseEntity<?> getList(@RequestHeader("Authorization") String token) {
 		ResponseEntity<?> response = null;
 
-		logger.info(Constants.Logger.Method.Initialize);
-
+		
 		try {
 			response = new ResponseEntity<List<RegistroVMADTO>>(
 					this.registroVMAService.findAllOrderById(getUsername(token)), HttpStatus.OK);
@@ -75,13 +79,37 @@ public class RegistroVMAController {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
-		} finally {
-			logger.info(Constants.Logger.Method.Finalize);
-		}
+		} 
 
 		return response;
 	}
 
+	//paginacion
+	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
+	                                   @PathVariable(name="size") Integer size) {
+	    ResponseEntity<?> response = null;
+	    
+	    try {
+	      Pageable pageable = PageRequest.of(num - 1, size);
+	      Page<RegistroVMADTO> page = this.registroVMAService.findAllOrderById(pageable);
+
+	      if (page == null || page.getContent().size() == 0) {
+	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+	      }
+	      else {
+	        response = new ResponseEntity<Page<RegistroVMADTO>>(page, HttpStatus.OK);
+	      }
+	    }
+	    catch (Exception ex) {
+	      logger.error(ex.getMessage(), ex);
+	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+	                                             HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	   
+	    return response;
+	  }
+	
 	@GetMapping("/search")
 	public List<RegistroVMA> searchRegistroVMA(
 			@RequestParam(required = false) Integer empresaId,
@@ -111,9 +139,7 @@ public class RegistroVMAController {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
-		} finally {
-			logger.info(Constants.Logger.Method.Finalize);
-		}
+		} 
 
 		return response;
 	}
@@ -129,19 +155,21 @@ public class RegistroVMAController {
 	 }
 
 	 @GetMapping("/descargar-excel")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
 	 public ResponseEntity<byte[]> generarExcel(
-			 @RequestParam(required = false) Integer empresaId,
-			 @RequestParam(required = false) String estado,
-			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-			 @RequestParam(required = false) String year,
-			 @RequestHeader("Authorization") String token) {
+			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
-				 .generarExcelActivos(empresaId, estado, startDate, endDate, year, getUsername(token));
+				 .generarExcelCuestionario(idsVma);
 
 		 HttpHeaders headers = new HttpHeaders();
-		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
 
 		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+	 }
+
+	@PutMapping("/estado-incompleto/{id}")
+	public ResponseEntity<Void> actualizarEstadoIncompleto(@PathVariable Integer id) {
+		 this.registroVMAService.actualizarEstadoIncompleto(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	 }
 }

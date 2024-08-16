@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import pe.gob.sunass.vma.constants.Constants;
+import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
-import pe.gob.sunass.vma.model.RegistroVMA;
+import pe.gob.sunass.vma.model.Empresa;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.util.DateUtil;
 
 public class RegistroVMAAssembler {
@@ -47,6 +51,22 @@ public class RegistroVMAAssembler {
 	    return listDTO;
 	  }
 
+	  //paginacion
+	  public static Page<RegistroVMADTO> buildDtoModelCollection(Page<RegistroVMA> pageRegistroVMA) throws Exception {
+		    List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
+
+		    for (RegistroVMA registroVMA : pageRegistroVMA) {
+		      listDTO.add(RegistroVMAAssembler.buildDtoModel(registroVMA));
+		    }
+
+		    Page<RegistroVMADTO> pageDTO = new PageImpl<RegistroVMADTO>(listDTO,
+		    		pageRegistroVMA.getPageable(),
+		    		pageRegistroVMA.getTotalElements());
+
+
+		    return pageDTO;
+		  }
+	  
 	  public static List<RegistroVMADTO> buildDtoDomainCollection(Set<RegistroVMA> setRegistroVMA) throws Exception {
 	    List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
 

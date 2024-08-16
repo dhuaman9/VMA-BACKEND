@@ -47,8 +47,7 @@ public class UsuarioController {
 	  public ResponseEntity<?> getList() {
 	    ResponseEntity<?> response = null;
 
-	    logger.info(Constants.Logger.Method.Initialize);
-
+	    
 	    try {
 	      List<UsuarioDTO> list = this.usuarioService.findAll();
 
@@ -63,9 +62,7 @@ public class UsuarioController {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	    
 
 	    return response;
 	  }
@@ -77,10 +74,13 @@ public class UsuarioController {
 	  public ResponseEntity<?> listarUsuariosLDAP() {
 	    ResponseEntity<?> response = null;
 	
-	    logger.info(Constants.Logger.Method.Initialize);
 	
 	    try {
 	      List<UsuarioDTO> list = this.usuarioService.obtenerUsuariosLdap();
+	      
+	      //pendiente usar el otro metodo 
+	      //logger.info("obtener count lista ldap2, metodo 2 : "+usuarioService.obtenerUsuariosLdap2().size());
+	    
 	
 	      if (list.size() == 0) {
 	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
@@ -93,10 +93,7 @@ public class UsuarioController {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
-	
+	    
 	    return response;
 	  }
 
@@ -105,8 +102,6 @@ public class UsuarioController {
 	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
 	                                   @PathVariable(name="size") Integer size ) {
 	    ResponseEntity<?> response = null;
-
-	    logger.info(Constants.Logger.Method.Initialize);
 
 	    try {
 	      Pageable pageable = PageRequest.of(num - 1, size);
@@ -123,10 +118,6 @@ public class UsuarioController {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    finally {
-//	      logger.info(" > " + DateUtil.timeElapsed(System.currentTimeMillis() - startProcess) + " took");
-//	      logger.info(Constants.Logger.Method.Finalize);
 	    }
 
 	    return response;
@@ -154,9 +145,7 @@ public class UsuarioController {
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	    
 
 	    return response;
 	  }
@@ -177,10 +166,7 @@ public class UsuarioController {
 			      logger.error(ex.getMessage(), ex);
 			      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 			 }
-		    finally {
-		      logger.info(Constants.Logger.Method.Finalize);
-		    }
-
+		    
 	    return response;
 	  }
 
@@ -207,9 +193,7 @@ public class UsuarioController {
 	      //throw ex;
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+	    
 //
 	    return response;
 	  }

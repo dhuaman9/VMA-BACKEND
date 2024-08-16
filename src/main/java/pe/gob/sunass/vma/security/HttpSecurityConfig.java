@@ -38,10 +38,6 @@ public class HttpSecurityConfig {
 						.antMatchers(HttpMethod.POST, "/auth/**").permitAll()
 						.antMatchers("/auth/admin-access").hasAuthority("Administrador OTI")
 						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DAP", "CONSULTOR", "REGISTRADOR")
-						/*.antMatchers("/usuario/**","/empresa/**","/ficharegistro/**","/registrovma/**","/reportesvma/**").hasAuthority("ADMIN") //dhr
-						.antMatchers("/empresa/**","/ficharegistro/**","/registrovma/**","/reportesvma/**").hasAuthority("ADMIN2")
-						.antMatchers("/registrovma/**","/reportesvma/**").hasAuthority("REGISTRADOR")
-						.antMatchers("/registrovma/**","/reportesvma/**").hasAuthority("CONSULTOR") //pero no podra registrar o editar en VMA*/
 						.anyRequest().authenticated()
 						)
 				.exceptionHandling()

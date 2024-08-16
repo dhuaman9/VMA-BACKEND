@@ -96,31 +96,75 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.reportePorcentajeUNDPagoAdicional(anio));
     }
     
-    /*
+    
  // grafico 16  Porcentaje de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 del Reglamento de VMA, según tamaño de la EP 
-    @GetMapping("/porcentaje-total-muestras-inopinadas")
-    public ResponseEntity<?> generarReportePorcentajesTUNDParametroAnexo2(@RequestParam("anio") String anio) {
-        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
+    @GetMapping("/porcentaje-und-parametro-anexo2")
+    public ResponseEntity<?> generarReportePorcentajesUNDParametroAnexo2(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDParametrosAnexo2(anio));
     }
     
  // grafico 17  Porcentaje de UND a los que les ha otorgado un plazo adicional (hasta 18 meses) con el fin de implementar las acciones de mejora y acreditar el cumplimiento de los VMA, según tamaño de la EP
-    @GetMapping("/porcentaje-total-muestras-inopinadas")
-    public ResponseEntity<?> generarReporteUNDPlazoAdicional(@RequestParam("anio") String anio) {
-        return ResponseEntity.ok(reporteService.reporteNumeroTotalTomasMuestraInopinadas(anio));
-    }*/
+    @GetMapping("/porcentaje-und-plazo-adicional")
+    public ResponseEntity<?> generarReporteUNDPlazoAdicionalOtorgado(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDOtorgadoPlazoAdicinal(anio));
+    }
     
-  //grafico 18
-    
+  //grafico 18 , Porcentaje de UND que han suscrito un acuerdo en ....  reportePorcentajeUNDSuscritoAcuerdo
+    @GetMapping("/porcentaje-und-suscritos")
+    public ResponseEntity<?> generarReportePorcentajeUNDSuscritoAcuerdo(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeUNDSuscritoAcuerdo(anio));
+    }
     
     
   //grafico 19
     
+    @GetMapping("/porcentaje-reclamos-recibidos-vma")
+    public ResponseEntity<?> generarReportePorcentajeReclamosRecibidosVMA(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reportePorcentajeReclamosRecibidosVMA(anio));
+    }
     
   //grafico 20 
     
+    @GetMapping("/porcentaje-reclamos-fundados-vma")
+    public ResponseEntity<?> generarReporteReclamosFundadosVMA(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteReclamosFundadosVMA(anio));
+    }
     
+    //grafico 21 y 22 , Costo anual incurrido en la identificación, inspección e inscripción de los UND, según tamaño de la EP  
+    //Aqui se excluye a SEDAPAL
+    @GetMapping("/costo-total-incurrido")
+    public ResponseEntity<?> generarReporteCostoTotalIncurrido(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoTotalIncurrido(anio));
+    }
     
-  //grafico 21 y 22
+    //grafico 23 , Costo anual por conexión incurrido en la identificación, inspección e inscripción de los UND. 
+    //Aqui se incluye a SEDAPAL
     
+    @GetMapping("/costo-total-incurrido-por-ep")
+    public ResponseEntity<?> generarReporteCostoTotalAnualIncurrido(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoAnualConexionIncurrido(anio));
+    }
+
     
+    //grafico 24 y 25 , Costo anual incurrido por realizar las tomas de muestras inopinadas, según tamaño de la EP, pero se excluye a SEDAPAL
+    
+    @GetMapping("/costo-anual-incurrido-muestras-inopinadas")
+    public ResponseEntity<?> generarReporteCostoAnualMuestrasInopinadas(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoTotalIncurridoMuestrasInopinadas(anio));
+    }
+    
+    //grafico 26 , Costo anual por conexión incurrido por realizar las tomas de muestras inopinadas , aqui se incluye a SEDAPAL
+    
+    @GetMapping("/costo-anual-incurrido-muestras-inopinadas-completo")
+    public ResponseEntity<?> generarGraficoCostoAnualIncurridoInopinadas(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteGraficoCostoAnualIncurridoMuestrasInopinadas(anio));
+    }
+    
+    //grafico 27
+    @GetMapping("/costo-total-incurrido-otros")
+    public ResponseEntity<?> generarReporteCostoTotalIncurridoOtros(@RequestParam("anio") String anio) {
+        return ResponseEntity.ok(reporteService.reporteCostoAnualPorOtrosGastos(anio));
+    }
+    
+   
 }

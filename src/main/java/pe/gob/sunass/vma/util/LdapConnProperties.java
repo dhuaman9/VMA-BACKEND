@@ -22,6 +22,7 @@ public class LdapConnProperties {
 	private String user;
 	@Value("${ldap.password}")
 	private String password;
+	
 	public String getPrefix() {
 		return prefix;
 	}

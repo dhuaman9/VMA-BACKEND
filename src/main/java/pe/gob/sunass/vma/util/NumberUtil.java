@@ -48,34 +48,34 @@ final public class NumberUtil {
     return (data == null ? defa : new Integer(((BigDecimal) data).intValue()));
   }
 
-  public static NumberFormat getNumberFormat() {
-    return NumberFormat.getInstance(Constants.Locale.Spanish);
-   }
+//  public static NumberFormat getNumberFormat() {
+//    return NumberFormat.getInstance(Constants.Locale.Spanish);
+//   }
+//
+//  public static String format(String pattern, Long number){
+//    DecimalFormat df = format(pattern);
+//    return(df.format(number.longValue()));
+//  }
+//
+//  public static String format(String pattern, Integer number){
+//    DecimalFormat df = format(pattern);
+//    return(df.format(number.intValue()));
+//  }
+//
+//  public static String format(String pattern, Double number){
+//    DecimalFormat df = format(pattern);
+//    return(df.format(number.doubleValue()));
+//  }
 
-  public static String format(String pattern, Long number){
-    DecimalFormat df = format(pattern);
-    return(df.format(number.longValue()));
-  }
-
-  public static String format(String pattern, Integer number){
-    DecimalFormat df = format(pattern);
-    return(df.format(number.intValue()));
-  }
-
-  public static String format(String pattern, Double number){
-    DecimalFormat df = format(pattern);
-    return(df.format(number.doubleValue()));
-  }
-
-  private static DecimalFormat format(String pattern){
-    NumberFormat nf = getNumberFormat();
-    if(nf instanceof DecimalFormat){
-      DecimalFormat df = (DecimalFormat) nf;
-      df.applyPattern(pattern);
-      return(df);
-    }
-    return (null);
-  }
+//  private static DecimalFormat format(String pattern){
+//    NumberFormat nf = getNumberFormat();
+//    if(nf instanceof DecimalFormat){
+//      DecimalFormat df = (DecimalFormat) nf;
+//      df.applyPattern(pattern);
+//      return(df);
+//    }
+//    return (null);
+//  }
 
   public static int getRandom(int max){
   Random random = new Random();
@@ -105,7 +105,7 @@ final public class NumberUtil {
   }
 
 
-  public static String formatStorageUnit(long fileSize){
+ /* public static String formatStorageUnit(long fileSize){
 
   String sizeUnit = "";
   double size = 0;
@@ -128,7 +128,7 @@ final public class NumberUtil {
     }
 
   return format("#,###,###,##0.00", size) + " " + sizeUnit;
-  }
+  }*/
 
   final public static boolean validate(final String value){
     return value.matches("^\\d{1,}?$");

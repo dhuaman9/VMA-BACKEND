@@ -40,7 +40,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter{
 		try {
 			
 			//1. Obtener el header que contiene el jwt
-	        String authHeader = request.getHeader("Authorization"); // Bearer jwt
+	        String authHeader = request.getHeader("Authorization");
 	
 	        if(authHeader == null || !authHeader.startsWith("Bearer ")){
 	            filterChain.doFilter(request, response);

@@ -4,8 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pe.gob.sunass.vma.model.RespuestaVMA;
 
+import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -54,5 +56,11 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	//generico
 	@Query(value="SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalRespuestaPorRegistros(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
+	
+	@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVmaIds", nativeQuery = true)
+	BigDecimal getSumaCostoTotalAnualIncurridoVmasCompleto(List<Integer> registroVmaIds, Integer preguntaId);
+
+	@Query("SELECT r.respuesta FROM RespuestaVMA r WHERE r.registroVMA.idRegistroVma = :registroVmaId AND r.idPregunta = :preguntaId")
+	BigDecimal getCostoAnualIncurridoPorRegistro(Integer registroVmaId, Integer preguntaId);
 	
 }

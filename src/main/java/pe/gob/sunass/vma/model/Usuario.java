@@ -62,8 +62,6 @@ public class Usuario implements UserDetails{
 	@Column(name="correo")
 	private String correo;
 	
-	@Column(name="eps")
-	private String eps;
 	
 	@Column(name="telefono")
 	private String telefono;
@@ -187,13 +185,7 @@ public class Usuario implements UserDetails{
 		this.updatedAt = updatedAt;
 	}
 
-	public String getEps() {
-		return eps;
-	}
 
-	public void setEps(String eps) {
-		this.eps = eps;
-	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

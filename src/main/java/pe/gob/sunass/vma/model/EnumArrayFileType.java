@@ -4,6 +4,8 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.engine.spi.Status;
 import org.hibernate.usertype.UserType;
 
+import pe.gob.sunass.vma.model.cuestionario.TipoArchivo;
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

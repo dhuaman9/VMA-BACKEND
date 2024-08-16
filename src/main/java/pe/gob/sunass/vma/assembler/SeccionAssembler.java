@@ -10,9 +10,8 @@ import org.springframework.data.domain.PageImpl;
 
 import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.SeccionDTO;
+import pe.gob.sunass.vma.model.cuestionario.Seccion;
 import pe.gob.sunass.vma.dto.SeccionDTO;
-import pe.gob.sunass.vma.model.Seccion;
-import pe.gob.sunass.vma.model.Seccion;
 import pe.gob.sunass.vma.util.DateUtil;
 
 public class SeccionAssembler {

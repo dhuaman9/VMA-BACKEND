@@ -8,6 +8,7 @@ public class RespuestaDTO {
     private Integer idRegistroVMA;
 
     public RespuestaDTO() {
+    	
     }
 
     public RespuestaDTO(Integer idRespuesta, Integer idAlternativa, Integer idPregunta, String respuesta) {

@@ -1,13 +1,18 @@
 package pe.gob.sunass.vma.model;
 
+
+
 public class UsuarioLdap {
 
-	private String cuenta;
+	private String cuenta;//cambiar por correo
     private String nombre;
     private String usuario;
-    private String unidadOrganica;//dhr
-    //apellidos
-    //correo
+    private String unidadOrganica;
+//    private String nombres;
+//	private String apellidos;
+//	private String userName;
+//	private String correo;
+	
     
     
 

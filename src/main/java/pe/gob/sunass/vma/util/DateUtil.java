@@ -140,7 +140,7 @@ public class DateUtil {
   	return retValue;
   }
 
-  public static String timeElapsed(long elapsed){
+  /*public static String timeElapsed(long elapsed){
     double time = elapsed;
     String unit = "ms";
 
@@ -160,7 +160,7 @@ public class DateUtil {
     }
 
     return NumberUtil.format("###,###,##0.00", new Double(time)) + " " + unit;
-  }
+  }*/
 
   private static int getDaysOnFirstWeek(){
   	return getDaysOnFirstWeek(Integer.parseInt(format(Constants.Format.Date.Year)));

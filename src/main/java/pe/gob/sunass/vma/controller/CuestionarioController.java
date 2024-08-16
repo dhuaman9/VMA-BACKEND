@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pe.gob.sunass.vma.dto.CuestionarioDTO;
-import pe.gob.sunass.vma.model.Cuestionario;
+import pe.gob.sunass.vma.model.cuestionario.Cuestionario;
 import pe.gob.sunass.vma.service.CuestionarioService;
 import pe.gob.sunass.vma.util.ResponseEntity;
 

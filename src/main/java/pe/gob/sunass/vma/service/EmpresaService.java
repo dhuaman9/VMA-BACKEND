@@ -41,6 +41,7 @@ public class EmpresaService {
 	    return listDTO;
 	  }
 
+	  //paginacion
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
 	    Page<Empresa> pageDomain = this.empresaRepository.findAllByOrderByIdEmpresa(pageable);
@@ -67,19 +68,7 @@ public class EmpresaService {
 	  
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public EmpresaDTO registrar(EmpresaDTO dto) throws Exception {
-	    /*if (dto == null) {
-	      throw new Exception("datos son obligatorios");
-	    }
-	    else if (dto.getNombre() == null || dto.getNombre().isEmpty()) {
-	      throw new Exception("[nombre] es obligatorio");
-	    }
-	    else if (dto.getRegimen() == null || dto.getRegimen().isEmpty()) {
-	      throw new Exception("[regimen] es obligatorio");
-	    }
-	    else if (dto.getTipo() == null || dto.getTipo().isEmpty()) {
-		      throw new Exception("[tipo] es obligatorio");
-		}*/
-	    
+	  
 	  
 	    List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
 	    /*if (list != null && list.size() > 0) {
@@ -87,7 +76,7 @@ public class EmpresaService {
 	    }*/
 	    if (list != null && list.size() > 0) {
 	    	 throw new FailledValidationException("La empresa "+ dto.getNombre() +" ya existe, registre uno nuevo.");
-	          // throw new BusinessException("El Username ya existe, registre otro por favor.");
+	      
 	    }
 
 

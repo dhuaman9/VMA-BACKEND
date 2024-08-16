@@ -1,8 +1,8 @@
 package pe.gob.sunass.vma.dto;
 
-import pe.gob.sunass.vma.model.TipoPregunta;
-
 import java.util.List;
+
+import pe.gob.sunass.vma.model.cuestionario.TipoPregunta;
 
 public class PreguntaDTO {
     private Integer idPregunta;

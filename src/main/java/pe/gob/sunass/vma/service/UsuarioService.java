@@ -117,17 +117,13 @@ public class UsuarioService   {
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public UsuarioDTO registrar(UsuarioDTO dto) throws Exception  {
 		  
-		  //BadValidationRequestValidation
-	    /*if (dto == null) {
-	      throw new FailledValidationException("datos son obligatorios");
-	    }*/
-
+	
 	    List<Usuario> list = this.usuarioRepository.findByUserNameAndEstado(dto.getUserName(),true);
 	    if (list != null && list.size() > 0) {
-	    	 throw new FailledValidationException("El Username ya existe, registre otro por favor.");
-	          // throw new BusinessException("El Username ya existe, registre otro por favor.");
+	    	 throw new FailledValidationException("El Username ya existe, debe registrar otro.");
+	       
 	    }
-//
+
 	    Optional<Role> optRole = this.roleRepository.findById(dto.getRole().getIdRole());
 	    
 	    
@@ -136,19 +132,18 @@ public class UsuarioService   {
 	    if (dto.getTipo().equals("SUNASS")) {
 	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
 	    	
-	    	usuario.setTipo("SUNASS");  //dhr, por mejorar
+	    	usuario.setTipo("SUNASS");
 	    	usuario.setRole(optRole.get());
 	    	usuario.setNombres(dto.getNombres().toUpperCase());
 			usuario.setApellidos(dto.getApellidos().toUpperCase());
 			usuario.setUserName(dto.getUserName().toLowerCase());
-			usuario.setPassword("");
+			usuario.setPassword("");// no se registra, sino se valida por el  AD
 		
-	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); //dhr , se otiene del AD 
-	    	usuario.setCorreo(dto.getCorreo()); //dhr , se otiene del AD 
+	    	usuario.setUnidadOrganica(dto.getUnidadOrganica()); // se obtiene del AD 
+	    	usuario.setCorreo(dto.getCorreo()); // se obtiene del AD 
 	    	
-			usuario.setEmpresa(optEmpresa1.get()); //debe ir un metodo con parametro  optEmpresa.get()
+			usuario.setEmpresa(optEmpresa1.get());
 			
-			//usuario.setEps("Sunass");
 			usuario.setTelefono(dto.getTelefono());
 			usuario.setEstado(true);
 	    	usuario.setCreatedAt(new Date());  //auditoria
@@ -163,10 +158,9 @@ public class UsuarioService   {
 			 usuario.setNombres(dto.getNombres().toUpperCase());
 			 usuario.setApellidos(dto.getApellidos().toUpperCase());
 			 usuario.setUserName(dto.getUserName().toLowerCase());
-			 usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+			 usuario.setPassword(passwordEncoder.encode(dto.getPassword()));  //el password se encriptara con el BCryptPasswordEncoder
 			 usuario.setUnidadOrganica("");
 			 usuario.setCorreo(dto.getCorreo());
-			 //usuario.setEps(dto.getEps());
 			 usuario.setEmpresa(optEmpresa2.get());
 			 usuario.setTelefono(dto.getTelefono());
 			 usuario.setEstado(new Boolean(true));
@@ -248,7 +242,7 @@ public class UsuarioService   {
 	          Optional<Role> optRole = this.roleRepository.findById(dto.getRole().getIdRole());
 
 	          if (!optRole.isPresent()) {
-	            throw new Exception("[role.id] no se encuentra");
+	            throw new Exception(" el  rol no existe");
 	          }
 	          usuario.setRole(optRole.get());
 	        }
@@ -307,9 +301,7 @@ public class UsuarioService   {
 		DirContext context = null;
 		
 		try {
-			
 			context =  ldapUtil.validarWithOutSimpleAuthenticacion(userName,password);
-			
 			return context;
 		
 		} catch (Exception ex) {
@@ -325,7 +317,21 @@ public class UsuarioService   {
 		}
 	}
 	
+	//pendiente de usar
+	/*public  List<UsuarioLdap> obtenerUsuariosLdap2()  {
+		 try {
+		        
+		        List<UsuarioLdap> usuarios = ldapUtil.listarTodosUsuariosLDAP();
+		        return usuarios;
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		    return null;
+		
+	}*/
+	
 	public  List<UsuarioDTO> obtenerUsuariosLdap() {
+		
 		try {
 			List<UsuarioDTO> listaUsuario = new ArrayList<>();
 	        DirContext ldapContext = conectarLDAP();
@@ -335,7 +341,6 @@ public class UsuarioService   {
 	        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	        String searchFilter = "(&(objectClass=user))";
 	        
-	        //String searchBase = "OU=Usuarios,DC=sunass,DC=gob,DC=pe";
 	        String searchBaseLima = "OU=Lima,OU=Usuarios,DC=sunass,DC=gob,DC=pe";
 	        String searchBaseProvincia = "OU=Provincias,OU=Usuarios,DC=sunass,DC=gob,DC=pe";
 

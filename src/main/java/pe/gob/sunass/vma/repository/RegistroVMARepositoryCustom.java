@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
-import pe.gob.sunass.vma.model.RegistroVMA;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 @Repository
 public interface RegistroVMARepositoryCustom  extends JpaRepository<RegistroVMA, Integer>, JpaSpecificationExecutor<RegistroVMA> {
