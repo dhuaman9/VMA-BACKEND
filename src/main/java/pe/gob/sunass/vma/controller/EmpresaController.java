@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.gob.sunass.vma.constants.Constants;
@@ -43,34 +44,40 @@ public class EmpresaController {
 	  }
 
 	
-	  @GetMapping(path="/list",produces=MediaType.APPLICATION_JSON_VALUE)
-	  //@PreAuthorize("hasAuthority('Administrador2')") //dhr
-	  public ResponseEntity<?> getList() {
-	    ResponseEntity<?> response = null;
+	@GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList(
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "10") int size,
+			@RequestParam(value = "filter", required = false) String filter) {
 
-	    logger.info(Constants.Logger.Method.Initialize);
+		ResponseEntity<?> response = null;
 
-	    try {
-	      List<EmpresaDTO> list = this.empresaService.findAll();
+		logger.info(Constants.Logger.Method.Initialize);
 
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    finally {
-	      logger.info(Constants.Logger.Method.Finalize);
-	    }
+		try {
+			Pageable pageable = PageRequest.of(page, size);
+			Page<EmpresaDTO> empresaPage;
 
-	    return response;
-	  }
+			if (filter != null && !filter.isEmpty()) {
+				empresaPage = this.empresaService.findByFilter(filter, pageable);
+			} else {
+				empresaPage = this.empresaService.findAll(pageable);
+			}
+
+			if (empresaPage.isEmpty()) {
+				response = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<>(empresaPage, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		} finally {
+			logger.info(Constants.Logger.Method.Finalize);
+		}
+		return response;
+	}
 
 	  //paginacion
 	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)

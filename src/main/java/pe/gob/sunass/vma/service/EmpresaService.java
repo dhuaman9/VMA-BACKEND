@@ -41,6 +41,13 @@ public class EmpresaService {
 	    return listDTO;
 	  }
 
+	  @Transactional(Transactional.TxType.REQUIRES_NEW)
+	  public Page<EmpresaDTO> findByFilter(String filter, Pageable pageable) throws Exception {
+		Page<Empresa> pageDomain = this.empresaRepository.findByFilter(filter, pageable);
+		Page<EmpresaDTO> pageDTO =  EmpresaAssembler.buildDtoModelCollection(pageDomain);
+		return pageDTO;
+	  }
+
 	  //paginacion
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
