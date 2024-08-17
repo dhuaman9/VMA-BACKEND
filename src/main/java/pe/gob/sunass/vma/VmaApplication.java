@@ -9,9 +9,11 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
+@PropertySource("classpath:alfresco.properties")
 public class VmaApplication extends SpringBootServletInitializer{
 
 	@Autowired
