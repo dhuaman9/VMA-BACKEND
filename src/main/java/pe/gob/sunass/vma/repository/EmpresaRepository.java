@@ -27,7 +27,12 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 	  @Query("SELECT e FROM Empresa e WHERE e.nombre = :nombre")
 	  public Optional<Empresa> findEmpresaByName(@Param("nombre") String nombre);
 
-	  
+	  @Query("SELECT e FROM Empresa e WHERE " +
+			  "LOWER(e.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
+			  "LOWER(e.regimen) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
+			  "LOWER(e.tipo) LIKE LOWER(CONCAT('%', :filter, '%'))")
+			  Page<Empresa> findByFilter(@Param("filter") String filter, Pageable pageable);
+
 //	  public List<ProyectoDomain> findByEmpresaAndIdNotAndEstado(String proyecto, Integer id, Boolean estado);
 
 }

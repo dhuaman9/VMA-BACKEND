@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.gob.sunass.vma.constants.Constants;
@@ -44,7 +45,6 @@ public class EmpresaController {
 
 	
 	  @GetMapping(path="/list",produces=MediaType.APPLICATION_JSON_VALUE)
-	  //@PreAuthorize("hasAuthority('Administrador2')") //dhr
 	  public ResponseEntity<?> getList() {
 	    ResponseEntity<?> response = null;
 
@@ -57,8 +57,7 @@ public class EmpresaController {
 	      else {
 	        response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
 	      }
-	    }
-	    catch (Exception ex) {
+	    }catch (Exception ex) {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,34 +66,38 @@ public class EmpresaController {
 	    return response;
 	  }
 
-	  //paginacion
-	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
-	                                   @PathVariable(name="size") Integer size) {
-	    ResponseEntity<?> response = null;
-	    
-	   
+		@GetMapping(path = "/listarPaginado", produces = MediaType.APPLICATION_JSON_VALUE)
+		public ResponseEntity<?> getList(
+				@RequestParam(value = "page", defaultValue = "0") int page,
+				@RequestParam(value = "size", defaultValue = "10") int size,
+				@RequestParam(value = "filter", required = false) String filter) {
 
-	    try {
-	      Pageable pageable = PageRequest.of(num - 1, size);
-	      Page<EmpresaDTO> page = this.empresaService.findAll(pageable);
+			ResponseEntity<?> response = null;
 
-	      if (page == null || page.getContent().size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<Page<EmpresaDTO>>(page, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	   
+			
 
-	    return response;
-	  }
+			try {
+				Pageable pageable = PageRequest.of(page, size);
+				Page<EmpresaDTO> empresaPage;
+
+				if (filter != null && !filter.isEmpty()) {
+					empresaPage = this.empresaService.findByFilter(filter, pageable);
+				} else {
+					empresaPage = this.empresaService.findAll(pageable);
+				}
+
+				if (empresaPage.isEmpty()) {
+					response = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+				} else {
+					response = new ResponseEntity<>(empresaPage, HttpStatus.OK);
+				}
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
+				response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+						HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			return response;
+		}
 
 	  @GetMapping(path="/findbyid/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
 	 

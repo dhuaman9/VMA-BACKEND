@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -112,14 +115,7 @@ public class RegistroVMAService {
 		return listRegistroVMADTO;
 	}
 	
-	 //paginacion
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public Page<RegistroVMADTO> findAllOrderById(Pageable pageable) throws Exception {
-	    Page<RegistroVMA> pageDomain = this.registroVMARepository.findAllByOrderByIdRegistroVma(pageable);
-	    Page<RegistroVMADTO> pageDTO = RegistroVMAAssembler.buildDtoModelCollection(pageDomain);
-
-	    return pageDTO;
-	  }
+	 
 
 	  
 
@@ -239,19 +235,57 @@ public class RegistroVMAService {
 				registroCompleto, registroCompleto && remitioInforme);
 	}
 
-	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
-			String year, String username) {
+//	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
+//			String year, String username) {
+//		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+//		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
+//		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
+//		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
+//
+//		if (usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
+//			List<Predicate> predicates = new ArrayList<>();
+//
+//			if (empresaId != null) {
+//				predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")),
+//						cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
+//			}
+//			if (estado != null) {
+//				predicates.add(cb.equal(registroVMA.get("estado"), estado));
+//			}
+//			if (startDate != null) {
+//				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
+//			}
+//			if (endDate != null) {
+//				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
+//			}
+//			if (year != null) {
+//				predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
+//			}
+//
+//			query.where(predicates.toArray(new Predicate[0]));
+//
+//			return entityManager.createQuery(query).getResultList();
+//		}
+//
+//		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
+//	}
+	
+	public Page<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
+			String year, String username, int page, int pageSize, String search) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
 		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
+		Pageable pageable = PageRequest.of(page, pageSize);
 
 		if (usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
 			List<Predicate> predicates = new ArrayList<>();
 
 			if (empresaId != null) {
-				predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")),
-						cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
+				predicates.add(cb.or(
+						cb.isNull(registroVMA.get("empresa")),
+						cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)
+				));
 			}
 			if (estado != null) {
 				predicates.add(cb.equal(registroVMA.get("estado"), estado));
@@ -265,14 +299,44 @@ public class RegistroVMAService {
 			if (year != null) {
 				predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
 			}
+			if (search != null) {
+				Predicate namePredicate = cb.like(cb.lower(registroVMA.get("empresa").get("nombre")),
+						"%" + search.toLowerCase() + "%");
+				Predicate typePredicate = cb.like(cb.lower(registroVMA.get("empresa").get("tipo")),
+						"%" + search.toLowerCase() + "%");
+				Predicate regimenPredicate = cb.like(cb.lower(registroVMA.get("empresa").get("regimen")),
+						"%" + search.toLowerCase() + "%");
+				Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")),
+						"%" + search.toLowerCase() + "%");
+				Predicate anioPredicate = cb.like(cb.lower(registroVMA.get("fichaRegistro").get("anio")),
+						"%" + search.toLowerCase() + "%");
+				predicates.add(cb.or(namePredicate, typePredicate,regimenPredicate, estadoPredicate, anioPredicate));
+			}
 
 			query.where(predicates.toArray(new Predicate[0]));
+			query.orderBy(cb.asc(registroVMA.get("idRegistroVma")));
+			TypedQuery<RegistroVMA> typedQuery = entityManager.createQuery(query);
 
-			return entityManager.createQuery(query).getResultList();
+			// Calculate pagination
+			int firstResult = pageable.getPageNumber() * pageable.getPageSize();
+			typedQuery.setFirstResult(firstResult);
+			typedQuery.setMaxResults(pageable.getPageSize());
+
+			List<RegistroVMA> resultList = typedQuery.getResultList();
+
+			// Count query
+			CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+			Root<RegistroVMA> countRoot = countQuery.from(RegistroVMA.class);
+			countQuery.select(cb.count(countRoot));
+			countQuery.where(predicates.toArray(new Predicate[0]));
+			Long total = entityManager.createQuery(countQuery).getSingleResult();
+
+			return new PageImpl<>(resultList, pageable, total);
 		}
 
-		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
+		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa(), pageable);
 	}
+
 
 	private void saveRespuestas(List<RespuestaDTO> respuestasRequest, RegistroVMA registro) {
 		respuestaVMARepository.saveAll(respuestasRequest.stream()

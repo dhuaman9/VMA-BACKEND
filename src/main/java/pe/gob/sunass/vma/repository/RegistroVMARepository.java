@@ -21,7 +21,9 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	public List<RegistroVMA> findAllByOrderByIdRegistroVma();
 	
 	//paginacion
-	public Page<RegistroVMA> findAllByOrderByIdRegistroVma(Pageable pageable);
+	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
+	public Page<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa, Pageable pageable);
+
 
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);

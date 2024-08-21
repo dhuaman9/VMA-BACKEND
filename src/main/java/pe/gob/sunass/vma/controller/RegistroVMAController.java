@@ -84,43 +84,35 @@ public class RegistroVMAController {
 		return response;
 	}
 
-	//paginacion
-	  @GetMapping(path="/page/{num}/{size}", produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
-	                                   @PathVariable(name="size") Integer size) {
-	    ResponseEntity<?> response = null;
-	    
-	    try {
-	      Pageable pageable = PageRequest.of(num - 1, size);
-	      Page<RegistroVMADTO> page = this.registroVMAService.findAllOrderById(pageable);
-
-	      if (page == null || page.getContent().size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<Page<RegistroVMADTO>>(page, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	   
-	    return response;
-	  }
+	
+	
+//	@GetMapping("/search")
+//	public List<RegistroVMA> searchRegistroVMA(
+//			@RequestParam(required = false) Integer empresaId,
+//			@RequestParam(required = false) String estado,
+//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+//			@RequestParam(required = false) String year,
+//			@RequestHeader("Authorization") String token) {
+//
+//		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token));
+//	}
 	
 	@GetMapping("/search")
-	public List<RegistroVMA> searchRegistroVMA(
+	public Page<RegistroVMA> searchRegistroVMA(
 			@RequestParam(required = false) Integer empresaId,
 			@RequestParam(required = false) String estado,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
 			@RequestParam(required = false) String year,
+			@RequestParam(name = "page", defaultValue = "0") Integer page,
+			@RequestParam(name = "size", defaultValue = "8") Integer size,
+			@RequestParam(required = false) String search,
 			@RequestHeader("Authorization") String token) {
 
-		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token));
+		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token), page, size, search);
 	}
+
 
 	@GetMapping(path = "/findByid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> findById(@PathVariable(name = "id") Integer id) {
