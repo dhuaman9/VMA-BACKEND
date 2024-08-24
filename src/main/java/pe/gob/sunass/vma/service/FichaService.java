@@ -110,16 +110,13 @@ public class FichaService {
             logger.info("No hay fichas en la base de datos.");
         }
 
-	    
-	    
-	    
 	    FichaRegistro fichaRegistro = new FichaRegistro();
 	    fichaRegistro.setAnio(dto.getAnio());
 	    fichaRegistro.setFechaInicio(dto.getFechaInicio());
 	    fichaRegistro.setFechaFin(dto.getFechaFin());
 	    fichaRegistro.setCreatedAt(new Date());
 	    fichaRegistro.setUpdatedAt(null);
-	    fichaRegistro.setIdUsuarioRegistro(1); //dhr, por el momento, seteamos al usuario 1, pero   debe pasar el ID del user en sesion.
+	    fichaRegistro.setIdUsuarioRegistro(1); //dhr, pendiente por mejorar pasar el objeto  del user en sesion.
 	    fichaRegistro.setIdUsuarioActualizacion(null);
 	    
 	    fichaRegistro = this.fichaRepository.save(fichaRegistro);
@@ -142,10 +139,6 @@ public class FichaService {
 	      if (dto.getAnio() != null && !dto.getAnio().isEmpty()) {
 	          //int countAnio = this.fichaRepository.countByYear(dto.getAnio());
 
-	         /* if ( countAnio > 2) {
-	            throw new FailledValidationException("El valor anio no se registra más de dos veces en  año actual."); // en duda
-	          }*/
-	    	  
 	         fichaRegistro.setAnio(dto.getAnio());
 	        
 	      }
@@ -177,6 +170,8 @@ public class FichaService {
 	      List<FichaRegistro> listaFicha2 = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista para validar si esta en algun rango.
 	      if (listaFicha2 != null && !listaFicha2.isEmpty()) {
 		    	
+	    	  logger.info("fecha inicio " + dto.getFechaInicio());
+	    	  logger.info("fecha fin " + dto.getFechaFin());
 		    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
 		            logger.info("error: La fecha de inicio es mayor o igual que la fecha fin.");
 		            throw new FailledValidationException("Error: La Fecha de Inicio es mayor o igual que la Fecha Fin");
@@ -186,7 +181,7 @@ public class FichaService {
 		    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
 				}
 
-		        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+		        if (validarFechasForUpdate(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
 		            
 		        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
 		            
@@ -236,6 +231,11 @@ public class FichaService {
 	  
 	  public boolean validarFechas(LocalDate fechaInicio, LocalDate fechaFin) {
 	        long count = fichaRepository.validarFechas(fechaInicio, fechaFin);
+	        return count == 0;
+	  }
+	  
+	  public boolean validarFechasForUpdate(LocalDate fechaInicio, LocalDate fechaFin) {
+	        long count = fichaRepository.validarFechasForUpdate(fechaInicio, fechaFin);
 	        return count == 0;
 	  }
 	  

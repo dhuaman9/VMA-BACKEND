@@ -39,9 +39,17 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	           "   OR :fechaFin BETWEEN r.fechaInicio AND r.fechaFin " +
 	           "   OR r.fechaInicio BETWEEN :fechaInicio AND :fechaFin " +
 	           "   OR r.fechaFin BETWEEN :fechaInicio AND :fechaFin")
-	    long validarFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
+	  long validarFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);//para el registro de nuevas fechas
 
-
+	  @Query("SELECT COUNT(r) " +
+	           "FROM FichaRegistro r " +
+	           "WHERE  r.idFichaRegistro <> :idFichaRegistro AND ( :fechaInicio BETWEEN r.fechaInicio AND r.fechaFin " +
+	           "   OR :fechaFin BETWEEN r.fechaInicio AND r.fechaFin " +
+	           "   OR r.fechaInicio BETWEEN :fechaInicio AND :fechaFin " +
+	           "   OR r.fechaFin BETWEEN :fechaInicio AND :fechaFin  )")
+	  long validarFechasForUpdate(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin); //se utiliza para actualizar fechas
+	  
+	  
 	  @Query("SELECT r " +
 		       "FROM FichaRegistro r " +
 		       "WHERE :fecha BETWEEN r.fechaInicio AND r.fechaFin")
