@@ -24,6 +24,9 @@ public class MetadatoArchivo {
 
     private boolean requerido;
 
+    @Column(name = "is_decimal")
+    private boolean isDecimal;
+
     public Integer getId() {
         return id;
     }
@@ -54,5 +57,13 @@ public class MetadatoArchivo {
 
     public void setRequerido(boolean requerido) {
         this.requerido = requerido;
+    }
+
+    public boolean isDecimal() {
+        return isDecimal;
+    }
+
+    public void setDecimal(boolean decimal) {
+        isDecimal = decimal;
     }
 }

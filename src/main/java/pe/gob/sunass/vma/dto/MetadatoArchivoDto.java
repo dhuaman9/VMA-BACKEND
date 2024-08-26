@@ -9,12 +9,14 @@ public class MetadatoArchivoDto {
     private boolean requerido;
     private List<TipoArchivo> tipoArchivosPermitidos;
     private Long maxSizeInMB;
+    private boolean isDecimal;
 
-    public MetadatoArchivoDto(List<TipoArchivo> tipoArchivosPermitidos, Long maxSizeInMB, boolean requerido, Integer id) {
+    public MetadatoArchivoDto(List<TipoArchivo> tipoArchivosPermitidos, Long maxSizeInMB, boolean requerido, Integer id, boolean isDecimal) {
         this.tipoArchivosPermitidos = tipoArchivosPermitidos;
         this.maxSizeInMB = maxSizeInMB;
         this.requerido = requerido;
         this.id = id;
+        this.isDecimal = isDecimal;
     }
 
     public MetadatoArchivoDto() {
@@ -50,5 +52,13 @@ public class MetadatoArchivoDto {
 
     public void setRequerido(boolean requerido) {
         this.requerido = requerido;
+    }
+
+    public boolean isDecimal() {
+        return isDecimal;
+    }
+
+    public void setDecimal(boolean decimal) {
+        isDecimal = decimal;
     }
 }
