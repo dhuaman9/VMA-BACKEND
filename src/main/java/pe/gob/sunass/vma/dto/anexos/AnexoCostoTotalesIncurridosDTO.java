@@ -1,20 +1,22 @@
 package pe.gob.sunass.vma.dto.anexos;
 
+import java.math.BigDecimal;
+
 public class AnexoCostoTotalesIncurridosDTO {
 
 	private String nombreEmpresa;
     private String tamanioEmpresa;
-    private double costoIdentInspeccionRegistroUND;
-    private double costoMuestrasInopinadas;
-    private double costosOtrosGastosImplementacion;
+    private BigDecimal costoIdentInspeccionRegistroUND;
+    private BigDecimal costoMuestrasInopinadas;
+    private BigDecimal costosOtrosGastosImplementacion;
     
 	public AnexoCostoTotalesIncurridosDTO() {
 	
 	}
 
 	public AnexoCostoTotalesIncurridosDTO(String nombreEmpresa, String tamanioEmpresa,
-			double costoIdentInspeccionRegistroUND, double costoMuestrasInopinadas,
-			double costosOtrosGastosImplementacion) {
+			BigDecimal costoIdentInspeccionRegistroUND, BigDecimal costoMuestrasInopinadas,
+			BigDecimal costosOtrosGastosImplementacion) {
 		super();
 		this.nombreEmpresa = nombreEmpresa;
 		this.tamanioEmpresa = tamanioEmpresa;
@@ -39,27 +41,27 @@ public class AnexoCostoTotalesIncurridosDTO {
 		this.tamanioEmpresa = tamanioEmpresa;
 	}
 
-	public double getCostoIdentInspeccionRegistroUND() {
+	public BigDecimal getCostoIdentInspeccionRegistroUND() {
 		return costoIdentInspeccionRegistroUND;
 	}
 
-	public void setCostoIdentInspeccionRegistroUND(double costoIdentInspeccionRegistroUND) {
+	public void setCostoIdentInspeccionRegistroUND(BigDecimal costoIdentInspeccionRegistroUND) {
 		this.costoIdentInspeccionRegistroUND = costoIdentInspeccionRegistroUND;
 	}
 
-	public double getCostoMuestrasInopinadas() {
+	public BigDecimal getCostoMuestrasInopinadas() {
 		return costoMuestrasInopinadas;
 	}
 
-	public void setCostoMuestrasInopinadas(double costoMuestrasInopinadas) {
+	public void setCostoMuestrasInopinadas(BigDecimal costoMuestrasInopinadas) {
 		this.costoMuestrasInopinadas = costoMuestrasInopinadas;
 	}
 
-	public double getCostosOtrosGastosImplementacion() {
+	public BigDecimal getCostosOtrosGastosImplementacion() {
 		return costosOtrosGastosImplementacion;
 	}
 
-	public void setCostosOtrosGastosImplementacion(double costosOtrosGastosImplementacion) {
+	public void setCostosOtrosGastosImplementacion(BigDecimal costosOtrosGastosImplementacion) {
 		this.costosOtrosGastosImplementacion = costosOtrosGastosImplementacion;
 	}
     

@@ -1,17 +1,19 @@
 package pe.gob.sunass.vma.dto.anexos;
 
+import java.math.BigDecimal;
+
 public class AnexoIngresosImplVmaDTO {
 
 	private String nombreEmpresa;
 	private String tamanioEmpresa;
-	private double ingresosVma;
+	private  BigDecimal ingresosVma;
 
 	
 	public AnexoIngresosImplVmaDTO() {
 
 	}
 
-	public AnexoIngresosImplVmaDTO(String nombreEmpresa, String tamanioEmpresa, double ingresosVma) {
+	public AnexoIngresosImplVmaDTO(String nombreEmpresa, String tamanioEmpresa, BigDecimal ingresosVma) {
 		this.nombreEmpresa = nombreEmpresa;
 		this.tamanioEmpresa = tamanioEmpresa;
 		this.ingresosVma = ingresosVma;
@@ -33,11 +35,11 @@ public class AnexoIngresosImplVmaDTO {
 		this.tamanioEmpresa = tamanioEmpresa;
 	}
 
-	public double getIngresosVma() {
+	public BigDecimal getIngresosVma() {
 		return ingresosVma;
 	}
 
-	public void setIngresosVma(int ingresosVma) {
+	public void setIngresosVma(BigDecimal ingresosVma) {
 		this.ingresosVma = ingresosVma;
 	}
 

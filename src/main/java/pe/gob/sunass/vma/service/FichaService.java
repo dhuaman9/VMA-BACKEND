@@ -181,7 +181,7 @@ public class FichaService {
 		    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
 				}
 
-		        if (validarFechasForUpdate(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+		        if (validarFechasForUpdate(dto.getIdFichaRegistro(), dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
 		            
 		        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
 		            
@@ -234,8 +234,8 @@ public class FichaService {
 	        return count == 0;
 	  }
 	  
-	  public boolean validarFechasForUpdate(LocalDate fechaInicio, LocalDate fechaFin) {
-	        long count = fichaRepository.validarFechasForUpdate(fechaInicio, fechaFin);
+	  public boolean validarFechasForUpdate(Integer idFichaRegistro, LocalDate fechaInicio, LocalDate fechaFin) {
+	        long count = fichaRepository.validarFechasForUpdate(idFichaRegistro, fechaInicio, fechaFin);
 	        return count == 0;
 	  }
 	  

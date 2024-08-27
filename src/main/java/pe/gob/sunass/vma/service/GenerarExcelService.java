@@ -5,7 +5,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 
 import java.io.ByteArrayInputStream;
@@ -23,15 +25,33 @@ public class GenerarExcelService {
 
     @Autowired
     private CuestionarioService cuestionarioService;
+    
+    @Autowired
+    private EmpresaRepository empresaRepository;
 
     public ByteArrayInputStream generarExcelCuestionario(List<Integer> registrosIds) {
-        List<RegistroVMA> registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
+    	
+    	boolean todosRegistrosVMA = false;
+    	List<RegistroVMA> registros =new ArrayList<RegistroVMA>();
+    	
+    	if (registrosIds == null || registrosIds.size() ==0 ) {
+    		registros = registroVMARepository.findAllByOrderByIdRegistroVma();
+    		todosRegistrosVMA=true;
+    		
+		} else {
+			registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
+		}
+    	
+      
+        List<Empresa> empresasSinRegistroVMA =new ArrayList<>();
+        empresasSinRegistroVMA = empresaRepository.findByRegistroVmaIsNull();
+        
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Lista de registros VMA");
 
             Row headerRow = sheet.createRow(0);
-            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Fecha registro", "Año"));
+            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Estado","Fecha registro", "Año"));
 
 
             CellStyle headerStyle = workbook.createCellStyle();
@@ -53,13 +73,14 @@ public class GenerarExcelService {
                 agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
                 agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
                 agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo());
-                agregarCelda(3, row, centeredStyle, formatter.format(registro.getCreatedAt()));
-                agregarCelda(4, row, centeredStyle, registro.getFichaRegistro().getAnio());
+                agregarCelda(3, row, centeredStyle, registro.getEstado());
+                agregarCelda(4, row, centeredStyle, formatter.format(registro.getCreatedAt()));
+                agregarCelda(5, row, centeredStyle, registro.getFichaRegistro().getAnio());
 
                 CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
                 List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
 
-                int columnaIndex = 4;
+                int columnaIndex = 5;  // se asigna el index de la ultima columna agregada al excel  pendiente por cambiar a una constante
                 for (PreguntaDTO pregunta: preguntas) {
                     columnaIndex++;
                     if(indexRowPregunta == 0) {
@@ -98,7 +119,20 @@ public class GenerarExcelService {
                 }
                 indexRowPregunta++;
             }
-
+            
+            if(todosRegistrosVMA) {
+	            //inicio...   bucle  para agregar al final, las empresas sin registroVMA,  pero faltaria segun el periodo o  anio
+	            for (Empresa empresa : empresasSinRegistroVMA) {
+	                Row row = sheet.createRow(rowIdx++);
+	                agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
+	                agregarCelda(1, row, centeredStyle, empresa.getNombre());
+	                agregarCelda(2, row, centeredStyle, empresa.getTipo());
+	                agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
+	                agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
+	                agregarCelda(5, row, centeredStyle, "-"); //   en blanco Anio
+	            }//fin
+            }
+            
             for (int i = 0; i < headersList.size(); i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headersList.get(i));

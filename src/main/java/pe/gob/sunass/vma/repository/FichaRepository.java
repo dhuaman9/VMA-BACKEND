@@ -47,7 +47,7 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	           "   OR :fechaFin BETWEEN r.fechaInicio AND r.fechaFin " +
 	           "   OR r.fechaInicio BETWEEN :fechaInicio AND :fechaFin " +
 	           "   OR r.fechaFin BETWEEN :fechaInicio AND :fechaFin  )")
-	  long validarFechasForUpdate(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin); //se utiliza para actualizar fechas
+	  long validarFechasForUpdate(@Param("idFichaRegistro") Integer idFichaRegistro, @Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin); //se utiliza para actualizar fechas
 	  
 	  
 	  @Query("SELECT r " +

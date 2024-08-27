@@ -11,9 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class EnumArrayFileType implements UserType {
     @Override
@@ -73,7 +71,7 @@ public class EnumArrayFileType implements UserType {
 
     @Override
     public Object deepCopy(Object value) {
-        return new ArrayList<>((List<TipoArchivo>) value);
+        return new ArrayList<>(Objects.nonNull(value) ? (List<TipoArchivo>) value : Collections.emptyList());
     }
 
     @Override

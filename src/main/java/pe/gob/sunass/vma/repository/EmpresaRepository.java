@@ -33,6 +33,13 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 			  "LOWER(e.tipo) LIKE LOWER(CONCAT('%', :filter, '%'))")
 			  Page<Empresa> findByFilter(@Param("filter") String filter, Pageable pageable);
 
-//	  public List<ProyectoDomain> findByEmpresaAndIdNotAndEstado(String proyecto, Integer id, Boolean estado);
+	  @Query("SELECT e "
+		  		+ "FROM Empresa e "
+		  		+ "WHERE e.idEmpresa NOT IN ( "
+		  		+ "    SELECT r.empresa.idEmpresa "
+		  		+ "    FROM RegistroVMA r "
+		  		+ ") "
+		  		+ "AND e.nombre <> 'SUNASS' ")
+	  public List<Empresa> findByRegistroVmaIsNull();
 
 }

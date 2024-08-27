@@ -63,7 +63,7 @@ public class RegistroVMAController {
 
 	@GetMapping(path = "/activo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getEstadoRegistro(@RequestHeader("Authorization") String token) {
-		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token));
+		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token)); ////para deshabilitar o habilitar el boton de Registrar VMA
 		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
 	}
 
@@ -85,18 +85,7 @@ public class RegistroVMAController {
 	}
 
 	
-	
-//	@GetMapping("/search")
-//	public List<RegistroVMA> searchRegistroVMA(
-//			@RequestParam(required = false) Integer empresaId,
-//			@RequestParam(required = false) String estado,
-//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-//			@RequestParam(required = false) String year,
-//			@RequestHeader("Authorization") String token) {
-//
-//		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token));
-//	}
+
 	
 	@GetMapping("/search")
 	public Page<RegistroVMA> searchRegistroVMA(
@@ -152,7 +141,13 @@ public class RegistroVMAController {
 			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
 				 .generarExcelCuestionario(idsVma);
-
+//		 String filename="";
+//		 if(idsVma==null) {
+//			 logger.info("idsVma es nulo");
+//			 filename="total_registros_vma.xlsx";
+//		 }else {
+//			 filename="registros_vma.xlsx";
+//		 }
 		 HttpHeaders headers = new HttpHeaders();
 		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
 

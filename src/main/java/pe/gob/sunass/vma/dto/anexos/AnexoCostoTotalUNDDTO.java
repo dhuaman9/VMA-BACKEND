@@ -1,12 +1,14 @@
 package pe.gob.sunass.vma.dto.anexos;
 
+import java.math.BigDecimal;
+
 public class AnexoCostoTotalUNDDTO {
 
 	private String nombreEmpresa;
     private String tamanioEmpresa;
-    private double costoTotalUND;
-    private double nroUNDidentificados;
-    private double costoAnualPorUND;
+    private BigDecimal costoTotalUND;
+    private Integer nroUNDidentificados;
+    private BigDecimal costoAnualPorUND;
     
     
 	public AnexoCostoTotalUNDDTO() {
@@ -14,8 +16,8 @@ public class AnexoCostoTotalUNDDTO {
 	}
 
 
-	public AnexoCostoTotalUNDDTO(String nombreEmpresa, String tamanioEmpresa, double costoTotalUND,
-			double nroUNDidentificados, double costoAnualPorUND) {
+	public AnexoCostoTotalUNDDTO(String nombreEmpresa, String tamanioEmpresa, BigDecimal costoTotalUND,
+			Integer nroUNDidentificados, BigDecimal costoAnualPorUND) {
 		super();
 		this.nombreEmpresa = nombreEmpresa;
 		this.tamanioEmpresa = tamanioEmpresa;
@@ -45,41 +47,35 @@ public class AnexoCostoTotalUNDDTO {
 	}
 
 
-	public double getCostoTotalUND() {
+	public BigDecimal getCostoTotalUND() {
 		return costoTotalUND;
 	}
 
 
-	public void setCostoTotalUND(double costoTotalUND) {
+	public void setCostoTotalUND(BigDecimal costoTotalUND) {
 		this.costoTotalUND = costoTotalUND;
 	}
 
 
-	public double getNroUNDidentificados() {
+	public Integer getNroUNDidentificados() {
 		return nroUNDidentificados;
 	}
 
 
-	public void setNroUNDidentificados(double nroUNDidentificados) {
+	public void setNroUNDidentificados(Integer nroUNDidentificados) {
 		this.nroUNDidentificados = nroUNDidentificados;
 	}
 
 
-	public double getCostoAnualPorUND() {
+	public BigDecimal getCostoAnualPorUND() {
 		return costoAnualPorUND;
 	}
 
 
-	public void setCostoAnualPorUND(double costoAnualPorUND) {
+	public void setCostoAnualPorUND(BigDecimal costoAnualPorUND) {
 		this.costoAnualPorUND = costoAnualPorUND;
 	}
 
 
-	
-	
-	
-	
-	
-	
 	
 }

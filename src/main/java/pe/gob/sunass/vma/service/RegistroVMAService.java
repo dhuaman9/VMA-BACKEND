@@ -1,6 +1,8 @@
 package pe.gob.sunass.vma.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -235,40 +237,7 @@ public class RegistroVMAService {
 				registroCompleto, registroCompleto && remitioInforme);
 	}
 
-//	public List<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
-//			String year, String username) {
-//		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
-//		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
-//		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
-//
-//		if (usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
-//			List<Predicate> predicates = new ArrayList<>();
-//
-//			if (empresaId != null) {
-//				predicates.add(cb.or(cb.isNull(registroVMA.get("empresa")),
-//						cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)));
-//			}
-//			if (estado != null) {
-//				predicates.add(cb.equal(registroVMA.get("estado"), estado));
-//			}
-//			if (startDate != null) {
-//				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
-//			}
-//			if (endDate != null) {
-//				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
-//			}
-//			if (year != null) {
-//				predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
-//			}
-//
-//			query.where(predicates.toArray(new Predicate[0]));
-//
-//			return entityManager.createQuery(query).getResultList();
-//		}
-//
-//		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
-//	}
+
 	
 	public Page<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
 			String year, String username, int page, int pageSize, String search) {
@@ -334,7 +303,8 @@ public class RegistroVMAService {
 			return new PageImpl<>(resultList, pageable, total);
 		}
 
-		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa(), pageable);
+     	return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa(), pageable);
+//		return this.registroVMARepository.registrosPorIdEmpresa2(usuario.getEmpresa().getIdEmpresa(), pageable);
 	}
 
 
@@ -561,14 +531,17 @@ public class RegistroVMAService {
 			RespuestaVMA UNDidentificados = respuestaVMARepository.findRespuestaAlternativaPorRegistros(
 					ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID, registroVMA.getIdRegistroVma());
 
-			double costoAnual = (double) (Double.parseDouble(costoTotalAnualUND.getRespuesta())
-					/ Double.parseDouble(UNDidentificados.getRespuesta()));
+			BigDecimal costoAnual = new BigDecimal(costoTotalAnualUND.getRespuesta())
+				    .divide(new BigDecimal(UNDidentificados.getRespuesta()), 1, RoundingMode.HALF_UP);
+			
+//			double costoAnual = (double) (Double.parseDouble(costoTotalAnualUND.getRespuesta())
+//					/ Double.parseDouble(UNDidentificados.getRespuesta()));
 			// Redondea a un decimal usando Math.round
-			double costoAnualRedondeado = Math.round(costoAnual * 10.0) / 10.0;
+//			double costoAnualRedondeado = Math.round(costoAnual * 10.0) / 10.0;
 			
 			anexos.add(new AnexoCostoTotalUNDDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Double.parseDouble(costoTotalAnualUND.getRespuesta()),
-					Double.parseDouble(UNDidentificados.getRespuesta()), costoAnualRedondeado));
+					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
+					Integer.parseInt(UNDidentificados.getRespuesta()), costoAnual));
 		});
 
 		return anexos;
@@ -591,12 +564,14 @@ public class RegistroVMAService {
 			RespuestaVMA UNDMuestraInopinada = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID, registroVMA.getIdRegistroVma());  
 
-			double costoAnual = (double) (Double.parseDouble(costoTotalAnualMuestras.getRespuesta()) / Double.parseDouble(UNDMuestraInopinada.getRespuesta()));
-			costoAnual = Math.round(costoAnual * 100.0) / 100.0;
+			//BigDecimal costoAnual =  (new BigDecimal(costoTotalAnualMuestras.getRespuesta()) / Double.parseDouble(UNDMuestraInopinada.getRespuesta()));
+			BigDecimal costoAnual = new BigDecimal(costoTotalAnualMuestras.getRespuesta())
+				    .divide(new BigDecimal(UNDMuestraInopinada.getRespuesta()), 2, RoundingMode.HALF_UP);
+			//costoAnual = Math.round(costoAnual * 100.0) / 100.0;
 			  
 			  
 			anexos.add(new AnexoCostoTotalMuestrasInopinadasDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Double.parseDouble(costoTotalAnualMuestras.getRespuesta()),
+					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualMuestras.getRespuesta()),
 					Integer.parseInt(UNDMuestraInopinada.getRespuesta()), costoAnual));
 		});
 
@@ -631,9 +606,9 @@ public class RegistroVMAService {
 					PREGUNTA_COSTO_OTROS_GASTOS_IMPLEMENTACION_ID, registroVMA.getIdRegistroVma());  
 
 			anexos.add(new AnexoCostoTotalesIncurridosDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Double.parseDouble(costoTotalAnualUND.getRespuesta()),
-					Double.parseDouble(costoTotalAnualMuestrasInopinadas.getRespuesta()), 
-					Double.parseDouble(costoOtrosGastosImplementacion.getRespuesta())));
+					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
+					new BigDecimal(costoTotalAnualMuestrasInopinadas.getRespuesta()), 
+					new BigDecimal(costoOtrosGastosImplementacion.getRespuesta())));
 		});
 
 		return anexos;
@@ -657,7 +632,7 @@ public class RegistroVMAService {
 			   anexos.add(new AnexoIngresosImplVmaDTO(
 					  registroVMA.getEmpresa().getNombre(),
 					  registroVMA.getEmpresa().getTipo(),
-					  Double.parseDouble(respuestaIngresos.getRespuesta())
+					  new BigDecimal(respuestaIngresos.getRespuesta())
 					  )
 			  );
 		  });

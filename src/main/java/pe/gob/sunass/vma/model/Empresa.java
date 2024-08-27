@@ -3,6 +3,7 @@ package pe.gob.sunass.vma.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,11 +15,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import lombok.NoArgsConstructor;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 
 @NoArgsConstructor
@@ -58,6 +62,11 @@ public class Empresa implements Serializable {
 		
 		@Column(name="estado")
 		private Boolean estado;
+		
+//		@OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//	    private List<RegistroVMA> registros;
+		
+
 
 		public String getRegimen() {
 			return regimen;
@@ -90,8 +99,6 @@ public class Empresa implements Serializable {
 		public void setUpdatedAt(Date updatedAt) {
 			this.updatedAt = updatedAt;
 		}
-
-		
 
 		public String getNombre() {
 			return nombre;
@@ -133,6 +140,10 @@ public class Empresa implements Serializable {
 		public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
 			this.idUsuarioActualizacion = idUsuarioActualizacion;
 		}
+
+	
+
+
 
 	
 

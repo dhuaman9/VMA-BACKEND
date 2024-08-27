@@ -9,9 +9,7 @@ public class GraficoComparativoDTO {
 	    private int UNDidentificados;
 	    private double  porcentajeUNDinspeccionados;
 	    private double  porcentajeUNDidentificados;
-	  //  private int total;
-	    
-	    
+	  
 	    public GraficoComparativoDTO() {
 			
 		}
@@ -64,15 +62,7 @@ public class GraficoComparativoDTO {
 		public void setPorcentajeUNDidentificados(int porcentajeUNDidentificados) {
 			this.porcentajeUNDidentificados = porcentajeUNDidentificados;
 		}
-//		public int getTotal() {
-//			return total;
-//		}
-//		public void setTotal(int total) {
-//			this.total = total;
-//		}
-//	    
-		
-	     
-	    
+
+		 
 	
 }
