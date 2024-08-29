@@ -42,4 +42,22 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 		  		+ "AND e.nombre <> 'SUNASS' ")
 	  public List<Empresa> findByRegistroVmaIsNull();
 
+//	@Query(value = "SELECT e.nombre, e.tipo, fr.anio " +
+//			"FROM vma.empresa e " +
+//			"JOIN vma.ficha_registro fr ON fr.anio = :anio " +
+//			"LEFT JOIN vma.registro_vma rv ON rv.id_empresa = e.id_empresa " +
+//			"AND rv.id_ficha_registro = fr.id_ficha_registro " +
+//			"WHERE rv.id_ficha_registro IS NULL " +
+//			"ORDER BY e.id_empresa, fr.anio", nativeQuery = true)
+//	List<Object[]> findMissingFichaRegistros(@Param("anio") String anio);
+
+	@Query(value = "SELECT e.nombre, e.tipo, fr.anio " +
+			"FROM vma.empresa e " +
+			"CROSS JOIN vma.ficha_registro fr " +
+			"LEFT JOIN vma.registro_vma rv ON rv.id_empresa = e.id_empresa " +
+			"AND rv.id_ficha_registro = fr.id_ficha_registro " +
+			"WHERE rv.id_ficha_registro IS NULL " +
+			"ORDER BY e.id_empresa, fr.anio", nativeQuery = true)
+	List<Object[]> findMissingFichaRegistros();
+
 }

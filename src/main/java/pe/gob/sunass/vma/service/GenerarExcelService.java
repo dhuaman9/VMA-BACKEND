@@ -45,7 +45,8 @@ public class GenerarExcelService {
       
         List<Empresa> empresasSinRegistroVMA =new ArrayList<>();
         empresasSinRegistroVMA = empresaRepository.findByRegistroVmaIsNull();
-        
+        List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();
+
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Lista de registros VMA");
@@ -122,15 +123,25 @@ public class GenerarExcelService {
             
             if(todosRegistrosVMA) {
 	            //inicio...   bucle  para agregar al final, las empresas sin registroVMA,  pero faltaria segun el periodo o  anio
-	            for (Empresa empresa : empresasSinRegistroVMA) {
-	                Row row = sheet.createRow(rowIdx++);
-	                agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
-	                agregarCelda(1, row, centeredStyle, empresa.getNombre());
-	                agregarCelda(2, row, centeredStyle, empresa.getTipo());
-	                agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
-	                agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
-	                agregarCelda(5, row, centeredStyle, "-"); //   en blanco Anio
-	            }//fin
+//	            for (Empresa empresa : empresasSinRegistroVMA) {
+//	                Row row = sheet.createRow(rowIdx++);
+//	                agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
+//	                agregarCelda(1, row, centeredStyle, empresa.getNombre());
+//	                agregarCelda(2, row, centeredStyle, empresa.getTipo());
+//	                agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
+//	                agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
+//	                agregarCelda(5, row, centeredStyle, "-"); //   en blanco Anio
+//	            }
+
+                for (Object[] item: missingFichaRegistros) {
+                    Row row = sheet.createRow(rowIdx++);
+                    agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
+                    agregarCelda(1, row, centeredStyle, (String) item[0]);
+                    agregarCelda(2, row, centeredStyle, (String) item[1]);
+                    agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
+                    agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
+                    agregarCelda(5, row, centeredStyle, (String) item[2]); //   en blanco Anio
+                }
             }
             
             for (int i = 0; i < headersList.size(); i++) {
