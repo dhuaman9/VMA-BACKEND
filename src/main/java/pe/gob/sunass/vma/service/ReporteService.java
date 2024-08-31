@@ -890,9 +890,9 @@ public class ReporteService {
         List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
         registrosPorTipo.forEach((tipo, lista) -> {
-            BigDecimal totalReclamosRecibidosVMA = respuestaVMARepository
+            BigDecimal CostoTotalAnualIncurridoVmas = respuestaVMARepository
                     .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID);
-            listaChart.add(new BarChartBasicoDto(tipo, totalReclamosRecibidosVMA.doubleValue()));
+            listaChart.add(new BarChartBasicoDto(tipo, CostoTotalAnualIncurridoVmas.doubleValue()));
         });
 
         double total = listaChart.stream().mapToDouble(BarChartBasicoDto::getValue).sum();

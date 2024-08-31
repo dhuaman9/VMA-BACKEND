@@ -97,31 +97,31 @@ public class UsuarioController {
 	    return response;
 	  }
 
-	  @GetMapping(path="/page/{num}/{size}",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
-	                                   @PathVariable(name="size") Integer size ) {
-	    ResponseEntity<?> response = null;
-
-	    try {
-	      Pageable pageable = PageRequest.of(num - 1, size);
-	      Page<UsuarioDTO> page = this.usuarioService.findAll(pageable);
-
-	      if (page == null || page.getContent().size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<Page<UsuarioDTO>>(page, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-
-	    return response;
-	  }
+//	  @GetMapping(path="/page/{num}/{size}",
+//	              produces=MediaType.APPLICATION_JSON_VALUE)
+//	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
+//	                                   @PathVariable(name="size") Integer size ) {
+//	    ResponseEntity<?> response = null;
+//
+//	    try {
+//	      Pageable pageable = PageRequest.of(num - 1, size);
+//	      Page<UsuarioDTO> page = this.usuarioService.findAll(pageable);
+//
+//	      if (page == null || page.getContent().size() == 0) {
+//	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+//	      }
+//	      else {
+//	        response = new ResponseEntity<Page<UsuarioDTO>>(page, HttpStatus.OK);
+//	      }
+//	    }
+//	    catch (Exception ex) {
+//	      logger.error(ex.getMessage(), ex);
+//	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+//	                                             HttpStatus.INTERNAL_SERVER_ERROR);
+//	    }
+//
+//	    return response;
+//	  }
 
 	  @GetMapping(path="/findbyid/{id}",
 	              produces=MediaType.APPLICATION_JSON_VALUE)

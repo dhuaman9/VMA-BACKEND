@@ -24,6 +24,7 @@ import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.FichaRepository;
+import pe.gob.sunass.vma.util.AuthenticatedUser;
 
 @Service
 public class FichaService {
@@ -110,16 +111,13 @@ public class FichaService {
             logger.info("No hay fichas en la base de datos.");
         }
 
-	    
-	    
-	    
 	    FichaRegistro fichaRegistro = new FichaRegistro();
 	    fichaRegistro.setAnio(dto.getAnio());
 	    fichaRegistro.setFechaInicio(dto.getFechaInicio());
 	    fichaRegistro.setFechaFin(dto.getFechaFin());
 	    fichaRegistro.setCreatedAt(new Date());
 	    fichaRegistro.setUpdatedAt(null);
-	    fichaRegistro.setIdUsuarioRegistro(1); //dhr, por el momento, seteamos al usuario 1, pero   debe pasar el ID del user en sesion.
+	    fichaRegistro.setIdUsuarioRegistro(1); //pendiente, pasar el id del usuario que registro
 	    fichaRegistro.setIdUsuarioActualizacion(null);
 	    
 	    fichaRegistro = this.fichaRepository.save(fichaRegistro);
@@ -142,10 +140,6 @@ public class FichaService {
 	      if (dto.getAnio() != null && !dto.getAnio().isEmpty()) {
 	          //int countAnio = this.fichaRepository.countByYear(dto.getAnio());
 
-	         /* if ( countAnio > 2) {
-	            throw new FailledValidationException("El valor anio no se registra más de dos veces en  año actual."); // en duda
-	          }*/
-	    	  
 	         fichaRegistro.setAnio(dto.getAnio());
 	        
 	      }
@@ -177,6 +171,8 @@ public class FichaService {
 	      List<FichaRegistro> listaFicha2 = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista para validar si esta en algun rango.
 	      if (listaFicha2 != null && !listaFicha2.isEmpty()) {
 		    	
+	    	  logger.info("fecha inicio " + dto.getFechaInicio());
+	    	  logger.info("fecha fin " + dto.getFechaFin());
 		    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
 		            logger.info("error: La fecha de inicio es mayor o igual que la fecha fin.");
 		            throw new FailledValidationException("Error: La Fecha de Inicio es mayor o igual que la Fecha Fin");
@@ -186,7 +182,7 @@ public class FichaService {
 		    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
 				}
 
-		        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+		        if (validarFechasForUpdate(dto.getIdFichaRegistro(), dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
 		            
 		        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
 		            
@@ -201,6 +197,8 @@ public class FichaService {
 	        }
 	      
 	      fichaRegistro.setUpdatedAt(new Date());
+	      
+	      fichaRegistro.setIdUsuarioActualizacion(null);   //pendiente, pasar el id del usuario que actualizo
 	      fichaRegistro = this.fichaRepository.save(fichaRegistro);
 	    }
 
@@ -236,6 +234,11 @@ public class FichaService {
 	  
 	  public boolean validarFechas(LocalDate fechaInicio, LocalDate fechaFin) {
 	        long count = fichaRepository.validarFechas(fechaInicio, fechaFin);
+	        return count == 0;
+	  }
+	  
+	  public boolean validarFechasForUpdate(Integer idFichaRegistro, LocalDate fechaInicio, LocalDate fechaFin) {
+	        long count = fichaRepository.validarFechasForUpdate(idFichaRegistro, fechaInicio, fechaFin);
 	        return count == 0;
 	  }
 	  
