@@ -10,20 +10,15 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
-import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 import pe.gob.sunass.vma.assembler.FichaAssembler;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.FichaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
-import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
-import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.FichaRepository;
+import pe.gob.sunass.vma.util.UserUtil;
 
 @Service
 public class FichaService {
@@ -33,6 +28,9 @@ public class FichaService {
 
 	  @Autowired
 	  private FichaRepository fichaRepository;
+
+	  @Autowired
+	  private UserUtil userUtil;
 
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
@@ -116,9 +114,9 @@ public class FichaService {
 	    fichaRegistro.setFechaFin(dto.getFechaFin());
 	    fichaRegistro.setCreatedAt(new Date());
 	    fichaRegistro.setUpdatedAt(null);
-	    fichaRegistro.setIdUsuarioRegistro(1); //dhr, pendiente por mejorar pasar el objeto  del user en sesion.
+	    fichaRegistro.setIdUsuarioRegistro(userUtil.getCurrentUserId()); //dhr, pendiente por mejorar pasar el objeto  del user en sesion.
 	    fichaRegistro.setIdUsuarioActualizacion(null);
-	    
+
 	    fichaRegistro = this.fichaRepository.save(fichaRegistro);
 
 	    return FichaAssembler.buildDtoModel(fichaRegistro);
@@ -196,6 +194,7 @@ public class FichaService {
 	        }
 	      
 	      fichaRegistro.setUpdatedAt(new Date());
+		  fichaRegistro.setIdUsuarioActualizacion(userUtil.getCurrentUserId());
 	      fichaRegistro = this.fichaRepository.save(fichaRegistro);
 	    }
 
