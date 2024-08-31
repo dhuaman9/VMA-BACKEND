@@ -34,6 +34,7 @@ public interface UsuarioRepository  extends JpaRepository<Usuario, Integer> {
 			  "LOWER(u.nombres) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
 			  "LOWER(u.apellidos) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
 			  "LOWER(u.role.nombre) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
+			  "LOWER(u.empresa.nombre) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
 			  "LOWER(u.userName) LIKE LOWER(CONCAT('%', :criteria, '%')) " +
 			  "ORDER BY u.id")
 	  public Page<Usuario> findUsuariosByName(String criteria, Pageable pageable);
