@@ -17,10 +17,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.transaction.Transactional;
 
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,6 +79,13 @@ public class UsuarioService   {
 	    List<UsuarioDTO> listDTO = UsuarioAssembler.buildDtoDomainCollection(listUsuarios);
 	    return listDTO;
 	  }
+
+    public Page<UsuarioDTO> findAllPageable(Integer page, Integer size, String search) {
+		PageRequest pageRequest = PageRequest.of(page, size);
+		Page<Usuario> usuariosByName = usuarioRepository.findUsuariosByName(search, pageRequest);
+
+		return usuariosByName.map(UsuarioAssembler::buildDtoDomain);
+	}
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<UsuarioDTO> findAll(Pageable pageable) throws Exception {

@@ -18,7 +18,7 @@ import pe.gob.sunass.vma.util.DateUtil;
 public class RoleAssembler {
   public RoleAssembler() {}
 
-  public static RoleDTO buildDtoModel(Role role) throws Exception {
+  public static RoleDTO buildDtoModel(Role role) {
     RoleDTO dto = null;
 
     if (role != null) {

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import pe.gob.sunass.vma.model.Usuario;
@@ -28,6 +29,12 @@ public interface UsuarioRepository  extends JpaRepository<Usuario, Integer> {
 	  public Usuario findByCorreo(String name);
 
 	  public Optional<Usuario> findByUserName(String username);
-	  
-	
+
+	  @Query("FROM Usuario u WHERE " +
+			  "LOWER(u.nombres) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
+			  "LOWER(u.apellidos) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
+			  "LOWER(u.role.nombre) LIKE LOWER(CONCAT('%', :criteria, '%')) or " +
+			  "LOWER(u.userName) LIKE LOWER(CONCAT('%', :criteria, '%')) " +
+			  "ORDER BY u.id")
+	  public Page<Usuario> findUsuariosByName(String criteria, Pageable pageable);
 }
