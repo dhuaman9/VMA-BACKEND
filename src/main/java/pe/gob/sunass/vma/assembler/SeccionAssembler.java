@@ -32,11 +32,11 @@ public class SeccionAssembler {
 	      dto.setEstado(seccion.getEstado());
 	      dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
 	    		  seccion.getCreatedAt()));
-	      dto.setUpdatedAt(seccion.getUpdatedAt() == null ? null :
-	                             DateUtil.format(Constants.Format.DateTime.DateTime,
-	                            		 seccion.getUpdatedAt()));
-	      dto.setIdUsuarioRegistro(seccion.getIdUsuarioRegistro());
-	      dto.setIdUsuarioActualizacion(seccion.getIdUsuarioActualizacion());
+//	      dto.setUpdatedAt(seccion.getUpdatedAt() == null ? null :
+//	                             DateUtil.format(Constants.Format.DateTime.DateTime,
+//	                            		 seccion.getUpdatedAt()));
+//	      dto.setIdUsuarioRegistro(seccion.getIdUsuarioRegistro());
+//	      dto.setIdUsuarioActualizacion(seccion.getIdUsuarioActualizacion());
 	    }
 
 	    return dto;

@@ -18,7 +18,7 @@ import pe.gob.sunass.vma.util.DateUtil;
 public class RoleAssembler {
   public RoleAssembler() {}
 
-  public static RoleDTO buildDtoModel(Role role) throws Exception {
+  public static RoleDTO buildDtoModel(Role role)  {
     RoleDTO dto = null;
 
     if (role != null) {
@@ -28,9 +28,9 @@ public class RoleAssembler {
       dto.setAuth(role.getAuth());
       dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
     		  role.getCreatedAt()));
-      dto.setUpdatedAt(role.getUpdatedAt() == null ? null :
-                             DateUtil.format(Constants.Format.DateTime.DateTime,
-                            		 role.getUpdatedAt()));
+//      dto.setUpdatedAt(role.getUpdatedAt() == null ? null :
+//                             DateUtil.format(Constants.Format.DateTime.DateTime,
+//                            		 role.getUpdatedAt()));
     }
 
     return dto;

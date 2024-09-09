@@ -21,29 +21,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 import pe.gob.sunass.vma.assembler.UsuarioAssembler;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
-import pe.gob.sunass.vma.exception.BadRequestException;
-import pe.gob.sunass.vma.exception.BusinessException;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.Role;
 import pe.gob.sunass.vma.model.Usuario;
-import pe.gob.sunass.vma.model.UsuarioLdap;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RoleRepository;
 import pe.gob.sunass.vma.repository.UsuarioRepository;
 import pe.gob.sunass.vma.util.LdapConnProperties;
 import pe.gob.sunass.vma.util.LdapUtil;
-
+import pe.gob.sunass.vma.util.UserUtil;
 
 
 @Service
@@ -65,7 +60,10 @@ public class UsuarioService   {
 	  private PasswordEncoder passwordEncoder;
 	 
 	 @Autowired
-	private LdapConnProperties propiedadesLdap;
+	 private LdapConnProperties propiedadesLdap;
+	 
+	 @Autowired
+	 private UserUtil userUtil;
 
 
 	 @Autowired
@@ -77,6 +75,13 @@ public class UsuarioService   {
 	    List<UsuarioDTO> listDTO = UsuarioAssembler.buildDtoDomainCollection(listUsuarios);
 	    return listDTO;
 	  }
+
+    public Page<UsuarioDTO> findAllPageable(Integer page, Integer size, String search) {
+		PageRequest pageRequest = PageRequest.of(page, size);
+		Page<Usuario> usuariosByName = usuarioRepository.findUsuariosByName(search, pageRequest, userUtil.getCurrentUserId());
+
+		return usuariosByName.map(UsuarioAssembler::buildDtoDomain);
+	}
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<UsuarioDTO> findAll(Pageable pageable) throws Exception {

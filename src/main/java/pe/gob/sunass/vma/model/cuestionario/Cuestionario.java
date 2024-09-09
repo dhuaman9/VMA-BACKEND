@@ -27,10 +27,6 @@ public class Cuestionario implements Serializable {
     @Column(name="fecha_creacion", nullable=false)
     private Date createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="fecha_actualizacion", nullable=true)
-    private Date updatedAt;
-
     @Transient
     private List<Seccion> secciones;
 
@@ -64,14 +60,6 @@ public class Cuestionario implements Serializable {
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
-	}
-
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 
 	public List<Seccion> getSecciones() {

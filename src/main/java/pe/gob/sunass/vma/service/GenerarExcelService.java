@@ -5,7 +5,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
-import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
@@ -43,16 +42,13 @@ public class GenerarExcelService {
 		}
     	
       
-        List<Empresa> empresasSinRegistroVMA =new ArrayList<>();
-        empresasSinRegistroVMA = empresaRepository.findByRegistroVmaIsNull();
-        List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();
-
+        List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();  
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("Lista de registros VMA");
+            Sheet sheet = workbook.createSheet("Registros VMA");
 
             Row headerRow = sheet.createRow(0);
-            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Estado","Fecha registro", "Año"));
+            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Estado","Fecha de registro", "Año"));
 
 
             CellStyle headerStyle = workbook.createCellStyle();
@@ -81,7 +77,7 @@ public class GenerarExcelService {
                 CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
                 List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
 
-                int columnaIndex = 5;  // se asigna el index de la ultima columna agregada al excel  pendiente por cambiar a una constante
+                int columnaIndex = 5;  // se asigna el index de la ultima columna agregada al excel,   pendiente por cambiar a una constante
                 for (PreguntaDTO pregunta: preguntas) {
                     columnaIndex++;
                     if(indexRowPregunta == 0) {
@@ -132,16 +128,22 @@ public class GenerarExcelService {
 //	                agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
 //	                agregarCelda(5, row, centeredStyle, "-"); //   en blanco Anio
 //	            }
-
-                for (Object[] item: missingFichaRegistros) {
-                    Row row = sheet.createRow(rowIdx++);
-                    agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
-                    agregarCelda(1, row, centeredStyle, (String) item[0]);
-                    agregarCelda(2, row, centeredStyle, (String) item[1]);
-                    agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
-                    agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
-                    agregarCelda(5, row, centeredStyle, (String) item[2]); //   en blanco Anio
-                }
+            	
+            	SimpleDateFormat formatFechaInicioFin = new SimpleDateFormat("dd-MM-yyyy");
+            	
+            	 for (Object[] item: missingFichaRegistros) {
+//            		Date date1 = (Date) item[3]; // fecha de inicio
+//                 	Date date2 = (Date) item[4]; // fecha fin
+                 	
+                     Row row = sheet.createRow(rowIdx++);
+                     agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
+                     agregarCelda(1, row, centeredStyle, (String) item[0]);
+                     agregarCelda(2, row, centeredStyle, (String) item[1]);
+                     agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); // la columna Estado
+                     agregarCelda(4, row, centeredStyle, "-"); //   en blanco Fecha
+                     agregarCelda(5, row, centeredStyle, (String) item[2] +" , del periodo: "+formatFechaInicioFin.format(item[3]) +" - al - " +formatFechaInicioFin.format(item[4]) ); //   en blanco Anio
+                 }
+            	
             }
             
             for (int i = 0; i < headersList.size(); i++) {

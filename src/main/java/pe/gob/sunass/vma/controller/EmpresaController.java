@@ -21,11 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.EmpresaDTO;
-import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
-import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.service.EmpresaService;
 
 
@@ -151,8 +148,6 @@ public class EmpresaController {
 	  @PutMapping(produces=MediaType.APPLICATION_JSON_VALUE)
 	  public ResponseEntity<?> update(@RequestBody EmpresaDTO request) {
 	    ResponseEntity<?> response = null;
-	    long startProcess = System.currentTimeMillis();
-
 	    
 	    try {
 	    	EmpresaDTO dto = this.empresaService.update(request);

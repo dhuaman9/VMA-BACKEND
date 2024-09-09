@@ -1,6 +1,6 @@
 package pe.gob.sunass.vma.dto;
 
-import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,9 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
 @JsonInclude(Include.NON_EMPTY)
-public class RoleDTO implements Serializable {
-	  private static final long serialVersionUID = -8301257302917630690L;
-
+public class RoleDTO  {
+	  
 		private Integer idRole;
 
 		private String nombre;

@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
-import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.service.UsuarioService;
 
 
@@ -40,6 +37,24 @@ public class UsuarioController {
 	  public UsuarioController() {
 	    super();
 	  }
+
+	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList(@RequestParam(name = "page", defaultValue = "0") Integer page,
+									 @RequestParam(name = "size", defaultValue = "10") Integer size,
+									 @RequestParam(name = "search", required = false, defaultValue = "") String search) {
+		ResponseEntity<?> response = null;
+
+		try {
+			Page<UsuarioDTO> list = this.usuarioService.findAllPageable(page, size, search);
+			response = new ResponseEntity<Page<UsuarioDTO>>( list, HttpStatus.OK);
+		}
+		catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
 
 	  @GetMapping(path="/listar",
 	              produces=MediaType.APPLICATION_JSON_VALUE)
@@ -199,36 +214,6 @@ public class UsuarioController {
 	  }
 	  
 	  //endpoint para obtener el rol segun el userName , para usarlo al  menu dinamico .
-	  
-//	  @GetMapping(path="/findByUserName/{userName}",
-//	          produces=MediaType.APPLICATION_JSON_VALUE)
-//	  public ResponseEntity<?> findByUserName(@PathVariable(name="userName") String userName) {
-//	    ResponseEntity<?> response = null; 
-//
-//	    logger.info("findByUserName");
-//	    logger.info(Constants.Logger.Method.Initialize);
-//
-//	    try {
-//	      UsuarioDTO usuarioDTO = this.usuarioService.findByUserName(userName, false);
-//
-//	      if (usuarioDTO == null) {
-//	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-//	      }
-//	      else {
-//	        response = new ResponseEntity<UsuarioDTO>(usuarioDTO, HttpStatus.OK);
-//	      }
-//	    }
-//	    catch (Exception ex) {
-//	      logger.error(ex.getMessage(), ex);
-//	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-//	              HttpStatus.INTERNAL_SERVER_ERROR);
-//	    }
-//	    finally {
-//	      logger.info(Constants.Logger.Method.Finalize);
-//	    }
-//
-//	    return response;
-//	  }
 
 
 }

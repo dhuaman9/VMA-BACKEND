@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma;
 
+
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @SpringBootApplication
 @PropertySource("classpath:alfresco.properties")
@@ -27,6 +29,8 @@ public class VmaApplication extends SpringBootServletInitializer{
 	public static void main(String[] args) {
 		SpringApplication.run(VmaApplication.class, args);
 	}
+	
+
 	
 	@Profile({"dev","local"})
 	@Bean

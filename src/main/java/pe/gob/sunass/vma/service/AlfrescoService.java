@@ -2,11 +2,7 @@ package pe.gob.sunass.vma.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -28,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pe.gob.sunass.vma.configuration.AlfrescoProperties;
 import pe.gob.sunass.vma.dto.ArchivoDTO;
-import pe.gob.sunass.vma.exception.ConflictException;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.cuestionario.Archivo;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
@@ -43,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 
 import org.springframework.http.*;
-import org.springframework.transaction.annotation.Transactional;
 
 import pe.gob.sunass.vma.security.jwt.JWTProvider;
 
@@ -375,52 +369,23 @@ public class AlfrescoService {
 //	        return archivoDTO;
 //	    }
 
-//	    private String uploadFileToAlfresco(MultipartFile file) throws IOException {
-//	        String uploadUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
-//	                + alfrescoProperties.getSpaceStore() + "/children";
+
+//	    private void deleteFileFromAlfresco(String alfrescoFileId) throws IOException {
+//	        String deleteUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + alfrescoFileId;
+//
 //	        CloseableHttpClient client = HttpClients.createDefault();
-//	        HttpPost post = new HttpPost(uploadUrl);
+//	        HttpDelete delete = new HttpDelete(deleteUrl);
 //
-//	        post.addHeader("Authorization", "Basic " + Base64.getEncoder()
+//	        delete.addHeader("Authorization", "Basic " + Base64.getEncoder()
 //	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
-//	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-//	        builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY, file.getOriginalFilename());
-//	        builder.addTextBody("name", file.getOriginalFilename(), ContentType.TEXT_PLAIN);
-//	        builder.addTextBody("relativePath", alfrescoProperties.getCarpeta(), ContentType.TEXT_PLAIN);
 //
-//	        post.setEntity(builder.build());
-//
-//	        HttpResponse response = client.execute(post);
-//	        String responseString = EntityUtils.toString(response.getEntity());
+//	        HttpResponse response = client.execute(delete);
 //	        client.close();
 //
-//	        if (response.getStatusLine().getStatusCode() == 201) {
-//	            ObjectMapper objectMapper = new ObjectMapper();
-//	            JsonNode responseJson = objectMapper.readTree(responseString);
-//	            return responseJson.get("entry").get("id").asText();
-//	        } else if (response.getStatusLine().getStatusCode() == 409) {
-//	            throw new ConflictException("Conflict occurred while updating file in Alfresco.");
-//	        } else {
-//	            throw new RuntimeException("Failed to upload file to Alfresco, status code: " + response.getStatusLine().getStatusCode());
+//	        if (response.getStatusLine().getStatusCode() != 204) {
+//	            throw new RuntimeException("Failed to delete file from Alfresco, status code: " + response.getStatusLine().getStatusCode());
 //	        }
 //	    }
-	    
-	    private void deleteFileFromAlfresco(String alfrescoFileId) throws IOException {
-	        String deleteUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + alfrescoFileId;
-
-	        CloseableHttpClient client = HttpClients.createDefault();
-	        HttpDelete delete = new HttpDelete(deleteUrl);
-
-	        delete.addHeader("Authorization", "Basic " + Base64.getEncoder()
-	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
-
-	        HttpResponse response = client.execute(delete);
-	        client.close();
-
-	        if (response.getStatusLine().getStatusCode() != 204) {
-	            throw new RuntimeException("Failed to delete file from Alfresco, status code: " + response.getStatusLine().getStatusCode());
-	        }
-	    }
 	    
 	    
 	    public String getFilenameWithUUID(String originalFilename) {//getFilenameWithTimestamp

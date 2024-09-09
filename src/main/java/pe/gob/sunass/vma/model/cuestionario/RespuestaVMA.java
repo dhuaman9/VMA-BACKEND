@@ -1,5 +1,7 @@
 package pe.gob.sunass.vma.model.cuestionario;
 
+import java.util.Date;
+
 import javax.persistence.*;
 
 @Entity
@@ -22,6 +24,20 @@ public class RespuestaVMA {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_registro_vma")
     private RegistroVMA registroVMA;
+    
+    @Column(name="id_usuario_registro", nullable=true)
+	private Integer idUsuarioRegistro;
+	
+	@Column(name="id_usuario_actualizacion", nullable=true)
+	private Integer idUsuarioActualizacion;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="fecha_registro", nullable=false)
+	private Date fechaRegistro;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="fecha_actualizacion", nullable=true)
+	private Date fechaActualizacion;
 
     public RespuestaVMA() {
     }
@@ -73,4 +89,40 @@ public class RespuestaVMA {
     public void setIdPregunta(Integer idPregunta) {
         this.idPregunta = idPregunta;
     }
+
+	public Integer getIdUsuarioRegistro() {
+		return idUsuarioRegistro;
+	}
+
+	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
+		this.idUsuarioRegistro = idUsuarioRegistro;
+	}
+
+	public Integer getIdUsuarioActualizacion() {
+		return idUsuarioActualizacion;
+	}
+
+	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
+		this.idUsuarioActualizacion = idUsuarioActualizacion;
+	}
+
+	public Date getFechaRegistro() {
+		return fechaRegistro;
+	}
+
+	public void setFechaRegistro(Date fechaRegistro) {
+		this.fechaRegistro = fechaRegistro;
+	}
+
+	public Date getFechaActualizacion() {
+		return fechaActualizacion;
+	}
+
+	public void setFechaActualizacion(Date fechaActualizacion) {
+		this.fechaActualizacion = fechaActualizacion;
+	}
+    
+    
+    
+    
 }

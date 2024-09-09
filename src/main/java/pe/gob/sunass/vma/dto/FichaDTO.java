@@ -1,8 +1,7 @@
 package pe.gob.sunass.vma.dto;
 
-import java.time.LocalDate;
 
-import javax.persistence.Column;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,9 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY)
-public class FichaDTO {
+public class FichaDTO  {
 	
-	private static final long serialVersionUID = -4872705658825231581L;
 	
 	private Integer idFichaRegistro;
 	

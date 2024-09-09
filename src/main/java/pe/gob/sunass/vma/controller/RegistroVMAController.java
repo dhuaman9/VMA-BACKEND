@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import pe.gob.sunass.vma.constants.Constants;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
@@ -141,6 +137,8 @@ public class RegistroVMAController {
 			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
 				 .generarExcelCuestionario(idsVma);
+		 
+		 
 //		 String filename="";
 //		 if(idsVma==null) {
 //			 logger.info("idsVma es nulo");
@@ -148,6 +146,8 @@ public class RegistroVMAController {
 //		 }else {
 //			 filename="registros_vma.xlsx";
 //		 }
+		 
+		 
 		 HttpHeaders headers = new HttpHeaders();
 		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
 

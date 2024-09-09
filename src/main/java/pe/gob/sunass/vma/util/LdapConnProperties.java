@@ -11,7 +11,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @PropertySource("classpath:ldap.properties")
 public class LdapConnProperties {
 	
-	
 	@Value("${ldap.prefix}")
 	private String prefix;
 	@Value("${ldap.timeout}")
@@ -60,5 +59,4 @@ public class LdapConnProperties {
     }
 	
 	
-
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.SeccionDTO;
 import pe.gob.sunass.vma.service.SeccionesService;
 

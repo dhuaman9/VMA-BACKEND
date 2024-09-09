@@ -4,10 +4,9 @@ package pe.gob.sunass.vma.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
-import pe.gob.sunass.vma.model.*;
 import pe.gob.sunass.vma.model.cuestionario.Alternativa;
 import pe.gob.sunass.vma.model.cuestionario.Cuestionario;
-import pe.gob.sunass.vma.model.cuestionario.MetadatoArchivo;
+import pe.gob.sunass.vma.model.cuestionario.Metadato;
 import pe.gob.sunass.vma.model.cuestionario.Pregunta;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
@@ -130,7 +129,7 @@ public class CuestionarioService {
                         .collect(Collectors.toList()),
                 respuestaDTO,
                 Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma) : null,
-                Objects.nonNull(pregunta.getMetadatoArchivo()) ? mapToMetadatoArchivoDTO(pregunta.getMetadatoArchivo()) : null
+                Objects.nonNull(pregunta.getMetadato()) ? mapToMetadatoDTO(pregunta.getMetadato()) : null
                 );
     }
 
@@ -149,7 +148,7 @@ public class CuestionarioService {
                 respuesta != null ? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta()) : null);
     }
 
-    private MetadatoArchivoDto mapToMetadatoArchivoDTO(MetadatoArchivo metadatoArchivo) {
-        return new MetadatoArchivoDto(metadatoArchivo.getTipoArchivosPermitidos(), metadatoArchivo.getMaxSizeInMB(), metadatoArchivo.isRequerido(), metadatoArchivo.getId(), metadatoArchivo.isDecimal());
+    private MetadatoDto mapToMetadatoDTO(Metadato metadato) {
+        return new MetadatoDto(metadato.getTipoArchivosPermitidos(), metadato.getMaxSizeInMB(), metadato.isRequerido(), metadato.getId(), metadato.isDecimal());
     }
 }

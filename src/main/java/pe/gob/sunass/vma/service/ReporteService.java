@@ -1,3 +1,4 @@
+
 package pe.gob.sunass.vma.service;
 
 import org.slf4j.Logger;
@@ -45,25 +46,25 @@ public class ReporteService {
     //TODO: Esto se debe de manejar como una configuración en la properties
     private final int PREGUNTA_SI_NO_ID = 1;
     private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
-    private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
-    private final int ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID = 22;
-    private final int ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID = 24;
-    private final int ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID = 14;
+    private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 3;
+    private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 5;
+    private final int ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID = 7;
+    private final int ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID = 9;
     private final int PREGUNTA_UND_CAJA_REGISTRO_ID= 10;
-    private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;
+    private final int ALTERNATIVA_UND_INSCRITOS_ID= 11;
     private final int PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID= 11;
     private final int PREGUNTA_TOTAL_MUESTRAS_INOPINADAS_ID= 12;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 1;
-    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 3;
-    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 35;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 26;
-    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 28;
-    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 30;
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 15;
+    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 17;
+    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 19;
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 21;
+    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 23;
+    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 25;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
-    private final int PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID = 23;
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID = 23;
     private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
-    private final int PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID = 29;
+    private final int PREGUNTA_OTROS_GASTOS_IMPLEMENTACION_ID = 29;
 
     
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
@@ -92,7 +93,7 @@ public class ReporteService {
 
     	        registrosPorTipo.forEach((tipo, lista) -> {
     	            List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(PREGUNTA_SI_NO_ID, tipo, anio);
-    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals("Sí")).count();
+    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals("SI")).count();
     	            dataList.add(new RegistroEmpresaChartDto(tipo, (int) respondieronSi, lista.size()));
     	        });
 
@@ -152,7 +153,7 @@ public class ReporteService {
         registrosPorTipo.forEach((tipo, lista) -> {
         	
             Integer totalInspeccionados = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID);
             
             Integer totalIdentificados = respuestaVMARepository
                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
@@ -199,7 +200,7 @@ public class ReporteService {
             Integer totalDiagramaFlujo = respuestaVMARepository
                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID);
             Integer totalInspeccionados = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID);
 
             sumaTotalDiagramaFlujoAllEPS.addAndGet(totalDiagramaFlujo); // suma total de  UND a los que se le ha solicitado el diagrama de flujo , de todas las EPS
             sumaTotalInspeccionadosAllEPS.addAndGet(totalInspeccionados);// suma total de UND Inspeccionados, de todas las EPS
@@ -292,7 +293,7 @@ public class ReporteService {
              Integer totalUNDInscritos = respuestaVMARepository
                      .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSCRITOS_ID);
              Integer totalUNDInspeccionados = respuestaVMARepository
-                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID);
              Integer totalUNDIdentificados = respuestaVMARepository
                      .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
              
@@ -771,7 +772,7 @@ public class ReporteService {
            if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
                    registro.getEstado().equals("COMPLETO")) {
                BigDecimal costoAnual = respuestaVMARepository
-                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID);
                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
            }
        });
@@ -789,7 +790,7 @@ public class ReporteService {
            if(!idsVmaCompleto.isEmpty()) {
                BigDecimal cantidadVmaCompletos = BigDecimal.valueOf(idsVmaCompleto.size());
                BigDecimal sumaCostoTotalPorTipoEmpresaVmaCompleto = respuestaVMARepository
-                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID);
 
                BigDecimal promedio = sumaCostoTotalPorTipoEmpresaVmaCompleto.divide(cantidadVmaCompletos, 2, RoundingMode.HALF_UP);
                lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), sumaCostoTotalPorTipoEmpresaVmaCompleto, promedio));
@@ -809,7 +810,7 @@ public class ReporteService {
   	   registrosCompletos.forEach(registro -> {
        //  if(!registro.getEmpresa().getNombre().equals("SUNASS") ) {  //&&  registro.getEstado().equals("COMPLETO")
              BigDecimal costoAnual = respuestaVMARepository
-                     .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                     .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID);
            
              listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
        //  }
@@ -891,7 +892,7 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             BigDecimal CostoTotalAnualIncurridoVmas = respuestaVMARepository
-                    .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID);
+                    .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_OTROS_GASTOS_IMPLEMENTACION_ID);
             listaChart.add(new BarChartBasicoDto(tipo, CostoTotalAnualIncurridoVmas.doubleValue()));
         });
 
