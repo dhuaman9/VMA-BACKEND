@@ -22,10 +22,16 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	  public Optional<FichaRegistro> findById(Integer id);
 	  
 	  @Query("SELECT f FROM FichaRegistro f WHERE f.fechaInicio = :fechaInicio OR f.fechaFin = :fechaFin")
-	  public List<FichaRegistro> existsByFecha(@Param("fechaInicio") LocalDate fechaInicio,@Param("fechaFin") LocalDate fechaFin);
+	  public List<FichaRegistro> validarFechaInicioFin(@Param("fechaInicio") LocalDate fechaInicio,@Param("fechaFin") LocalDate fechaFin);
 
-	  @Query("SELECT COUNT(f) FROM FichaRegistro f WHERE f.anio = :anio")
-	  public int countByYear(@Param("anio") String anio ); 
+	 
+	  @Query(value = "SELECT COUNT(*) FROM vma.ficha_registro f WHERE  f.anio = :anio AND EXTRACT(YEAR FROM CAST(:fechaInicio AS DATE)) = EXTRACT(YEAR FROM CURRENT_DATE)", nativeQuery = true)  //r.id_ficha_registro <> :idFichaRegistro and 
+	  public int nroRegistroPorAnio(@Param("anio") String anio,@Param("fechaInicio") LocalDate fechaInicio  );  //devuelve el nro de Periodos de registro VMA , segun el anio
+	  
+	  
+	  @Query(value = "SELECT COUNT(*) FROM vma.ficha_registro f WHERE f.id_ficha_registro  <> :id_ficha_registro and  f.anio = :anio AND EXTRACT(YEAR FROM CAST(:fechaInicio AS DATE)) = EXTRACT(YEAR FROM CURRENT_DATE)", nativeQuery = true)
+	  public int nroRegistroPorAnioUpdate(@Param("anio") String anio,@Param("fechaInicio") LocalDate fechaInicio, @Param("id_ficha_registro") Integer idFichaRegistro );  
+	  
 	  
 	  @Query("SELECT MAX(f.fechaInicio) FROM FichaRegistro f")
 	  LocalDate findMaxFechaInicio();  //para obtener fecha maxima
@@ -56,16 +62,10 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	  public FichaRegistro findFichaRegistroActual();
 	  
 	  
-	  @Query("SELECT " +
-		       "CASE " +
-		       "WHEN CURRENT_DATE >= r.fechaInicio AND CURRENT_DATE <= r.fechaFin THEN " +
-		       "CASE " +
-		       "WHEN r.fechaFin >= CURRENT_DATE THEN FUNCTION('DATEDIFF', r.fechaFin, CURRENT_DATE) " +
-		       "ELSE -1 END " +
-		       "ELSE -1 " +
-		       "END " +
-		       "FROM FichaRegistro r")
-	  public Integer findDaysRemaining();  //el resultado debe ser unico ,si sale mas de un resultado, es debido a que hay un cruce con otro periodo registrado
+	  @Query("SELECT CASE WHEN r.fechaFin >= CURRENT_DATE THEN (r.fechaFin - CURRENT_DATE) ELSE -1 END " +
+		       "FROM FichaRegistro r " +
+		       "WHERE CURRENT_DATE BETWEEN r.fechaInicio AND r.fechaFin")
+	  public List<Integer>  findDiasRestantes();  //el resultado no puede   ser unico ,como no se usa el LIMIT 1 en JPQL,  se usa el List<>.
 	  
 	  
 	  

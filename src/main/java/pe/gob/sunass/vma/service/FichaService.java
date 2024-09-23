@@ -85,12 +85,16 @@ public class FichaService {
 	    if (listaFichas != null && !listaFichas.isEmpty()) {
 	    	
 	    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
-	            logger.info("error: La fecha de inicio es mayor o igual que la fecha fin.");
-	            throw new FailledValidationException("Error: La Fecha de Inicio es mayor o igual que la Fecha Fin");
+	            logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
+	            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
 	        }
 
-	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) {
-	    		throw new FailledValidationException("Error: El año  no puede ser mayor que el año de la fecha de inicio.");
+	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
+	    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
+			}
+	    	
+	    	if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0 ) {  //dto.getFechaInicio()
+	    		throw new FailledValidationException("No es posible registrar otro periodo con el mismo año.");
 			}
 
 	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
@@ -134,15 +138,14 @@ public class FichaService {
 	    	fichaRegistro = optFichaRegistro.get();
 
 	      if (dto.getAnio() != null && !dto.getAnio().isEmpty()) {
-	          //int countAnio = this.fichaRepository.countByYear(dto.getAnio());
-
+	         
 	         fichaRegistro.setAnio(dto.getAnio());
 	        
 	      }
 
 	      if (dto.getFechaInicio() != null ) {
 	        if (!dto.getFechaInicio().equals(fichaRegistro.getFechaInicio())) {
-	        	 List<FichaRegistro> listaFichas = this.fichaRepository.existsByFecha(dto.getFechaInicio(),null);
+	        	 List<FichaRegistro> listaFichas = this.fichaRepository.validarFechaInicioFin(dto.getFechaInicio(),null);
 	        	 
 	        	 if (listaFichas != null && listaFichas.size() > 0) {
 	                 throw new FailledValidationException("La fecha de inicio  ya existe!.");
@@ -154,7 +157,7 @@ public class FichaService {
 	      
 	      if (dto.getFechaFin() != null ) {
 		        if (!dto.getFechaFin().equals(fichaRegistro.getFechaFin())) {
-		        	List<FichaRegistro> listaFichas = this.fichaRepository.existsByFecha(dto.getFechaFin(),null);
+		        	List<FichaRegistro> listaFichas = this.fichaRepository.validarFechaInicioFin(dto.getFechaFin(),null);
 		        	 
 		        	if (listaFichas != null && listaFichas.size() > 0) {
 		                 throw new FailledValidationException("La fecha fin  ya existe!.");
@@ -163,9 +166,17 @@ public class FichaService {
 		        	fichaRegistro.setFechaFin(dto.getFechaFin());
 		        }
 		   }
+	      
+//	      if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio()) >0 ) {  this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0
+//	    		throw new FailledValidationException("Ya existe otro periodo con el mismo año, en este año actual");  //pendiente por validar
+//			}
+	      
+	      if (  this.fichaRepository.nroRegistroPorAnioUpdate(dto.getAnio(), dto.getFechaInicio(),dto.getIdFichaRegistro()) >0 ) { 
+	    		throw new FailledValidationException("Ya existe otro periodo con el mismo año.");  //pendiente por validar
+			}
 
-	      List<FichaRegistro> listaFicha2 = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista para validar si esta en algun rango.
-	      if (listaFicha2 != null && !listaFicha2.isEmpty()) {
+	      List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista de Periodos ordenados por ID en Desc.
+	      if (listPeriodoVMA != null && !listPeriodoVMA.isEmpty()) {
 		    	
 	    	  logger.info("fecha inicio " + dto.getFechaInicio());
 	    	  logger.info("fecha fin " + dto.getFechaFin());
@@ -184,8 +195,8 @@ public class FichaService {
 		            
 		            
 		        } else {
-		            logger.info("Error, el rango de fechas se cruza con un rango de fechas existente.");
-		            throw new FailledValidationException("Error: El rango de fechas se cruza con un rango registrado.");
+		            logger.info("Error:  el rango de fechas se cruza con un rango de fechas existente.");
+		            throw new FailledValidationException("El rango de fechas se cruza con un rango registrado.");
 		        }
 		    
 	        } else {
@@ -251,10 +262,12 @@ public class FichaService {
 	  }
 
 	  //pendiente de usarlo en el front
-	  public Integer contarDiasFaltantesenPeriodoActual() {
-		  int diasFaltantes = fichaRepository.findDaysRemaining();
-		  return diasFaltantes;
-		  
-	  }
+	  public Integer contarDiasFaltantesEnPeriodoActual() {
+		    List<Integer> diasRestantes = fichaRepository.findDiasRestantes();
+		    if (diasRestantes.isEmpty()) {
+		        return -1;  // No hay registros coincidentes
+		    }
+		    return diasRestantes.get(0);  // Devuelve el primer resultado
+		}
 	  
 }

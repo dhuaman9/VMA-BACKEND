@@ -176,5 +176,11 @@ public class FichasController {
 	
 	    return response;
 	  }
+	  
+	  @GetMapping("/dias-faltantes")
+	    public Integer getDiasFaltantes() {
+	        return fichaService.contarDiasFaltantesEnPeriodoActual();
+	    }
+	  
 	
 }

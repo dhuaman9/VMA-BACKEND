@@ -313,9 +313,7 @@ public class RegistroVMAService {
 	public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		List<Empresa> empresasDB = empresaRepository.findAll();
 
-		// empresasDB.sort(Comparator.comparing(Empresa::getTipo));
-		// return empresasDB.stream().map(empresa -> mapToAnexoRegistroVmaDTO(empresa,
-		// anhio)).collect(Collectors.toList());
+	
 
 		// Filtrar empresas de tipo "NINGUNO", ordenar por tipo y mapear a DTO
 		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_SUNASS.equals(empresa.getTipo()))
@@ -558,7 +556,7 @@ public class RegistroVMAService {
 		registrosCompletos.forEach(registroVMA -> {
 
 			RespuestaVMA costoTotalAnualMuestras = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
-					preguntasAlternativasVMA.getId_pregunta_costot_anual_muestras_inopinadas(), registroVMA.getIdRegistroVma());
+					preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas(), registroVMA.getIdRegistroVma());
 
 			RespuestaVMA UNDMuestraInopinada = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada(), registroVMA.getIdRegistroVma());  
@@ -589,7 +587,7 @@ public class RegistroVMAService {
 					preguntasAlternativasVMA.getId_pregunta_costo_total_anual_und(), registroVMA.getIdRegistroVma());
 
 			RespuestaVMA costoTotalAnualMuestrasInopinadas = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
-					preguntasAlternativasVMA.getId_pregunta_costot_anual_muestras_inopinadas(), registroVMA.getIdRegistroVma());  
+					preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas(), registroVMA.getIdRegistroVma());  
 
 			RespuestaVMA costoOtrosGastosImplementacion = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					preguntasAlternativasVMA.getId_pregunta_otros_gastos_implementacion(), registroVMA.getIdRegistroVma());  

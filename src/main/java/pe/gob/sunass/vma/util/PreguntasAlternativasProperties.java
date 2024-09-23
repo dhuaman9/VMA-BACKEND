@@ -66,7 +66,7 @@ public class PreguntasAlternativasProperties {
 	private int id_pregunta_costo_total_anual_und;
 	
 	@Value("${cuestionario.id_pregunta_costo_total_anual_muestras_inopinadas}")
-	private int id_pregunta_costot_anual_muestras_inopinadas;
+	private int id_pregunta_costo_anual_muestras_inopinadas;
 	
 	@Value("${cuestionario.id_pregunta_otros_gastos_implementacion}")
 	private int id_pregunta_otros_gastos_implementacion;
@@ -229,12 +229,12 @@ public class PreguntasAlternativasProperties {
 		this.id_pregunta_costo_total_anual_und = id_pregunta_costo_total_anual_und;
 	}
 
-	public int getId_pregunta_costot_anual_muestras_inopinadas() {
-		return id_pregunta_costot_anual_muestras_inopinadas;
+	public int getId_pregunta_costo_anual_muestras_inopinadas() {
+		return id_pregunta_costo_anual_muestras_inopinadas;
 	}
 
-	public void setId_pregunta_costot_anual_muestras_inopinadas(int id_pregunta_costot_anual_muestras_inopinadas) {
-		this.id_pregunta_costot_anual_muestras_inopinadas = id_pregunta_costot_anual_muestras_inopinadas;
+	public void setId_pregunta_costo_anual_muestras_inopinadas(int id_pregunta_costo_anual_muestras_inopinadas) {
+		this.id_pregunta_costo_anual_muestras_inopinadas = id_pregunta_costo_anual_muestras_inopinadas;
 	}
 
 	public int getId_pregunta_otros_gastos_implementacion() {
