@@ -56,6 +56,12 @@ public class RegistroVMA implements Serializable {
 	@Column(name="username", nullable=true)
 	private String username;
 
+	@Column(name="id_usuario_registro", nullable=true)
+	private Integer idUsuarioRegistro;
+	
+	@Column(name="id_usuario_actualizacion", nullable=true)
+	private Integer idUsuarioActualizacion;
+	
 	
 	public Integer getIdRegistroVma() {
 		return idRegistroVma;
@@ -111,6 +117,22 @@ public class RegistroVMA implements Serializable {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public Integer getIdUsuarioRegistro() {
+		return idUsuarioRegistro;
+	}
+
+	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
+		this.idUsuarioRegistro = idUsuarioRegistro;
+	}
+
+	public Integer getIdUsuarioActualizacion() {
+		return idUsuarioActualizacion;
+	}
+
+	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
+		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
 
 

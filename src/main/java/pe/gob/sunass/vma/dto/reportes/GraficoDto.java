@@ -3,6 +3,7 @@ package pe.gob.sunass.vma.dto.reportes;
 import java.util.List;
 
 public class GraficoDto {
+	
     private String titulo;
     private List<RegistroEmpresaChartDto> datos;
 
@@ -29,4 +30,6 @@ public class GraficoDto {
     public void setDatos(List<RegistroEmpresaChartDto> datos) {
         this.datos = datos;
     }
+    
+    
 }

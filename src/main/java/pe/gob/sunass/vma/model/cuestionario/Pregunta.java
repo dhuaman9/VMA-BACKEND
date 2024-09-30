@@ -32,7 +32,7 @@ public class Pregunta  implements Serializable{
 
 	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name = "id_metadata", nullable = true)
-	private MetadatoArchivo metadatoArchivo;
+	private Metadato metadato;
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_pregunta", nullable = true)
@@ -46,15 +46,11 @@ public class Pregunta  implements Serializable{
 	@Column(name="fecha_registro", nullable=false)
 	private Date createdAt;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_actualizacion", nullable=true)
-	private Date updatedAt;
+//	@Temporal(TemporalType.TIMESTAMP)
+//	@Column(name="fecha_actualizacion", nullable=true)
+//	private Date updatedAt;
 
-	@Column(name="id_usuario_registro", nullable=true)
-	private Integer idUsuarioRegistro;
 	
-	@Column(name="id_usuario_actualizacion", nullable=true)
-	private Integer idUsuarioActualizacion;
 
 	@OneToOne
 	@JoinColumn(name = "pregunta_dependiente_id")
@@ -100,29 +96,7 @@ public class Pregunta  implements Serializable{
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public Integer getIdUsuarioRegistro() {
-		return idUsuarioRegistro;
-	}
-
-	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
-		this.idUsuarioRegistro = idUsuarioRegistro;
-	}
-
-	public Integer getIdUsuarioActualizacion() {
-		return idUsuarioActualizacion;
-	}
-
-	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
-		this.idUsuarioActualizacion = idUsuarioActualizacion;
-	}
+	
 
 	public Boolean getRequerido() {
 		return requerido;
@@ -156,11 +130,11 @@ public class Pregunta  implements Serializable{
 		this.preguntaDependiente = preguntaDependiente;
 	}
 
-	public MetadatoArchivo getMetadatoArchivo() {
-		return metadatoArchivo;
+	public Metadato getMetadato() {
+		return metadato;
 	}
 
-	public void setMetadatoArchivo(MetadatoArchivo metadatoArchivo) {
-		this.metadatoArchivo = metadatoArchivo;
+	public void setMetadato(Metadato metadato) {
+		this.metadato = metadato;
 	}
 }

@@ -19,6 +19,7 @@ import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
+import pe.gob.sunass.vma.util.UserUtil;
 import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 
 
@@ -31,11 +32,14 @@ public class EmpresaService {
 
 	  @Autowired
 	  private EmpresaRepository empresaRepository;
+	  
+	  @Autowired
+	  private UserUtil userUtil;
 
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<EmpresaDTO> findAll() throws Exception {
-	    List<Empresa> listEmpresa = this.empresaRepository.findAllByOrderByIdEmpresa();
+	    List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueOrderByIdEmpresa();
 	    List<EmpresaDTO> listDTO = EmpresaAssembler.buildDtoModelCollection(listEmpresa);
 
 	    return listDTO;
@@ -52,7 +56,7 @@ public class EmpresaService {
 	  //paginacion
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
-	    Page<Empresa> pageDomain = this.empresaRepository.findAllByOrderByIdEmpresa(pageable);
+	    Page<Empresa> pageDomain = this.empresaRepository.findAllByOrderByIdEmpresa(pageable);  //  findByEstadoTrueOrderByIdEmpresa  findAllByOrderByIdEmpresa
 	    Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
 
 	    return pageDTO;
@@ -95,7 +99,7 @@ public class EmpresaService {
 	    empresa.setEstado(true);
 	    empresa.setCreatedAt(new Date());
 	    empresa.setUpdatedAt(null);
-	    empresa.setIdUsuarioRegistro(null);
+	    empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
 	    empresa.setIdUsuarioActualizacion(null);
 	    empresa = this.empresaRepository.save(empresa);
 
@@ -145,34 +149,15 @@ public class EmpresaService {
 		   }
 	      
 	      empresa.setUpdatedAt(new Date());
-	      empresa.setIdUsuarioRegistro(null);
-	      empresa.setIdUsuarioActualizacion(null);
+	      empresa.setIdUsuarioActualizacion(userUtil.getCurrentUserId());
 	      empresa = this.empresaRepository.save(empresa);
 	    }
 
 	    return EmpresaAssembler.buildDtoModel(empresa);
 	  }
 
-//	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-//	  public UsuarioDTO delete(Integer id) throws Exception {
-//	    UsuarioDomain domain = null;
-//	    Optional<UsuarioDomain> optUser = this.usuarioRepository.findById(id);
-//
-//	    if (optUser.isPresent()) {
-//	      domain = optUser.get();
-//
-//	      if (!domain.getEstado().booleanValue()) {
-//	        domain = null;
-//	      }
-//	      else {
-//	        domain.setEstado(new Boolean(false));
-//	        domain.setUpdatedAt(new Date());
-//	        domain = this.usuarioRepository.save(domain);
-//	      }
-//	    }
-//
-//	    return UsuarioAssembler.buildDtoDomain(domain);
-//	  }
+
+	  
 
 	
 }

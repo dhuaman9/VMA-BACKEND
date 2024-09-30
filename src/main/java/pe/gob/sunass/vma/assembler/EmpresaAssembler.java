@@ -16,7 +16,7 @@ public class EmpresaAssembler {
 	
 	 public EmpresaAssembler() {}
 
-	 public static EmpresaDTO buildDtoModel(Empresa empresa) throws Exception {
+	 public static EmpresaDTO buildDtoModel(Empresa empresa){
 		  EmpresaDTO dto = null;
 
 	    if (empresa != null) {

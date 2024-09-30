@@ -29,7 +29,12 @@ import lombok.NoArgsConstructor;
 public class Usuario implements UserDetails{
 	
 
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 
@@ -61,7 +66,6 @@ public class Usuario implements UserDetails{
 	
 	@Column(name="correo")
 	private String correo;
-	
 	
 	@Column(name="telefono")
 	private String telefono;

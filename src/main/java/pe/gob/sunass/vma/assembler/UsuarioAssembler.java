@@ -18,7 +18,7 @@ public class UsuarioAssembler {
 	
 	public UsuarioAssembler() {}
 
-	  public static UsuarioDTO buildDtoDomain(Usuario usuario) throws Exception {
+	  public static UsuarioDTO buildDtoDomain(Usuario usuario) {
 	    UsuarioDTO dto = null;
 
 	    if (usuario != null) {

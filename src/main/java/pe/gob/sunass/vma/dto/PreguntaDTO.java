@@ -12,9 +12,9 @@ public class PreguntaDTO {
     private RespuestaDTO respuestaDTO;
     private List<AlternativaDTO> alternativas;
     private PreguntaDTO preguntaDependiente;
-    private MetadatoArchivoDto metadatoArchivo;
+    private MetadatoDto metadato;
 
-    public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta, List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO, PreguntaDTO preguntaDependiente, MetadatoArchivoDto metadatoArchivoDto) {
+    public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta, List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO, PreguntaDTO preguntaDependiente, MetadatoDto metadatoDto) {
         this.idPregunta = idPregunta;
         this.descripcion = descripcion;
         this.orden = orden;
@@ -22,7 +22,7 @@ public class PreguntaDTO {
         this.alternativas = alternativas;
         this.respuestaDTO = respuestaDTO;
         this.preguntaDependiente = preguntaDependiente;
-        this.metadatoArchivo = metadatoArchivoDto;
+        this.metadato = metadatoDto;
     }
 
     public Integer getIdPregunta() {
@@ -81,11 +81,13 @@ public class PreguntaDTO {
         this.respuestaDTO = respuestaDTO;
     }
 
-    public MetadatoArchivoDto getMetadatoArchivo() {
-        return metadatoArchivo;
-    }
+	public MetadatoDto getMetadato() {
+		return metadato;
+	}
 
-    public void setMetadatoArchivo(MetadatoArchivoDto metadatoArchivo) {
-        this.metadatoArchivo = metadatoArchivo;
-    }
+	public void setMetadato(MetadatoDto metadato) {
+		this.metadato = metadato;
+	}
+
+  
 }

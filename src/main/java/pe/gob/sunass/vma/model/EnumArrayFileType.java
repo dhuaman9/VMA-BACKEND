@@ -1,7 +1,6 @@
 package pe.gob.sunass.vma.model;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.engine.spi.Status;
 import org.hibernate.usertype.UserType;
 
 import pe.gob.sunass.vma.model.cuestionario.TipoArchivo;

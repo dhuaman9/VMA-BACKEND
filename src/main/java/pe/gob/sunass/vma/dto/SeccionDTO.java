@@ -1,9 +1,6 @@
 package pe.gob.sunass.vma.dto;
 
 
-import javax.persistence.Column;
-
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -13,8 +10,6 @@ import java.util.List;
 @JsonInclude(Include.NON_EMPTY)
 public class SeccionDTO {
 	
-	private static final long serialVersionUID = -4872705658825231581L;
-
 	private Integer idSeccion;
 
     private String nombre;

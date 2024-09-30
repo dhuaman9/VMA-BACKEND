@@ -17,7 +17,7 @@ public class FichaAssembler {
 	public FichaAssembler() {}
 
 	
-	 public static FichaDTO buildDtoModel(FichaRegistro fichaRegistro) throws Exception {
+	 public static FichaDTO buildDtoModel(FichaRegistro fichaRegistro) {
 		 FichaDTO dto = null;
 
 	    if (fichaRegistro != null) {

@@ -33,16 +33,6 @@ public class Seccion implements Serializable{
 	@Column(name="fecha_creacion", nullable=false)
 	private Date createdAt;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_actualizacion", nullable=true)
-	private Date updatedAt;
-
-	@Column(name="id_usuario_registro", nullable=true)
-	private Integer idUsuarioRegistro;
-	
-	@Column(name="id_usuario_actualizacion", nullable=true)
-	private Integer idUsuarioActualizacion;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_cuestionario")
 	@JsonIgnore
@@ -93,30 +83,7 @@ public class Seccion implements Serializable{
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	public Integer getIdUsuarioRegistro() {
-		return idUsuarioRegistro;
-	}
-
-	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
-		this.idUsuarioRegistro = idUsuarioRegistro;
-	}
-
-	public Integer getIdUsuarioActualizacion() {
-		return idUsuarioActualizacion;
-	}
-
-	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
-		this.idUsuarioActualizacion = idUsuarioActualizacion;
-	}
-
+	
 	public List<Pregunta> getPreguntas() {
 		return preguntas;
 	}

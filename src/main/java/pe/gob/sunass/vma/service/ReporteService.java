@@ -1,3 +1,4 @@
+
 package pe.gob.sunass.vma.service;
 
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 import pe.gob.sunass.vma.repository.RespuestaVMARepository;
+import pe.gob.sunass.vma.util.PreguntasAlternativasProperties;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,29 +43,32 @@ public class ReporteService {
 
     @Autowired
     private RespuestaVMARepository respuestaVMARepository;
+    
+    @Autowired
+	private PreguntasAlternativasProperties preguntasAlternativasVMA;  //clase properties, donde contiene los valores constantes de preguntas y alternativas
 
     //TODO: Esto se debe de manejar como una configuración en la properties
-    private final int PREGUNTA_SI_NO_ID = 1;
+  /*  private final int PREGUNTA_SI_NO_ID = 1;
     private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
-    private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 16;
-    private final int ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID = 22;
-    private final int ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID = 24;
-    private final int ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID = 14;
+    private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 3;
+    private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 5;
+    private final int ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID = 7;
+    private final int ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID = 9;
     private final int PREGUNTA_UND_CAJA_REGISTRO_ID= 10;
-    private final int ALTERNATIVA_UND_INSCRITOS_ID= 18;
+    private final int ALTERNATIVA_UND_INSCRITOS_ID= 11;
     private final int PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID= 11;
     private final int PREGUNTA_TOTAL_MUESTRAS_INOPINADAS_ID= 12;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 1;
-    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 3;
-    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 35;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 26;
-    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 28;
-    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 30;
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 15;
+    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 17;
+    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 19;
+    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 21;
+    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 23;
+    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 25;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
     private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
-    private final int PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID = 23;
+    private final int PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID = 23;
     private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
-    private final int PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID = 29;
+    private final int PREGUNTA_OTROS_GASTOS_IMPLEMENTACION_ID = 29;*/
 
     
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
@@ -91,8 +96,8 @@ public class ReporteService {
     	                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
 
     	        registrosPorTipo.forEach((tipo, lista) -> {
-    	            List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(PREGUNTA_SI_NO_ID, tipo, anio);
-    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals("Sí")).count();
+    	            List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(preguntasAlternativasVMA.getId_pregunta_si_no(), tipo, anio);
+    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals("SI")).count();
     	            dataList.add(new RegistroEmpresaChartDto(tipo, (int) respondieronSi, lista.size()));
     	        });
 
@@ -120,10 +125,10 @@ public class ReporteService {
                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
 
         List<PieChartBasicoDto> listaNumeroTotalUND = new ArrayList<>();
-        Integer sumaTotalEmpresasUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(registrosCompletos), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
+        Integer sumaTotalEmpresasUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(registrosCompletos), preguntasAlternativasVMA.getId_alternativa_nro_und_identificados_parcial());
 
         registrosPorTipo.forEach((tipo, lista) -> {
-            Integer sumaTotalPorTipoEmpresaUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
+            Integer sumaTotalPorTipoEmpresaUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_identificados_parcial());
             double porcentaje = ((double) sumaTotalPorTipoEmpresaUNDIngresadas / sumaTotalEmpresasUNDIngresadas) * 100;
             listaNumeroTotalUND.add(
                     new PieChartBasicoDto(tipo, porcentaje)
@@ -152,10 +157,10 @@ public class ReporteService {
         registrosPorTipo.forEach((tipo, lista) -> {
         	
             Integer totalInspeccionados = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_inspeccionados_parcial());
             
             Integer totalIdentificados = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_identificados_parcial());
 
             sumaTotalInspeccionadosAllEPS.addAndGet(totalInspeccionados);// suma total de Inspeccionados de todas las EPS
         	sumaTotalIdentificadosAllEPS.addAndGet(totalIdentificados); // suma total de Identificados de todas las EPS
@@ -197,9 +202,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalDiagramaFlujo = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_solicitaron_diagrama_flujo());  //ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID
             Integer totalInspeccionados = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_inspeccionados_parcial());
 
             sumaTotalDiagramaFlujoAllEPS.addAndGet(totalDiagramaFlujo); // suma total de  UND a los que se le ha solicitado el diagrama de flujo , de todas las EPS
             sumaTotalInspeccionadosAllEPS.addAndGet(totalInspeccionados);// suma total de UND Inspeccionados, de todas las EPS
@@ -221,7 +226,7 @@ public class ReporteService {
     }
 
     private RegistroPromedioTrabajadorVMAChartDto mapToRegistroPromedioTrrabajadorVMA(String tipo, List<Integer> idsRegistrosVma) {
-        Integer sumaTrabajadoresDesdicadosRegistroVMA = respuestaVMARepository.getSumaTrabajadoresDesdicadosRegistroVMA(idsRegistrosVma, PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID);
+        Integer sumaTrabajadoresDesdicadosRegistroVMA = respuestaVMARepository.getSumaTrabajadoresDesdicadosRegistroVMA(idsRegistrosVma, preguntasAlternativasVMA.getId_pregunta_nro_trabajadores_eps());
         double promedio = (double) sumaTrabajadoresDesdicadosRegistroVMA / idsRegistrosVma.size();
         return new RegistroPromedioTrabajadorVMAChartDto(tipo, promedio, sumaTrabajadoresDesdicadosRegistroVMA, idsRegistrosVma.size());
     }
@@ -256,9 +261,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalPresentaronDiagrama = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_presentaron_diagrama_flujo());
             Integer totalSolicitaronDiagrama = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_solicitaron_diagrama_flujo());
 
             sumaTotalUNDPresentaronDiagramaAllEPS.addAndGet(totalPresentaronDiagrama); // suma total de  UND a los que se le ha solicitado el diagrama de flujo , de todas las EPS
             sumaTotalUNDSolicitaronDiagramaAllEPS.addAndGet(totalSolicitaronDiagrama);// suma total de UND Inspeccionados, de todas las EPS
@@ -290,11 +295,11 @@ public class ReporteService {
     	
          registrosPorTipo.forEach((tipo, lista) -> {
              Integer totalUNDInscritos = respuestaVMARepository
-                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSCRITOS_ID);
+                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_inscritos());  // ALTERNATIVA_UND_INSCRITOS_ID
              Integer totalUNDInspeccionados = respuestaVMARepository
-                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_TOTAL_UND_INSPECCIONADOS_PARCIAL_ID);
+                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_inspeccionados_parcial());   //ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID
              Integer totalUNDIdentificados = respuestaVMARepository
-                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID);
+                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_nro_und_identificados_parcial());
              
   
              double porcentajeUNDinspeccionados = ((double) totalUNDInscritos / totalUNDInspeccionados) * 100;
@@ -332,9 +337,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalUNDCajaRegistro = respuestaVMARepository
-                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_UND_CAJA_REGISTRO_ID);
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_nro_und_caja_registro());
             Integer totalUNDInscritos = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSCRITOS_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_inscritos());
             double porcentaje = ((double) totalUNDCajaRegistro / totalUNDInscritos) * 100;
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
             
@@ -368,9 +373,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalUNDTomaMuestraInopinada = respuestaVMARepository
-                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID);
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada());
             Integer totalUNDInscritos = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSCRITOS_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_inscritos());
             double porcentaje = ((double) totalUNDTomaMuestraInopinada / totalUNDInscritos) * 100;
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
             
@@ -402,10 +407,10 @@ public class ReporteService {
                 .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
 
         List<PieChartBasicoDto> listaTotalTomasMuestraInopinadas = new ArrayList<>();
-        Integer sumaTotalTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(registrosCompletos), PREGUNTA_TOTAL_MUESTRAS_INOPINADAS_ID);
+        Integer sumaTotalTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(registrosCompletos), preguntasAlternativasVMA.getId_pregunta_total_muestras_inopinadas());
 
         registrosPorTipo.forEach((tipo, lista) -> {
-            Integer sumaTotalPorTipoEPSTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_TOTAL_MUESTRAS_INOPINADAS_ID);
+            Integer sumaTotalPorTipoEPSTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_total_muestras_inopinadas());
             double porcentaje = ((double) sumaTotalPorTipoEPSTomasMuestraInopinadas / sumaTotalTomasMuestraInopinadas) * 100;
             listaTotalTomasMuestraInopinadas.add(
                     new PieChartBasicoDto(tipo, porcentaje)
@@ -430,9 +435,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalUNDTomaMuestraInopinada = respuestaVMARepository
-                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID);
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada());
             Integer totalUNDParametroAnexo1 = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo1());
             double porcentaje = ((double) totalUNDParametroAnexo1 / totalUNDTomaMuestraInopinada) * 100;
             
             sumaTotalUNDTomaMuestraInopinadaAllEPS.addAndGet(totalUNDTomaMuestraInopinada); 
@@ -470,9 +475,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalUNDFacturaronPagoAdicional = respuestaVMARepository
-            		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID);
+            		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_facturaron_pago_adicional());
             Integer totalUNDParametroAnexo1 = respuestaVMARepository
-                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID);
+                    .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo1());
             double porcentaje = ((double) totalUNDFacturaronPagoAdicional / totalUNDParametroAnexo1) * 100;
             
             sumaTotalUNDFacturaronPagoAdicionalAllEPS.addAndGet(totalUNDFacturaronPagoAdicional); 
@@ -516,9 +521,9 @@ public class ReporteService {
          
            registrosPorTipo.forEach((tipo, lista) -> {
                Integer totalUNDRealizaronPagoAdicional = respuestaVMARepository
-               		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID);
+               		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_realizaron_pago_adicional());
                Integer totalUNDFacturaronPagoAdicional = respuestaVMARepository
-                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID);
+                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_facturaron_pago_adicional());
                
                double porcentaje = ((double) totalUNDRealizaronPagoAdicional / totalUNDFacturaronPagoAdicional) * 100;
                
@@ -562,9 +567,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
-            		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID);
+            		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
             Integer totalUNDTomaMuestraInopinada = respuestaVMARepository
-                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID);
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada());
             double porcentaje = ((double) totalUNDSobrepasanParametroAnexo2 / totalUNDTomaMuestraInopinada) * 100;
            
             sumaTotalUNDSobrepasanParametroAnexo2AllEPS.addAndGet(totalUNDSobrepasanParametroAnexo2); 
@@ -607,9 +612,9 @@ public class ReporteService {
 
          registrosPorTipo.forEach((tipo, lista) -> {
              Integer totalUNDPlazoAdicional = respuestaVMARepository
-             		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID);
+             		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_otorgado_plazo_adicional());
              Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
-                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID);
+                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
              double porcentaje = ((double) totalUNDPlazoAdicional / totalUNDSobrepasanParametroAnexo2) * 100;
              
              sumaTotalUNDPlazoAdicionalAllEPS.addAndGet(totalUNDPlazoAdicional); 
@@ -652,9 +657,9 @@ public class ReporteService {
 
           registrosPorTipo.forEach((tipo, lista) -> {
               Integer totalUNDSuscritoPlazo = respuestaVMARepository
-              		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID);
+              		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_suscrito_plazo_otorgado());
               Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
-                      .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID);
+                      .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
               double porcentaje = ((double) totalUNDSuscritoPlazo / totalUNDSobrepasanParametroAnexo2) * 100;
               
               sumaTotalUNDSuscritoPlazoAllEPS.addAndGet(totalUNDSuscritoPlazo); 
@@ -690,9 +695,9 @@ public class ReporteService {
 
            registrosPorTipo.forEach((tipo, lista) -> {
                Integer totalReclamosRecibidosVMA = respuestaVMARepository
-               		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID);
+               		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_nro_reclamos_recibidos());
                Integer totalUNDInscritos = respuestaVMARepository
-                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), ALTERNATIVA_UND_INSCRITOS_ID);
+                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_inscritos());
                double porcentaje = ((double) totalReclamosRecibidosVMA / totalUNDInscritos) * 100;
                
                sumaTotalReclamosRecibidosVMAAllEPS.addAndGet(totalReclamosRecibidosVMA); 
@@ -736,9 +741,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer totalReclamosFundadosVMA = respuestaVMARepository
-            		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID);
+            		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_nro_reclamos_fundados());
             Integer totalReclamosRecibidosVMA = respuestaVMARepository
-                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista),PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID);
+                    .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista),preguntasAlternativasVMA.getId_pregunta_nro_reclamos_recibidos());
             double porcentaje = ((double) totalReclamosFundadosVMA / totalReclamosRecibidosVMA) * 100;
             
             sumaTotalReclamosFundadosVMAAllEPS.addAndGet(totalReclamosFundadosVMA); 
@@ -771,7 +776,7 @@ public class ReporteService {
            if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
                    registro.getEstado().equals("COMPLETO")) {
                BigDecimal costoAnual = respuestaVMARepository
-                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_total_anual_und());
                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
            }
        });
@@ -789,7 +794,7 @@ public class ReporteService {
            if(!idsVmaCompleto.isEmpty()) {
                BigDecimal cantidadVmaCompletos = BigDecimal.valueOf(idsVmaCompleto.size());
                BigDecimal sumaCostoTotalPorTipoEmpresaVmaCompleto = respuestaVMARepository
-                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, preguntasAlternativasVMA.getId_pregunta_costo_total_anual_und());
 
                BigDecimal promedio = sumaCostoTotalPorTipoEmpresaVmaCompleto.divide(cantidadVmaCompletos, 2, RoundingMode.HALF_UP);
                lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), sumaCostoTotalPorTipoEmpresaVmaCompleto, promedio));
@@ -809,7 +814,7 @@ public class ReporteService {
   	   registrosCompletos.forEach(registro -> {
        //  if(!registro.getEmpresa().getNombre().equals("SUNASS") ) {  //&&  registro.getEstado().equals("COMPLETO")
              BigDecimal costoAnual = respuestaVMARepository
-                     .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_INCURRIDO_ID);
+                     .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_total_anual_und());
            
              listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
        //  }
@@ -833,7 +838,7 @@ public class ReporteService {
            if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
                    registro.getEstado().equals("COMPLETO")) {
                BigDecimal costoAnual = respuestaVMARepository
-                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID);
+                       .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas());
                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
            }
        });
@@ -851,7 +856,7 @@ public class ReporteService {
            if(!idsVmaCompleto.isEmpty()) {
                BigDecimal cantidadVmaCompletos = BigDecimal.valueOf(idsVmaCompleto.size());
                BigDecimal sumaCostoTotalPorTipoEmpresaVmaCompleto = respuestaVMARepository
-                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID);
+                       .getSumaCostoTotalAnualIncurridoVmasCompleto(idsVmaCompleto, preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas());
 
                BigDecimal promedio = sumaCostoTotalPorTipoEmpresaVmaCompleto.divide(cantidadVmaCompletos, 2, RoundingMode.HALF_UP);
                lista.add(new CostoAnualIncurridoDTO(tipoEmpresa, listaRegistros.size(), registrosCompletos.size(), sumaCostoTotalPorTipoEmpresaVmaCompleto, promedio));
@@ -871,7 +876,7 @@ public class ReporteService {
    	   registrosCompletos.forEach(registro -> {
        //   if(!registro.getEmpresa().getNombre().equals("SUNASS") &&  registro.getEstado().equals("COMPLETO") ) {  //&&  registro.getEstado().equals("COMPLETO")
               BigDecimal costoAnual = respuestaVMARepository
-                      .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID);
+                      .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas());
           
               listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
          // }
@@ -890,9 +895,9 @@ public class ReporteService {
         List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
         registrosPorTipo.forEach((tipo, lista) -> {
-            BigDecimal totalReclamosRecibidosVMA = respuestaVMARepository
-                    .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), PREGUNTA_COSTO_ANUAL_POR_OTROS_GASTOS_ID);
-            listaChart.add(new BarChartBasicoDto(tipo, totalReclamosRecibidosVMA.doubleValue()));
+            BigDecimal CostoTotalAnualIncurridoVmas = respuestaVMARepository
+                    .getSumaCostoTotalAnualIncurridoVmasCompleto(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_otros_gastos_implementacion());
+            listaChart.add(new BarChartBasicoDto(tipo, CostoTotalAnualIncurridoVmas.doubleValue()));
         });
 
         double total = listaChart.stream().mapToDouble(BarChartBasicoDto::getValue).sum();

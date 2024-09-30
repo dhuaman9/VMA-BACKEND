@@ -25,12 +25,12 @@ public class SeccionesService {
 	 
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public List<SeccionDTO> findAll() throws Exception {
+	public List<SeccionDTO> findAll() throws Exception {
 	    List<Seccion> listaSecciones = this.seccionRepository.findAllByOrderByIdSeccion();
 	    List<SeccionDTO> listaDTO = SeccionAssembler.buildDtoModelCollection(listaSecciones);
 
 	    return listaDTO;
-	 }
+	}
 
 	
 	

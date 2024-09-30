@@ -21,29 +21,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 import pe.gob.sunass.vma.assembler.UsuarioAssembler;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
-import pe.gob.sunass.vma.exception.BadRequestException;
-import pe.gob.sunass.vma.exception.BusinessException;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.Role;
 import pe.gob.sunass.vma.model.Usuario;
-import pe.gob.sunass.vma.model.UsuarioLdap;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RoleRepository;
 import pe.gob.sunass.vma.repository.UsuarioRepository;
 import pe.gob.sunass.vma.util.LdapConnProperties;
 import pe.gob.sunass.vma.util.LdapUtil;
-
+import pe.gob.sunass.vma.util.UserUtil;
 
 
 @Service
@@ -65,7 +60,10 @@ public class UsuarioService   {
 	  private PasswordEncoder passwordEncoder;
 	 
 	 @Autowired
-	private LdapConnProperties propiedadesLdap;
+	 private LdapConnProperties propiedadesLdap;
+	 
+	 @Autowired
+	 private UserUtil userUtil;
 
 
 	 @Autowired
@@ -77,6 +75,13 @@ public class UsuarioService   {
 	    List<UsuarioDTO> listDTO = UsuarioAssembler.buildDtoDomainCollection(listUsuarios);
 	    return listDTO;
 	  }
+
+    public Page<UsuarioDTO> findAllPageable(Integer page, Integer size, String search) {
+		PageRequest pageRequest = PageRequest.of(page, size);
+		Page<Usuario> usuariosByName = usuarioRepository.findUsuariosByName(search, pageRequest, userUtil.getCurrentUserId());
+
+		return usuariosByName.map(UsuarioAssembler::buildDtoDomain);
+	}
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<UsuarioDTO> findAll(Pageable pageable) throws Exception {
@@ -120,7 +125,7 @@ public class UsuarioService   {
 	
 	    List<Usuario> list = this.usuarioRepository.findByUserNameAndEstado(dto.getUserName(),true);
 	    if (list != null && list.size() > 0) {
-	    	 throw new FailledValidationException("El Username ya existe, debe registrar otro.");
+	    	 throw new FailledValidationException("El Usuario ya esta registrado.");
 	       
 	    }
 
@@ -131,6 +136,13 @@ public class UsuarioService   {
 	    
 	    if (dto.getTipo().equals("SUNASS")) {
 	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+	    	
+	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
+	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
+	    	logger.info("dto.getNombres() - "+dto.getNombres());
+	    	logger.info("dto.getNombres() to upper- "+dto.getNombres().toUpperCase());
+	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
+	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
 	    	
 	    	usuario.setTipo("SUNASS");
 	    	usuario.setRole(optRole.get());
@@ -193,7 +205,7 @@ public class UsuarioService   {
 	        		  dto.getId(),  new Boolean(true));
 	        
 	          if (list != null && list.size() > 0) {
-	        	  throw new FailledValidationException("El Username ya existe, registre otro por favor.");  // para validar en el front
+	        	  throw new FailledValidationException("El usuario ya esta registrado.");  // para validar en el front
 	          }
 	          usuario.setUserName(dto.getUserName().toLowerCase());
 	        }
@@ -352,10 +364,11 @@ public class UsuarioService   {
 	            Attributes attrs = sr.getAttributes();
 	            UsuarioDTO userLdap = new UsuarioDTO();
 	            userLdap.setCorreo((String) (attrs.get("mail")==null?"":attrs.get("mail").get()));
-	            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
+	            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get())).toUpperCase().trim());
 	            userLdap.setApellidos(((String) (attrs.get("sn")==null?"":attrs.get("sn").get()) ).toUpperCase().trim());
 	            userLdap.setUnidadOrganica((String) (attrs.get("physicalDeliveryOfficeName")==null?"":attrs.get("physicalDeliveryOfficeName").get()));
 	            userLdap.setUserName((String) (attrs.get("SAMAccountName")==null?"":attrs.get("SAMAccountName").get()));
+	            
 	            listaUsuario.add(userLdap);
 	        }
 

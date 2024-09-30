@@ -1,23 +1,16 @@
 package pe.gob.sunass.vma.dto;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import javax.persistence.Column;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 @JsonInclude(Include.NON_EMPTY)
-public class UsuarioDTO implements Serializable {
+public class UsuarioDTO  {
 	
-	private static final long serialVersionUID = -4872705658825231581L;
-
+	
 	private Integer id;
 
 	private String tipo;
@@ -155,9 +148,7 @@ public class UsuarioDTO implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+	
 
 	public Boolean getEstado() {
 		return estado;

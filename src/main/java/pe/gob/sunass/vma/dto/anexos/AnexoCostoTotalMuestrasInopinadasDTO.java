@@ -1,12 +1,14 @@
 package pe.gob.sunass.vma.dto.anexos;
 
+import java.math.BigDecimal;
+
 public class AnexoCostoTotalMuestrasInopinadasDTO {
 	
 	private String nombreEmpresa;
     private String tamanioEmpresa;
-    private double costoPorTomaMuestrasInopinadas;
+    private  BigDecimal costoPorTomaMuestrasInopinadas;
     private int nroMuestrasInopinadas;
-    private double costoAnualMuestraInopinada;
+    private  BigDecimal costoAnualMuestraInopinada;
     
     
 	public AnexoCostoTotalMuestrasInopinadasDTO() {
@@ -14,7 +16,7 @@ public class AnexoCostoTotalMuestrasInopinadasDTO {
 	}
 	
 	public AnexoCostoTotalMuestrasInopinadasDTO(String nombreEmpresa, String tamanioEmpresa,
-			double costoPorTomaMuestrasInopinadas, int nroMuestrasInopinadas, double costoAnualMuestraInopinada) {
+			BigDecimal costoPorTomaMuestrasInopinadas, int nroMuestrasInopinadas, BigDecimal costoAnualMuestraInopinada) {
 		
 		this.nombreEmpresa = nombreEmpresa;
 		this.tamanioEmpresa = tamanioEmpresa;
@@ -38,10 +40,10 @@ public class AnexoCostoTotalMuestrasInopinadasDTO {
 	public void setTamanioEmpresa(String tamanioEmpresa) {
 		this.tamanioEmpresa = tamanioEmpresa;
 	}
-	public double getCostoPorTomaMuestrasInopinadas() {
+	public BigDecimal getCostoPorTomaMuestrasInopinadas() {
 		return costoPorTomaMuestrasInopinadas;
 	}
-	public void setCostoPorTomaMuestrasInopinadas(double costoPorTomaMuestrasInopinadas) {
+	public void setCostoPorTomaMuestrasInopinadas(BigDecimal costoPorTomaMuestrasInopinadas) {
 		this.costoPorTomaMuestrasInopinadas = costoPorTomaMuestrasInopinadas;
 	}
 	public double getNroMuestrasInopinadas() {
@@ -50,10 +52,10 @@ public class AnexoCostoTotalMuestrasInopinadasDTO {
 	public void setNroMuestrasInopinadas(int nroMuestrasInopinadas) {
 		this.nroMuestrasInopinadas = nroMuestrasInopinadas;
 	}
-	public double getCostoAnualMuestraInopinada() {
+	public BigDecimal getCostoAnualMuestraInopinada() {
 		return costoAnualMuestraInopinada;
 	}
-	public void setCostoAnualMuestraInopinada(double costoAnualMuestraInopinada) {
+	public void setCostoAnualMuestraInopinada(BigDecimal costoAnualMuestraInopinada) {
 		this.costoAnualMuestraInopinada = costoAnualMuestraInopinada;
 	}
     

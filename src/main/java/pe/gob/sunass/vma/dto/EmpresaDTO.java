@@ -2,7 +2,6 @@ package pe.gob.sunass.vma.dto;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,9 +9,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
 @JsonInclude(Include.NON_EMPTY)
-public class EmpresaDTO  implements Serializable{
+public class EmpresaDTO {
 	
-	private static final long serialVersionUID = -4872705658825231581L;
 	
 	private Integer idEmpresa;
 

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
 
 import java.io.ByteArrayInputStream;
@@ -23,16 +24,30 @@ public class GenerarExcelService {
 
     @Autowired
     private CuestionarioService cuestionarioService;
+    
+    @Autowired
+    private EmpresaRepository empresaRepository;
 
     public ByteArrayInputStream generarExcelCuestionario(List<Integer> registrosIds) {
-        List<RegistroVMA> registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
-
+    	
+    	
+    	//List<RegistroVMA> registros =new ArrayList<RegistroVMA>();
+    	List<RegistroVMA> registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
+    	
+    	
+//    	if (registrosIds == null || registrosIds.size() ==0 ) {
+//    		registros = registroVMARepository.findAllByOrderByIdRegistroVma();
+//    		
+//		} else {
+//			registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
+//		}
+////    	
+      
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("Lista de registros VMA");
+            Sheet sheet = workbook.createSheet("Registros VMA");
 
             Row headerRow = sheet.createRow(0);
-            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Fecha registro", "Año"));
-
+            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS", "Tamaño de la EPS", "Estado","Fecha de registro", "Año"));
 
             CellStyle headerStyle = workbook.createCellStyle();
             headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
@@ -53,8 +68,10 @@ public class GenerarExcelService {
                 agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
                 agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
                 agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo());
-                agregarCelda(3, row, centeredStyle, formatter.format(registro.getCreatedAt()));
-                agregarCelda(4, row, centeredStyle, registro.getFichaRegistro().getAnio());
+                agregarCelda(3, row, centeredStyle, registro.getEstado());
+                agregarCelda(4, row, centeredStyle, formatter.format(registro.getCreatedAt()));
+                agregarCelda(5, row, centeredStyle, registro.getFichaRegistro().getAnio());
+
 
                 CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
                 List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
@@ -111,6 +128,60 @@ public class GenerarExcelService {
             throw new RuntimeException("Error al generar el excel" + e.getMessage());
         }
     }
+    
+    
+    
+    public ByteArrayInputStream generarExcelEPSSinRegistro() {
+    	
+        List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();  
+
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Registros VMA");
+
+            Row headerRow = sheet.createRow(0);
+            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS","Tamaño", "Estado", "Año" , "Periodo de registro"));
+
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            Font font = workbook.createFont();
+            font.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(font);
+
+            CellStyle centeredStyle = workbook.createCellStyle();
+            centeredStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+            int rowIdx = 1;
+           
+            SimpleDateFormat formatFechaInicioFin = new SimpleDateFormat("dd-MM-yyyy");
+            	
+            	 for (Object[] item: missingFichaRegistros) {
+            		 Row row = sheet.createRow(rowIdx++);
+                     agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));  // correlativo  - N°
+                     agregarCelda(1, row, centeredStyle, (String) item[0]);   // EPS
+                     agregarCelda(2, row, centeredStyle, (String) item[1]);   //tamanio
+                     agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); //  Estado
+                     agregarCelda(4, row, centeredStyle, (String) item[2]); //  anio
+                     agregarCelda(5, row, centeredStyle, formatFechaInicioFin.format(item[3]) +"  al  " +formatFechaInicioFin.format(item[4]) );  //periodo de registro
+                 }
+            	
+            for (int i = 0; i < headersList.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headersList.get(i));
+                cell.setCellStyle(headerStyle);
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("Error al generar el excel" + e.getMessage());
+        }
+    }
+
+
 
     private String getRepuesta(RespuestaDTO respuestaDTO) {
         return Objects.nonNull(respuestaDTO) ? respuestaDTO.getRespuesta() : " ";

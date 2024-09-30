@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,8 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import pe.gob.sunass.vma.constants.Constants;
-import pe.gob.sunass.vma.dto.EmpresaDTO;
+import pe.gob.sunass.vma.dto.FichaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
@@ -63,7 +60,7 @@ public class RegistroVMAController {
 
 	@GetMapping(path = "/activo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getEstadoRegistro(@RequestHeader("Authorization") String token) {
-		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token));
+		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token)); ////para deshabilitar o habilitar el boton de Registrar VMA
 		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
 	}
 
@@ -85,18 +82,7 @@ public class RegistroVMAController {
 	}
 
 	
-	
-//	@GetMapping("/search")
-//	public List<RegistroVMA> searchRegistroVMA(
-//			@RequestParam(required = false) Integer empresaId,
-//			@RequestParam(required = false) String estado,
-//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-//			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-//			@RequestParam(required = false) String year,
-//			@RequestHeader("Authorization") String token) {
-//
-//		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token));
-//	}
+
 	
 	@GetMapping("/search")
 	public Page<RegistroVMA> searchRegistroVMA(
@@ -146,15 +132,28 @@ public class RegistroVMAController {
 	    return registroVMAService.filterRegistros(filterDTO);
 	 }
 
-	 @GetMapping("/descargar-excel")
+	 @GetMapping("/reporte-registros-vma")
 	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
-	 public ResponseEntity<byte[]> generarExcel(
+	 public ResponseEntity<byte[]> descargarReporteVMA(
 			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
 				 .generarExcelCuestionario(idsVma);
-
+		 
 		 HttpHeaders headers = new HttpHeaders();
-		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
+		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+
+		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+	 }
+	 
+	 @GetMapping("/reporte-eps-no-registraron-vma")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+	 public ResponseEntity<byte[]> descargaReporteNoRegistraronVMA(
+			 @RequestParam(required = false) List<Integer> idsVma) {
+		 ByteArrayInputStream byteArrayExcel = excelService
+				 .generarExcelEPSSinRegistro();
+		 
+		 HttpHeaders headers = new HttpHeaders();
+		 headers.add("Content-Disposition", "attachment; filename=eps_no_registraron_vma.xlsx");
 
 		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
 	 }
@@ -164,4 +163,20 @@ public class RegistroVMAController {
 		 this.registroVMAService.actualizarEstadoIncompleto(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	 }
+	
+	 @GetMapping("/alerta-para-eps-sin-registrar")
+	    public ResponseEntity<RegistroVMADTO> obtenerRegistroVMASinCompletar() throws Exception {
+		 RegistroVMADTO dto = registroVMAService.obtenerEmpresaSinCompletarRegistroVMA();
+
+	        if (dto == null) {
+	            
+	            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	        }
+
+	        return ResponseEntity.ok(dto);
+	    }
+	  
+	
+	
+	
 }

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
@@ -23,7 +24,6 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	//paginacion
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public Page<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa, Pageable pageable);
-
 
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
@@ -42,14 +42,9 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("FROM RegistroVMA r WHERE r.idRegistroVma = :id")
 	public Optional<RegistroVMA> findByIdRegistroVma(@Param("id") Integer id);
 	
-	// ** query para obtener el listado de registros VMA, segun el usuario en sesion.
-	/*@Query("SELECT r FROM RegistroVMA r WHERE r.username = ( SELECT u.idEmpresa FROM Usuario u WHERE u.username = :username)")
-	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndUsername(@Param("username") String username);*/
-	
 	//query para obtener el listado de registros VMA, segun la EPS , a la que pertenece el usuario en sesion.
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ( SELECT e.idEmpresa FROM Empresa e WHERE e.nombre = :nombre)")
 	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndEPS(@Param("nombre") String nombre);
-
 
 	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
 		       "FROM RegistroVMA e " +
@@ -63,7 +58,6 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) ")
 	boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
 
-	
 	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
 	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
 	
@@ -73,5 +67,22 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	
 	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids")
 	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids);
+	
+//	@Query("SELECT r FROM RegistroVMA  r  WHERE r.estado= 'INCOMPLETO' AND  r.fichaRegistro.idFichaRegistro IN( SELECT idFichaRegistro FROM FichaRegistro f WHERE CURRENT_DATE >= f.fechaInicio AND CURRENT_DATE <= f.fechaFin)")
+//	public  Optional<RegistroVMA> findEmpresaSinCompletarRegistro();  // si el estado es incompleto  que corresponde al periodo actual en curso.
+//	
+	
+	@Query("SELECT r FROM RegistroVMA r " +
+		       "WHERE r.empresa.idEmpresa = (SELECT u.empresa.idEmpresa FROM Usuario u WHERE u.id = :id) " +
+		       "AND r.estado = 'INCOMPLETO' " +
+		       "AND r.fichaRegistro.idFichaRegistro IN (" +
+		       "SELECT f.idFichaRegistro FROM FichaRegistro f " +
+		       "WHERE CURRENT_DATE >= f.fechaInicio AND CURRENT_DATE <= f.fechaFin)")
+	public	Optional<RegistroVMA> findEmpresaSinCompletarRegistro(@Param("id") Integer userId);
+	
+	
+	
+//	@Query("FROM RegistroVMA ")
+//	List<RegistroVMA> findRegistrosVmasAll();
 	
 }
