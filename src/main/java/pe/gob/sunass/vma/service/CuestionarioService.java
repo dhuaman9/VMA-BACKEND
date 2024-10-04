@@ -114,8 +114,12 @@ public class CuestionarioService {
             RespuestaVMA respuesta = respuestas.get(0);
             respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
         } else if(esDependiente) {
-            RespuestaVMA respuesta = respuestaVMARepository.findRespuestasByIdPreguntaAndRegistroVma(pregunta.getIdPregunta(), idRegistroVma);
-            respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
+        	
+        	RespuestaVMA respuesta = respuestaVMARepository.findRespuestasByIdPreguntaAndRegistroVma(pregunta.getIdPregunta(), idRegistroVma);
+            if(Objects.nonNull(respuesta)) {
+                respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
+            }
+        
         }
 
         return new PreguntaDTO(

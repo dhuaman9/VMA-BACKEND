@@ -125,7 +125,7 @@ public class UsuarioService   {
 	
 	    List<Usuario> list = this.usuarioRepository.findByUserNameAndEstado(dto.getUserName(),true);
 	    if (list != null && list.size() > 0) {
-	    	 throw new FailledValidationException("El Username ya existe, debe registrar otro.");
+	    	 throw new FailledValidationException("El Usuario ya esta registrado.");
 	       
 	    }
 
@@ -136,6 +136,13 @@ public class UsuarioService   {
 	    
 	    if (dto.getTipo().equals("SUNASS")) {
 	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+	    	
+	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
+	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
+	    	logger.info("dto.getNombres() - "+dto.getNombres());
+	    	logger.info("dto.getNombres() to upper- "+dto.getNombres().toUpperCase());
+	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
+	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
 	    	
 	    	usuario.setTipo("SUNASS");
 	    	usuario.setRole(optRole.get());
@@ -198,7 +205,7 @@ public class UsuarioService   {
 	        		  dto.getId(),  new Boolean(true));
 	        
 	          if (list != null && list.size() > 0) {
-	        	  throw new FailledValidationException("El Username ya existe, registre otro por favor.");  // para validar en el front
+	        	  throw new FailledValidationException("El usuario ya esta registrado.");  // para validar en el front
 	          }
 	          usuario.setUserName(dto.getUserName().toLowerCase());
 	        }
@@ -357,10 +364,11 @@ public class UsuarioService   {
 	            Attributes attrs = sr.getAttributes();
 	            UsuarioDTO userLdap = new UsuarioDTO();
 	            userLdap.setCorreo((String) (attrs.get("mail")==null?"":attrs.get("mail").get()));
-	            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
+	            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get())).toUpperCase().trim());
 	            userLdap.setApellidos(((String) (attrs.get("sn")==null?"":attrs.get("sn").get()) ).toUpperCase().trim());
 	            userLdap.setUnidadOrganica((String) (attrs.get("physicalDeliveryOfficeName")==null?"":attrs.get("physicalDeliveryOfficeName").get()));
 	            userLdap.setUserName((String) (attrs.get("SAMAccountName")==null?"":attrs.get("SAMAccountName").get()));
+	            
 	            listaUsuario.add(userLdap);
 	        }
 

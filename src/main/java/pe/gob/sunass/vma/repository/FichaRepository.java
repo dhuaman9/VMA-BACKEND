@@ -28,7 +28,6 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	  @Query(value = "SELECT COUNT(*) FROM vma.ficha_registro f WHERE  f.anio = :anio AND EXTRACT(YEAR FROM CAST(:fechaInicio AS DATE)) = EXTRACT(YEAR FROM CURRENT_DATE)", nativeQuery = true)  //r.id_ficha_registro <> :idFichaRegistro and 
 	  public int nroRegistroPorAnio(@Param("anio") String anio,@Param("fechaInicio") LocalDate fechaInicio  );  //devuelve el nro de Periodos de registro VMA , segun el anio
 	  
-	  
 	  @Query(value = "SELECT COUNT(*) FROM vma.ficha_registro f WHERE f.id_ficha_registro  <> :id_ficha_registro and  f.anio = :anio AND EXTRACT(YEAR FROM CAST(:fechaInicio AS DATE)) = EXTRACT(YEAR FROM CURRENT_DATE)", nativeQuery = true)
 	  public int nroRegistroPorAnioUpdate(@Param("anio") String anio,@Param("fechaInicio") LocalDate fechaInicio, @Param("id_ficha_registro") Integer idFichaRegistro );  
 	  
@@ -67,24 +66,8 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 		       "WHERE CURRENT_DATE BETWEEN r.fechaInicio AND r.fechaFin")
 	  public List<Integer>  findDiasRestantes();  //el resultado no puede   ser unico ,como no se usa el LIMIT 1 en JPQL,  se usa el List<>.
 	  
-	  
-	  
-	  
-//	  @Query(value = "SELECT " +
-//              "COALESCE((SELECT " +
-//              "CASE " +
-//              "WHEN r.fecha_fin >= CURRENT_DATE THEN " +
-//              "  CASE " +
-//              "  WHEN EXTRACT(DAY FROM AGE(r.fecha_fin, CURRENT_DATE)) >= 0 THEN " +
-//              "    EXTRACT(DAY FROM AGE(r.fecha_fin, CURRENT_DATE)) " +
-//              "  ELSE -1 END " +
-//              "ELSE -1 END " +
-//              "FROM vma.ficha_registro r " +
-//              "WHERE CURRENT_DATE >= r.fecha_inicio " +
-//              "AND CURRENT_DATE <= r.fecha_fin " +
-//              "LIMIT 1), -1) AS dias_restantes", 
-//      nativeQuery = true)
-//	  public Integer findDaysRemaining();  // otra opcion, es usar este query nativo
+	  @Query("SELECT r FROM FichaRegistro r WHERE CURRENT_DATE >= r.fechaInicio AND CURRENT_DATE <= r.fechaFin")
+	  public Optional<FichaRegistro> findOptionalPeriodosActivos();  // obtiene el periodo actual segun la fecha actual
 	  
 	  
 }

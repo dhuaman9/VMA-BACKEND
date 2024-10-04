@@ -21,10 +21,10 @@ public class RegistroVMADTO implements Serializable{
 		
 	private String estado;
 
-	@JsonProperty("created_at")
+	@JsonProperty("createdAt")
 	private String createdAt;
 
-	@JsonProperty("updated_at")
+	@JsonProperty("updatedAt")
 	private String updatedAt;
 
 	

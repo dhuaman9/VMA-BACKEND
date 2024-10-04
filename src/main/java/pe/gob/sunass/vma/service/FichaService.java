@@ -94,7 +94,7 @@ public class FichaService {
 			}
 	    	
 	    	if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0 ) {  //dto.getFechaInicio()
-	    		throw new FailledValidationException("No es posible registrar otro periodo con el mismo año.");
+	    		throw new FailledValidationException("No se permite registrar otro periodo en el año actual."); 
 			}
 
 	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
@@ -104,7 +104,7 @@ public class FichaService {
 	            
 	        } else {
 	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
-	            throw new FailledValidationException("Error: El rango de fechas se solapa con un rango registrado.");
+	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
 	        }
 	    
         } else {
@@ -171,8 +171,9 @@ public class FichaService {
 //	    		throw new FailledValidationException("Ya existe otro periodo con el mismo año, en este año actual");  //pendiente por validar
 //			}
 	      
+	     
 	      if (  this.fichaRepository.nroRegistroPorAnioUpdate(dto.getAnio(), dto.getFechaInicio(),dto.getIdFichaRegistro()) >0 ) { 
-	    		throw new FailledValidationException("Ya existe otro periodo con el mismo año.");  //pendiente por validar
+	    		throw new FailledValidationException("Ya existe otro periodo registrado en este año.");  //pendiente por validar
 			}
 
 	      List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista de Periodos ordenados por ID en Desc.
@@ -195,8 +196,8 @@ public class FichaService {
 		            
 		            
 		        } else {
-		            logger.info("Error:  el rango de fechas se cruza con un rango de fechas existente.");
-		            throw new FailledValidationException("El rango de fechas se cruza con un rango registrado.");
+		            logger.info("Error, el rango de fechas se cruza con un rango de fechas existente.");
+		            throw new FailledValidationException("Error: El rango de fechas se cruza con un rango registrado.");
 		        }
 		    
 	        } else {
@@ -268,6 +269,28 @@ public class FichaService {
 		        return -1;  // No hay registros coincidentes
 		    }
 		    return diasRestantes.get(0);  // Devuelve el primer resultado
-		}
+	  }
 	  
+	  
+	  @Transactional(Transactional.TxType.REQUIRES_NEW)
+	  public FichaDTO obtenerPeriodoActivo() {
+		  
+		FichaDTO dto = null;
+	    Optional<FichaRegistro> opt = this.fichaRepository.findOptionalPeriodosActivos();
+
+	    if (opt.isPresent()) {
+	    	FichaRegistro ficha = opt.get();
+	        dto = FichaAssembler.buildDtoModel(ficha);
+	        return dto;
+	    }else {
+	    	return null; 
+	    }
+
+	  }
+	  
+//	  public FichaDTO obtenerPeriodoActivo() {
+//	        return fichaRegistroRepository.findRegistroActivo()
+//	            .orElseThrow(() -> new FailledValidationException("No se encontró un periodo activo."));
+//	    }
+	
 }

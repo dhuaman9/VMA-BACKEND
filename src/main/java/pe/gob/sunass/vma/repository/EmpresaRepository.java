@@ -15,7 +15,9 @@ import pe.gob.sunass.vma.model.Empresa;
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
-	  public List<Empresa> findAllByOrderByIdEmpresa();
+	  //public List<Empresa> findAllByOrderByIdEmpresa();
+	  
+	  public List<Empresa> findByEstadoTrueOrderByIdEmpresa();
 
 	  public Page<Empresa> findAllByOrderByIdEmpresa(Pageable pageable);
 

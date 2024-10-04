@@ -1,6 +1,10 @@
 package pe.gob.sunass.vma.controller;
 
 import java.io.ByteArrayInputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import pe.gob.sunass.vma.dto.FichaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
@@ -81,8 +86,6 @@ public class RegistroVMAController {
 	}
 
 	
-
-	
 	@GetMapping("/search")
 	public Page<RegistroVMA> searchRegistroVMA(
 			@RequestParam(required = false) Integer empresaId,
@@ -126,30 +129,71 @@ public class RegistroVMAController {
 		return jwtProvider.extractUsername(token);
 	}
 	
-	 @GetMapping("/filter")
+	 @GetMapping("/filter")   //no se esta utilizando.
 	 public List<RegistroVMA> filterRegistros(RegistroVMAFilterDTO filterDTO) {
 	    return registroVMAService.filterRegistros(filterDTO);
 	 }
 
-	 @GetMapping("/descargar-excel")
+
+	 
+	 @GetMapping("/reporte-registros-vma")
 	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
-	 public ResponseEntity<byte[]> generarExcel(
+	 public ResponseEntity<byte[]> descargarReporteVMA(
+	         @RequestParam(required = false) List<Integer> idsVma,
+	         @RequestParam(required = false) Integer eps,
+	         @RequestParam(required = false) String estado,
+	         @RequestParam(required = false) String anio,
+	         @RequestParam(required = false, name="fechaDesde") String fechaDesdeString,
+	         @RequestParam(required = false, name="fechaHasta") String fechaHastaString,
+	         @RequestParam(required = false) String busquedaGlobal) throws ParseException {
+		 
+		 // Conversión de fechas
+		 SimpleDateFormat simpleFormat = new SimpleDateFormat("dd-MM-yyyy");
+		  Date fechaDesde = null;
+		    if (fechaDesdeString != null) {
+		    	fechaDesde = simpleFormat.parse(fechaDesdeString);
+		     
+		    }
+
+		   Date fechaHasta = null;
+		    if (fechaHastaString != null) {
+		    	fechaHasta = simpleFormat.parse(fechaHastaString);
+		    	
+		    }
+
+	     // Llama al servicio para generar el archivo Excel, pasando los filtros
+	     ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma, eps, estado, anio, fechaDesde, fechaHasta, busquedaGlobal);
+
+	     // Configurar las cabeceras de respuesta
+	     HttpHeaders headers = new HttpHeaders();
+	     headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+
+	     return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+	 }
+	 
+	 
+//	 @GetMapping("/reporte-registros-vma")
+//	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+//	 public ResponseEntity<byte[]> generarExcel(
+//			 @RequestParam(required = false) List<Integer> idsVma) {
+//		 ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma);
+//		 
+//		 HttpHeaders headers = new HttpHeaders();
+//		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
+//
+//		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+//	 }
+
+	 
+	 @GetMapping("/reporte-eps-no-registraron-vma")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+	 public ResponseEntity<byte[]> descargaReporteNoRegistraronVMA(
 			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService
-				 .generarExcelCuestionario(idsVma);
-		 
-		 
-//		 String filename="";
-//		 if(idsVma==null) {
-//			 logger.info("idsVma es nulo");
-//			 filename="total_registros_vma.xlsx";
-//		 }else {
-//			 filename="registros_vma.xlsx";
-//		 }
-		 
+				 .generarExcelEPSSinRegistro();
 		 
 		 HttpHeaders headers = new HttpHeaders();
-		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
+		 headers.add("Content-Disposition", "attachment; filename=eps_no_registraron_vma.xlsx");
 
 		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
 	 }
@@ -159,4 +203,20 @@ public class RegistroVMAController {
 		 this.registroVMAService.actualizarEstadoIncompleto(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	 }
+	
+	 @GetMapping("/alerta-para-eps-sin-registrar")
+	    public ResponseEntity<RegistroVMADTO> obtenerRegistroVMASinCompletar() throws Exception {
+		 RegistroVMADTO dto = registroVMAService.obtenerEmpresaSinCompletarRegistroVMA();
+
+	        if (dto == null) {
+	            
+	            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	        }
+
+	        return ResponseEntity.ok(dto);
+	    }
+	  
+	
+	
+	
 }

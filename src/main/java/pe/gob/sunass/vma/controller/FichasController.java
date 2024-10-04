@@ -182,5 +182,17 @@ public class FichasController {
 	        return fichaService.contarDiasFaltantesEnPeriodoActual();
 	    }
 	  
+	  @GetMapping("/periodo-activo")
+	    public ResponseEntity<FichaDTO> obtenerPeriodoActivo() {
+	        FichaDTO dto = fichaService.obtenerPeriodoActivo();
+
+	        if (dto == null) {
+	            
+	            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	        }
+
+	        return ResponseEntity.ok(dto);
+	    }
+	  
 	
 }

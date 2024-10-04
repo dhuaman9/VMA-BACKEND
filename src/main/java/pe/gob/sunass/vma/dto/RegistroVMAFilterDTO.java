@@ -2,7 +2,7 @@ package pe.gob.sunass.vma.dto;
 
 import java.time.LocalDate;
 
-public class RegistroVMAFilterDTO {
+public class RegistroVMAFilterDTO { 
 	
 	private String empresa;
     private Integer anio;

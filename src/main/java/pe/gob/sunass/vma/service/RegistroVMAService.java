@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import pe.gob.sunass.vma.assembler.FichaAssembler;
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
 import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalMuestrasInopinadasDTO;
@@ -158,6 +159,7 @@ public class RegistroVMAService {
 			nuevoRegistro.setEstado(registroRequest.isRegistroValido() ? Constants.ESTADO_COMPLETO : Constants.ESTADO_INCOMPLETO);
 			nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			nuevoRegistro.setCreatedAt(new Date());
+			nuevoRegistro.setIdUsuarioRegistro(userUtil.getCurrentUserId());
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
 			return registroDB.getIdRegistroVma();
@@ -272,7 +274,9 @@ public class RegistroVMAService {
 	    respuestaVMARepository.saveAll(respuestasRequest.stream()
 	        .map(respuesta -> {
 	            RespuestaVMA respuestaVMA = respuestaDtoToRespuestaVMA(respuesta, registro);
+	            
 	            //pendiente, falta mas  datos de auditoria , fecha actualizacion e id usuario actualizacion
+	            
 	            respuestaVMA.setFechaRegistro(new Date());
 	            respuestaVMA.setIdUsuarioRegistro(userUtil.getCurrentUserId());
 	            // Setear otros campos si es necesario
@@ -640,5 +644,24 @@ public class RegistroVMAService {
 			throw new RuntimeException("Registro no encontrado");
 		}
 	}
+	
+	
+	//
+	 @Transactional(Transactional.TxType.REQUIRES_NEW)
+	  public RegistroVMADTO obtenerEmpresaSinCompletarRegistroVMA()  throws Exception{
+		  
+		 RegistroVMADTO dto = null;
+	    Optional<RegistroVMA> opt = this.registroVMARepository.findEmpresaSinCompletarRegistro(userUtil.getCurrentUserId());
+	    
+	    if (opt.isPresent()) {
+	    	RegistroVMA registrovma = opt.get();
+	        dto = RegistroVMAAssembler.buildDtoModel(registrovma);
+	        return dto;
+	    }else {
+	    	return null; 
+	    }
+
+	  }
+	
 }
 

@@ -1,5 +1,7 @@
 package pe.gob.sunass.vma.repository;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,13 +12,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 @Repository
 public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integer>{
-
-	//si es usuario tipo SUNASS, deberia ver todos los registros VMA de todas las EPS . Se usara esto por mientras.
 
 	public List<RegistroVMA> findAllByOrderByIdRegistroVma();
 	
@@ -64,10 +65,20 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("SELECT r FROM RegistroVMA r WHERE r.fichaRegistro.anio = :anio")
 	List<RegistroVMA> findRegistros(@Param("anio") String anio);
 	
-	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids")
-	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids);
 	
-//	@Query("FROM RegistroVMA ")
-//	List<RegistroVMA> findRegistrosVmasAll();
+	
+	@Query("SELECT r FROM RegistroVMA r " +
+		       "WHERE r.empresa.idEmpresa = (SELECT u.empresa.idEmpresa FROM Usuario u WHERE u.id = :id) " +
+		       "AND r.estado = 'INCOMPLETO' " +
+		       "AND r.fichaRegistro.idFichaRegistro IN (" +
+		       "SELECT f.idFichaRegistro FROM FichaRegistro f " +
+		       "WHERE CURRENT_DATE >= f.fechaInicio AND CURRENT_DATE <= f.fechaFin)")
+	public	Optional<RegistroVMA> findEmpresaSinCompletarRegistro(@Param("id") Integer userId);
+	
+	
+	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids")
+	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids); //se usa cuando se descarga excel, segun los ids seleccionados en la tabla.
+	
+	
 	
 }

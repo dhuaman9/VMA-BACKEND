@@ -173,7 +173,7 @@ public class UsuarioController {
 		    	UsuarioDTO dto = this.usuarioService.registrar(request);
 		      response = new ResponseEntity<>(dto,HttpStatus.CREATED);
 		    }
-		    catch (FailledValidationException ex) {  //BadRequestException ex
+		    catch (FailledValidationException ex) {
 		    	
 		    	throw ex;
 		    }
