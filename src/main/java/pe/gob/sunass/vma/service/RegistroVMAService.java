@@ -3,18 +3,25 @@ package pe.gob.sunass.vma.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +31,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import org.springframework.web.multipart.MultipartFile;
 
-import pe.gob.sunass.vma.assembler.FichaAssembler;
 import pe.gob.sunass.vma.assembler.RegistroVMAAssembler;
-import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.constants.Constants;
+import pe.gob.sunass.vma.dto.ArchivoDTO;
+import pe.gob.sunass.vma.dto.RegistroVMADTO;
+import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
+import pe.gob.sunass.vma.dto.RegistroVMARequest;
+import pe.gob.sunass.vma.dto.RespuestaDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalMuestrasInopinadasDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalUNDDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoCostoTotalesIncurridosDTO;
@@ -41,14 +51,21 @@ import pe.gob.sunass.vma.dto.anexos.AnexoReclamosVMADTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRegistroVmaDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRespuestaSiDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoTresListadoEPDTO;
-import pe.gob.sunass.vma.model.*;
+import pe.gob.sunass.vma.model.Empresa;
+import pe.gob.sunass.vma.model.FichaRegistro;
+import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.Archivo;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
-import pe.gob.sunass.vma.repository.*;
+import pe.gob.sunass.vma.repository.ArchivoRepository;
+import pe.gob.sunass.vma.repository.EmpresaRepository;
+import pe.gob.sunass.vma.repository.FichaRepository;
+import pe.gob.sunass.vma.repository.RegistroVMARepository;
+import pe.gob.sunass.vma.repository.RegistroVMARepositoryCustom;
+import pe.gob.sunass.vma.repository.RespuestaVMARepository;
+import pe.gob.sunass.vma.repository.UsuarioRepository;
 import pe.gob.sunass.vma.util.PreguntasAlternativasProperties;
 import pe.gob.sunass.vma.util.UserUtil;
-import pe.gob.sunass.vma.constants.Constants;
 
 @Service
 public class RegistroVMAService {
@@ -193,75 +210,159 @@ public class RegistroVMAService {
 		respuestaVMARepository
 				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId));  // pendiente  de guardar fechas y/o usuario, x auditoria
 	}
-
-
 	
+	/**
+	 * Realiza la consulta paginada de Registros VMA 
+	 * @param empresaId
+	 * @param estado
+	 * @param startDate
+	 * @param endDate
+	 * @param year
+	 * @param username
+	 * @param page
+	 * @param pageSize
+	 * @param search
+	 * @return
+	 */
 	public Page<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
 			String year, String username, int page, int pageSize, String search) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<RegistroVMA> query = cb.createQuery(RegistroVMA.class);
-		Root<RegistroVMA> registroVMA = query.from(RegistroVMA.class);
+		CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
+		
+		Root<Empresa> empresaRoot = query.from(Empresa.class);
+		Root<FichaRegistro> fichaRegistro = query.from(FichaRegistro.class);
+		
+		Join<Empresa, RegistroVMA> registroVMA = empresaRoot.join("registrosVMA", JoinType.LEFT);
+		registroVMA.on(cb.equal(registroVMA.get("fichaRegistro").get("idFichaRegistro"), fichaRegistro.get("idFichaRegistro")));
+		
+		query.multiselect(
+				empresaRoot.get("idEmpresa"),
+				empresaRoot.get("nombre"),
+				empresaRoot.get("regimen"),
+				empresaRoot.get("tipo"),
+				registroVMA.get("idRegistroVma"),
+				registroVMA.get("estado"),
+				registroVMA.get("createdAt"),
+				fichaRegistro.get("anio"));
+		
+		
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		Pageable pageable = PageRequest.of(page, pageSize);
 
 		if (usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
-			List<Predicate> predicates = new ArrayList<>();
-
-			if (empresaId != null) {
-				predicates.add(cb.or(
-						cb.isNull(registroVMA.get("empresa")),
-						cb.equal(registroVMA.get("empresa").get("idEmpresa"), empresaId)
-				));
-			}
-			if (estado != null) {
-				predicates.add(cb.equal(registroVMA.get("estado"), estado));
-			}
-			if (startDate != null) {
-				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
-			}
-			if (endDate != null) {
-				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
-			}
-			if (year != null) {
-				predicates.add(cb.equal(registroVMA.get("fichaRegistro").get("anio"), year));
-			}
-			if (search != null) {
-				Predicate namePredicate = cb.like(cb.lower(registroVMA.get("empresa").get("nombre")),
-						"%" + search.toLowerCase() + "%");
-				Predicate typePredicate = cb.like(cb.lower(registroVMA.get("empresa").get("tipo")),
-						"%" + search.toLowerCase() + "%");
-				Predicate regimenPredicate = cb.like(cb.lower(registroVMA.get("empresa").get("regimen")),
-						"%" + search.toLowerCase() + "%");
-				Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")),
-						"%" + search.toLowerCase() + "%");
-				Predicate anioPredicate = cb.like(cb.lower(registroVMA.get("fichaRegistro").get("anio")),
-						"%" + search.toLowerCase() + "%");
-				predicates.add(cb.or(namePredicate, typePredicate,regimenPredicate, estadoPredicate, anioPredicate));
-			}
-
+			List<Predicate> predicates = getPredicatesSearch(cb, empresaRoot, fichaRegistro, registroVMA,
+					empresaId, estado, startDate, endDate, year, username, search);
+			
 			query.where(predicates.toArray(new Predicate[0]));
-			query.orderBy(cb.asc(registroVMA.get("idRegistroVma")));
-			TypedQuery<RegistroVMA> typedQuery = entityManager.createQuery(query);
+			query.orderBy(cb.desc(cb.coalesce(registroVMA.get("idRegistroVma"), 0)),
+					cb.asc(empresaRoot.get("nombre")), cb.desc(fichaRegistro.get("anio")));
+			
+			TypedQuery<Object[]> typedQuery = entityManager.createQuery(query);
 
 			// Calculate pagination
 			int firstResult = pageable.getPageNumber() * pageable.getPageSize();
 			typedQuery.setFirstResult(firstResult);
 			typedQuery.setMaxResults(pageable.getPageSize());
 
-			List<RegistroVMA> resultList = typedQuery.getResultList();
+			List<RegistroVMA> resultList =	typedQuery.getResultList()
+					.stream().map(objeto-> {
+						Empresa emp = new Empresa();
+						emp.setIdEmpresa((Integer)objeto[0]);
+						emp.setNombre((String)objeto[1]);
+						emp.setRegimen((String)objeto[2]);
+						emp.setTipo((String)objeto[3]);
+						FichaRegistro fReg = new FichaRegistro();
+						fReg.setAnio((String)objeto[7]);
+						RegistroVMA rVMA = new RegistroVMA();
+						rVMA.setIdRegistroVma((Integer)objeto[4]);
+						rVMA.setEstado((String)objeto[5]);
+						rVMA.setCreatedAt((Date)objeto[6]);
+						rVMA.setEmpresa(emp);
+						rVMA.setFichaRegistro(fReg);
+						return rVMA;
+					}).collect(Collectors.toList());
+					
 
 			// Count query
+			cb = entityManager.getCriteriaBuilder();
 			CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-			Root<RegistroVMA> countRoot = countQuery.from(RegistroVMA.class);
-			countQuery.select(cb.count(countRoot));
-			countQuery.where(predicates.toArray(new Predicate[0]));
+			Root<Empresa> empresaCountRoot = countQuery.from(Empresa.class);
+			Root<FichaRegistro> fichaRegistroCountRoot = countQuery.from(FichaRegistro.class);
+			
+			Join<Empresa, RegistroVMA> registroVMACountRoot = empresaCountRoot.join("registrosVMA", JoinType.LEFT);
+			registroVMACountRoot.on(cb.equal(registroVMACountRoot.get("fichaRegistro").get("idFichaRegistro"), fichaRegistroCountRoot.get("idFichaRegistro")));
+			
+			List<Predicate> predicatesCount = getPredicatesSearch(cb, empresaCountRoot, fichaRegistroCountRoot,
+					registroVMACountRoot, empresaId, estado, startDate, endDate, year, username, search);
+			
+			countQuery.select(cb.count(empresaCountRoot));
+			countQuery.where(predicatesCount.toArray(new Predicate[0]));
 			Long total = entityManager.createQuery(countQuery).getSingleResult();
 
 			return new PageImpl<>(resultList, pageable, total);
 		}
 
      	return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa(), pageable);
-//		return this.registroVMARepository.registrosPorIdEmpresa2(usuario.getEmpresa().getIdEmpresa(), pageable);
+	}
+	
+	/**
+	 * Establece las condiciones de la consulta paginada realizada 
+	 * en el metodo searchRegistroVMA
+	 * @param cb
+	 * @param empresaRoot
+	 * @param fichaRegistro
+	 * @param registroVMA
+	 * @param empresaId
+	 * @param estado
+	 * @param startDate
+	 * @param endDate
+	 * @param year
+	 * @param username
+	 * @param search
+	 * @return
+	 */
+	private List<Predicate> getPredicatesSearch(CriteriaBuilder cb, Root empresaRoot, 
+			Root fichaRegistro, Join registroVMA, Integer empresaId, String estado,
+			Date startDate, Date endDate, String year, String username, String search){
+		
+		List<Predicate> predicates = new ArrayList<>();
+
+		if (empresaId != null) {
+			predicates.add(
+					cb.equal(empresaRoot.get("idEmpresa"), empresaId));
+		}
+		if (estado != null) {
+			if (estado.equals("SIN REGISTRO")) {
+				predicates.add(cb.isNull(registroVMA.get("estado")));
+			} else {
+				predicates.add(cb.equal(registroVMA.get("estado"), estado));
+			}
+			
+		}
+		if (startDate != null) {
+			predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
+		}
+		if (endDate != null) {
+			predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), agregarHoraFinDia(endDate)));
+		}
+		if (year != null) {
+			predicates.add(cb.equal(fichaRegistro.get("anio"), year));
+		}
+		if (search != null) {
+			Predicate namePredicate = cb.like(cb.lower(empresaRoot.get("nombre")),
+					"%" + search.toLowerCase() + "%");
+			Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")),
+					"%" + search.toLowerCase() + "%");
+			Predicate regimenPredicate = cb.like(cb.lower(empresaRoot.get("regimen")),
+					"%" + search.toLowerCase() + "%");
+			Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")),
+					"%" + search.toLowerCase() + "%");
+			Predicate anioPredicate = cb.like(cb.lower(fichaRegistro.get("anio")),
+					"%" + search.toLowerCase() + "%");
+			predicates.add(cb.or(namePredicate, typePredicate,regimenPredicate, estadoPredicate, anioPredicate));
+		}
+		
+		return predicates;
 	}
 
 

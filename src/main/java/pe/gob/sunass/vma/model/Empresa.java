@@ -2,17 +2,20 @@ package pe.gob.sunass.vma.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import lombok.NoArgsConstructor;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 
 @NoArgsConstructor
@@ -53,7 +56,10 @@ public class Empresa implements Serializable {
 		@Column(name="estado")
 		private Boolean estado;
 		
-
+		@OneToMany(mappedBy = "empresa")
+		private List<RegistroVMA> registrosVMA;
+		
+		
 		public String getRegimen() {
 			return regimen;
 		}
@@ -127,5 +133,13 @@ public class Empresa implements Serializable {
 			this.idUsuarioActualizacion = idUsuarioActualizacion;
 		}
 
+		public List<RegistroVMA> getRegistrosVMA() {
+			return registrosVMA;
+		}
+
+		public void setRegistrosVMA(List<RegistroVMA> registrosVMA) {
+			this.registrosVMA = registrosVMA;
+		}
+		
 	
 }
