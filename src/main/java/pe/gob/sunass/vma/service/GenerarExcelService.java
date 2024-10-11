@@ -1,36 +1,54 @@
 package pe.gob.sunass.vma.service;
 
-import org.apache.poi.ss.usermodel.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.controller.EmpresaController;
-import pe.gob.sunass.vma.dto.*;
+import pe.gob.sunass.vma.dto.AlternativaDTO;
+import pe.gob.sunass.vma.dto.CuestionarioDTO;
+import pe.gob.sunass.vma.dto.PreguntaDTO;
+import pe.gob.sunass.vma.dto.RespuestaDTO;
+import pe.gob.sunass.vma.dto.SeccionDTO;
+import pe.gob.sunass.vma.model.Empresa;
+import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.persistence.Query;
-
-import javax.persistence.EntityManager;
 
 @Service
 public class GenerarExcelService {
@@ -57,30 +75,13 @@ public class GenerarExcelService {
      	
      	if (registrosIds == null || registrosIds.size() ==0 ) {
      		
-     		 logger.info("EPS: " + eps);
-             logger.info("Estado: " + estado);
-             logger.info("Año: " + anio);
-             logger.info("Fecha Desde: " + fechaDesde);
-             logger.info("Fecha Hasta: " + fechaHasta);
-             logger.info("Búsqueda Global: " + busquedaGlobal);
-     		
-     		
              registros=this.findRegistrosVmasFiltrados(eps, estado, anio, fechaDesde, fechaHasta, busquedaGlobal);
+             
  		} else {
  			registros = registroVMARepository.findRegistrosVmasPorIds(registrosIds);
  		}
 
-        
-        logger.info("Registros filtrados: " + registros.size());
-        logger.info("IDs: " + registrosIds);
-        logger.info("EPS: " + eps);
-        logger.info("Estado: " + estado);
-        logger.info("Año: " + anio);
-        logger.info("Fecha Desde: " + fechaDesde);
-        logger.info("Fecha Hasta: " + fechaHasta);
-        logger.info("Búsqueda Global: " + busquedaGlobal);
-     	
-        
+   
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Registros VMA");
 
@@ -106,50 +107,54 @@ public class GenerarExcelService {
                 agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));
                 agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
                 agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo());
-                agregarCelda(3, row, centeredStyle, registro.getEstado());
-                agregarCelda(4, row, centeredStyle, formatter.format(registro.getCreatedAt()));
+                agregarCelda(3, row, centeredStyle, registro.getEstado()==null?"SIN REGISTRO":registro.getEstado());
+                agregarCelda(4, row, centeredStyle, 
+                		registro.getCreatedAt()==null?"":formatter.format(registro.getCreatedAt()));
                 agregarCelda(5, row, centeredStyle, registro.getFichaRegistro().getAnio());
 
-
-                CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
-                List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
-
-                int columnaIndex = 5;
-                for (PreguntaDTO pregunta: preguntas) {
-                    columnaIndex++;
-                    if(indexRowPregunta == 0) {
-                        headersList.add(pregunta.getDescripcion());
-                    }
-
-                    switch(pregunta.getTipoPregunta()) {
-                        case TEXTO:
-                        case RADIO:
-                            agregarCelda(columnaIndex, row, centeredStyle, getRepuesta(pregunta.getRespuestaDTO()));
-                            break;
-                        case NUMERICO:
-                            StringBuilder respuesta = new StringBuilder();
-                            if(!pregunta.getAlternativas().isEmpty()) {
-                                for (AlternativaDTO altenativa: pregunta.getAlternativas()) {
-                                    respuesta.append(altenativa.getNombreCampo()).append(": ").append(getRepuesta(altenativa.getRespuestaDTO())).append("; ");
-                                }
-                            }else {
-                                respuesta.append(getRepuesta(pregunta.getRespuestaDTO()));
-                            }
-
-                            agregarCelda(columnaIndex, row, centeredStyle, respuesta.toString());
-                            break;
-                        case ARCHIVO:
-                            String respuestaArchivo = "";
-                            if(Objects.nonNull(pregunta.getRespuestaDTO())) {
-                                respuestaArchivo = "SÍ SUBIÓ";
-                            }else {
-                                respuestaArchivo = "NO SUBIÓ";
-                            }
-                            agregarCelda(columnaIndex, row, centeredStyle, respuestaArchivo);
-                            break;
-                        default:
-                            break;
-                    }
+                
+                if(registro.getIdRegistroVma()!=null) {
+                
+	                CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(registro.getIdRegistroVma());
+	                List<PreguntaDTO> preguntas = cuestionario.getSecciones().stream().map(SeccionDTO::getPreguntas).flatMap(List::stream).collect(Collectors.toList());
+	
+	                int columnaIndex = 5;
+	                for (PreguntaDTO pregunta: preguntas) {
+	                    columnaIndex++;
+	                    if(indexRowPregunta == 0) {
+	                        headersList.add(pregunta.getDescripcion());
+	                    }
+	
+	                    switch(pregunta.getTipoPregunta()) {
+	                        case TEXTO:
+	                        case RADIO:
+	                            agregarCelda(columnaIndex, row, centeredStyle, getRepuesta(pregunta.getRespuestaDTO()));
+	                            break;
+	                        case NUMERICO:
+	                            StringBuilder respuesta = new StringBuilder();
+	                            if(!pregunta.getAlternativas().isEmpty()) {
+	                                for (AlternativaDTO altenativa: pregunta.getAlternativas()) {
+	                                    respuesta.append(altenativa.getNombreCampo()).append(": ").append(getRepuesta(altenativa.getRespuestaDTO())).append("; ");
+	                                }
+	                            }else {
+	                                respuesta.append(getRepuesta(pregunta.getRespuestaDTO()));
+	                            }
+	
+	                            agregarCelda(columnaIndex, row, centeredStyle, respuesta.toString());
+	                            break;
+	                        case ARCHIVO:
+	                            String respuestaArchivo = "";
+	                            if(Objects.nonNull(pregunta.getRespuestaDTO())) {
+	                                respuestaArchivo = "SÍ SUBIÓ";
+	                            }else {
+	                                respuestaArchivo = "NO SUBIÓ";
+	                            }
+	                            agregarCelda(columnaIndex, row, centeredStyle, respuestaArchivo);
+	                            break;
+	                        default:
+	                            break;
+	                    }
+	                }
                 }
                 indexRowPregunta++;
             }
@@ -169,7 +174,7 @@ public class GenerarExcelService {
     
     
     
-    public ByteArrayInputStream generarExcelEPSSinRegistro() {
+    public ByteArrayInputStream generarExcelEPSSinRegistro() { // genera otro excel , pero ya no es necesario
     	
         List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();  
 
@@ -201,7 +206,7 @@ public class GenerarExcelService {
                      agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));  // correlativo  - N°
                      agregarCelda(1, row, centeredStyle, (String) item[0]);   // EPS
                      agregarCelda(2, row, centeredStyle, (String) item[1]);   //tamanio
-                     agregarCelda(3, row, centeredStyle, "SIN REGISTRO"); //  Estado
+                     agregarCelda(3, row, centeredStyle, Constants.ESTADO_SIN_REGISTRO); //  Estado
                      agregarCelda(4, row, centeredStyle, (String) item[2]); //  anio
                      agregarCelda(5, row, centeredStyle, formatFechaInicioFin.format(item[3]) +"  al  " +formatFechaInicioFin.format(item[4]) );  //periodo de registro
                  }
@@ -231,67 +236,121 @@ public class GenerarExcelService {
         cell6.setCellStyle(cellStyle);
     }
     
+    /**
+     * Consulta de VMAs para la generacion del  excel
+     * @param empresaId
+     * @param estado
+     * @param year
+     * @param startDate
+     * @param endDate
+     * @param search
+     * @return
+     */
     public List<RegistroVMA> findRegistrosVmasFiltrados(
-            Integer eps,
+            Integer empresaId,
             String estado,
-            String anio,
-            Date fechaDesde,
-            Date fechaHasta,
-            String busquedaGlobal) {
+            String year,
+            Date startDate,
+            Date endDate,
+            String search) {
+    	
+    	try {
 
-        StringBuilder queryBuilder = new StringBuilder("FROM RegistroVMA r WHERE 1=1");
-        
-        // Usar una lista para almacenar los parámetros
-        Map<String, Object> params = new HashMap<>();
+	    	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+			CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
+			
+			Root<Empresa> empresaRoot = query.from(Empresa.class);
+			Root<FichaRegistro> fichaRegistro = query.from(FichaRegistro.class);
+			
+			Join<Empresa, RegistroVMA> registroVMA = empresaRoot.join("registrosVMA", JoinType.LEFT);
+			registroVMA.on(cb.equal(registroVMA.get("fichaRegistro").get("idFichaRegistro"), fichaRegistro.get("idFichaRegistro")));
+			
+			query.multiselect(
+				empresaRoot.get("idEmpresa"),
+				empresaRoot.get("nombre"),
+				empresaRoot.get("regimen"),
+				empresaRoot.get("tipo"),
+				registroVMA.get("idRegistroVma"),
+				registroVMA.get("estado"),
+				registroVMA.get("createdAt"),
+				fichaRegistro.get("anio"));
+	
+			List<Predicate> predicates = new ArrayList<>();
 
+			if (empresaId != null) {
+				predicates.add(
+						cb.equal(empresaRoot.get("idEmpresa"), empresaId));
+			}
+			if (estado != null) {
+				if (estado.equals(Constants.ESTADO_SIN_REGISTRO)) {
+					predicates.add(cb.isNull(registroVMA.get("estado")));
+				} else {
+					predicates.add(cb.equal(registroVMA.get("estado"), estado));
+				}
+				
+			}
+			if (startDate != null) {
+				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
+			}
+			if (endDate != null) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(endDate);
+				calendar.set(Calendar.HOUR_OF_DAY, 23);
+				calendar.set(Calendar.MINUTE, 59);
+				calendar.set(Calendar.SECOND, 59);
+				calendar.set(Calendar.MILLISECOND, 999);
+				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("createdAt"), calendar.getTime()));
+			}
+			if (year != null) {
+				predicates.add(cb.equal(fichaRegistro.get("anio"), year));
+			}
+			if (search != null) {
+				Predicate namePredicate = cb.like(cb.lower(empresaRoot.get("nombre")),
+						"%" + search.toLowerCase() + "%");
+				Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")),
+						"%" + search.toLowerCase() + "%");
+				Predicate regimenPredicate = cb.like(cb.lower(empresaRoot.get("regimen")),
+						"%" + search.toLowerCase() + "%");
+				Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")),
+						"%" + search.toLowerCase() + "%");
+				Predicate anioPredicate = cb.like(cb.lower(fichaRegistro.get("anio")),
+						"%" + search.toLowerCase() + "%");
+				predicates.add(cb.or(namePredicate, typePredicate,regimenPredicate, estadoPredicate, anioPredicate));
+			}
+			
+			query.where(predicates.toArray(new Predicate[0]));
+			query.orderBy(cb.desc(cb.coalesce(registroVMA.get("idRegistroVma"), 0)),
+					cb.asc(empresaRoot.get("nombre")), cb.desc(fichaRegistro.get("anio")));
+			
+			TypedQuery<Object[]> typedQuery = entityManager.createQuery(query);
 
-        if (eps != null) {
-            queryBuilder.append(" AND r.empresa.idEmpresa = :eps");
-            params.put("eps", eps);
-        }
-        if (estado != null) {
-            queryBuilder.append(" AND r.estado = :estado");
-            params.put("estado", estado);
-        }
-        if (anio != null) {
-            queryBuilder.append(" AND r.fichaRegistro.anio = :anio");
-            params.put("anio", anio);
-        }
-        if (fechaDesde != null) {
-            queryBuilder.append(" AND r.createdAt >= :fechaDesde");
-            // Convertir LocalDate a Date
-           // Date fechaDesdeDate = Date.from(fechaDesde.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            params.put("fechaDesde", fechaDesde);
-        }
-        if (fechaHasta != null) {
-            queryBuilder.append(" AND r.createdAt <= :fechaHasta");
-            // Convertir LocalDate a Date ya no es necesario
-            //Date fechaHastaDate = Date.from(fechaHasta.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            params.put("fechaHasta", fechaHasta);
-        }
-        if (busquedaGlobal != null) {
-            queryBuilder.append(" AND (LOWER(r.empresa.nombre) LIKE LOWER(CONCAT('%', :busquedaGlobal, '%')) "
-                    + "OR LOWER(r.empresa.tipo) LIKE LOWER(CONCAT('%', :busquedaGlobal, '%'))" 
-                    + "OR LOWER(r.empresa.regimen) LIKE LOWER(CONCAT('%', :busquedaGlobal, '%'))" 
-                    + "OR LOWER(r.estado) LIKE LOWER(CONCAT('%', :busquedaGlobal, '%'))" 
-            		+" OR LOWER(r.fichaRegistro.anio) LIKE LOWER(CONCAT('%', :busquedaGlobal, '%'))  )");
-            params.put("busquedaGlobal", busquedaGlobal);
-        }
+			List<RegistroVMA> resultList =	typedQuery.getResultList()
+					.stream().map(objeto-> {
+						Empresa emp = new Empresa();
+						emp.setIdEmpresa((Integer)objeto[0]);
+						emp.setNombre((String)objeto[1]);
+						emp.setRegimen((String)objeto[2]);
+						emp.setTipo((String)objeto[3]);
+						FichaRegistro fReg = new FichaRegistro();
+						fReg.setAnio((String)objeto[7]);
+						RegistroVMA rVMA = new RegistroVMA();
+						rVMA.setIdRegistroVma((Integer)objeto[4]);
+						rVMA.setEstado((String)objeto[5]);
+						rVMA.setCreatedAt((Date)objeto[6]);
+						rVMA.setEmpresa(emp);
+						rVMA.setFichaRegistro(fReg);
+						return rVMA;
+					}).collect(Collectors.toList());
 
-        // Crear la consulta
-        Query query = entityManager.createQuery(queryBuilder.toString(), RegistroVMA.class);
-
-        // Establecer los parámetros en la consulta
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            query.setParameter(entry.getKey(), entry.getValue());
-        }
-
-        try {
-            return query.getResultList();
+			return resultList;
+            
         } catch (Exception e) {
             // Manejar la excepción según sea necesario
             return Collections.emptyList(); // O lanza una excepción según sea necesario
         }
+		
     }
+    
+    
 
 }

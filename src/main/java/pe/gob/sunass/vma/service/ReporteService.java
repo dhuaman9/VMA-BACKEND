@@ -47,35 +47,12 @@ public class ReporteService {
     @Autowired
 	private PreguntasAlternativasProperties preguntasAlternativasVMA;  //clase properties, donde contiene los valores constantes de preguntas y alternativas
 
-    //TODO: Esto se debe de manejar como una configuración en la properties
-  /*  private final int PREGUNTA_SI_NO_ID = 1;
-    private final int PREGUNTA_NUMERO_TRABAJADORES_EMPRESA_PRESTADORA_ID = 3;
-    private final int ALTERNATIVA_UND_IDENTIFICADOS_PARCIAL_ID = 3;
-    private final int ALTERNATIVA_UND_INSPECCIONADOS_PARCIAL_ID = 5;
-    private final int ALTERNATIVA_SOLICITARON_DIAGRAMA_FLUJO_ID = 7;
-    private final int ALTERNATIVA_PRESENTARON_DIAGRAMA_FLUJO_ID = 9;
-    private final int PREGUNTA_UND_CAJA_REGISTRO_ID= 10;
-    private final int ALTERNATIVA_UND_INSCRITOS_ID= 11;
-    private final int PREGUNTA_UND_TOMA_MUESTRA_INOPINADA_ID= 11;
-    private final int PREGUNTA_TOTAL_MUESTRAS_INOPINADAS_ID= 12;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO1_ID= 15;
-    private final int ALTERNATIVA_UND_FACTURARON_PAGO_ADICIONAL_ID= 17;
-    private final int ALTERNATIVA_UND_REALIZARON_PAGO_ADICIONAL_ID= 19;
-    private final int ALTERNATIVA_UND_SOBREPASAN_PARAMETRO_ANEXO2_ID= 21;
-    private final int ALTERNATIVA_UND_OTORGADO_PLAZO_ADICIONAL_ID= 23;
-    private final int ALTERNATIVA_UND_SUSCRITO_PLAZO_OTORGADO_ID= 25;
-    private final int PREGUNTA_CANTIDAD_RECLAMOS_RECIBIDOS_VMA_ID= 19;
-    private final int PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID= 20;
-    private final int PREGUNTA_COSTO_TOTAL_ANUAL_UND_ID = 23;
-    private final int PREGUNTA_COSTO_TOTAL_ANUAL_MUESTRAS_INOPINADAS_ID = 24;
-    private final int PREGUNTA_OTROS_GASTOS_IMPLEMENTACION_ID = 29;*/
-
     
     public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
         List<Empresa> empresas = empresaRepository.findAll();
 
         Map<String, List<Empresa>> empresasPorTipo =
-                empresas.stream().filter(empresa -> !Constants.TIPO_EMPRESA_SUNASS.equals(empresa.getTipo()))  //filtra las empresas a sunass
+                empresas.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipo()))  // ignora a  sunass, es de tipo NINGUNO
                 .collect(Collectors.groupingBy(Empresa::getTipo));
 
         List<RegistroEmpresaChartDto> dataList = new ArrayList<>();
@@ -97,7 +74,7 @@ public class ReporteService {
 
     	        registrosPorTipo.forEach((tipo, lista) -> {
     	            List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(preguntasAlternativasVMA.getId_pregunta_si_no(), tipo, anio);
-    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals("SI")).count();
+    	            long respondieronSi = respuestas.stream().filter(respuesta -> respuesta.getRespuesta().equals(Constants.Alternativas.Opcion_SI)).count();
     	            dataList.add(new RegistroEmpresaChartDto(tipo, (int) respondieronSi, lista.size()));
     	        });
 
@@ -168,10 +145,7 @@ public class ReporteService {
             double porcentaje = ((double) totalInspeccionados / totalIdentificados) * 100;
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
-        
+
         double promedio=((double) sumaTotalInspeccionadosAllEPS.get()/sumaTotalIdentificadosAllEPS.get())*100;
         
        // listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, sumaPorcentaje / listaChart.size()));
@@ -215,9 +189,6 @@ public class ReporteService {
 
         });
 
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
         double promedio=((double) sumaTotalDiagramaFlujoAllEPS.get()/sumaTotalInspeccionadosAllEPS.get())*100;
 
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -226,8 +197,12 @@ public class ReporteService {
     }
 
     private RegistroPromedioTrabajadorVMAChartDto mapToRegistroPromedioTrrabajadorVMA(String tipo, List<Integer> idsRegistrosVma) {
-        Integer sumaTrabajadoresDesdicadosRegistroVMA = respuestaVMARepository.getSumaTrabajadoresDesdicadosRegistroVMA(idsRegistrosVma, preguntasAlternativasVMA.getId_pregunta_nro_trabajadores_eps());
+        
+    	Integer sumaTrabajadoresDesdicadosRegistroVMA = 
+        		respuestaVMARepository.getSumaTrabajadoresDesdicadosRegistroVMA(idsRegistrosVma, preguntasAlternativasVMA.getId_pregunta_nro_trabajadores_eps());
+        
         double promedio = (double) sumaTrabajadoresDesdicadosRegistroVMA / idsRegistrosVma.size();
+        
         return new RegistroPromedioTrabajadorVMAChartDto(tipo, promedio, sumaTrabajadoresDesdicadosRegistroVMA, idsRegistrosVma.size());
     }
 
@@ -272,9 +247,6 @@ public class ReporteService {
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
 
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
         double promedio=((double) sumaTotalUNDPresentaronDiagramaAllEPS.get()/sumaTotalUNDSolicitaronDiagramaAllEPS.get())*100;
 
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio ));
@@ -305,13 +277,9 @@ public class ReporteService {
              double porcentajeUNDinspeccionados = ((double) totalUNDInscritos / totalUNDInspeccionados) * 100;
              double porcentajeUNDinspRedondeado = Math.round(porcentajeUNDinspeccionados * 10.0) / 10.0;
         
-             
              double porcentajeUNDidentificados = ((double) totalUNDInscritos / totalUNDIdentificados) * 100;
              double porcentajeUNDidentRedondeado = Math.round(porcentajeUNDidentificados * 10.0) / 10.0;
 
-             
-             
-           // double total = ((double) totalUNDInscritos / totalUNDInspeccionados) * 100;
              listaTablaComparativa.add(new GraficoComparativoDTO(tipo, totalUNDInscritos,
             		 totalUNDInspeccionados,totalUNDIdentificados,porcentajeUNDinspRedondeado,porcentajeUNDidentRedondeado));
              
@@ -347,9 +315,7 @@ public class ReporteService {
             sumaTotalUNDInscritosAllEPS.addAndGet(totalUNDInscritos);
             
         });
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
+        
         double promedio=((double) sumaTotalUNDCajaRegistroAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
         
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -382,11 +348,8 @@ public class ReporteService {
             sumaTotalUNDTomaMuestraInopinadaAllEPS.addAndGet(totalUNDTomaMuestraInopinada); 
             sumaTotalUNDInscritosAllEPS.addAndGet(totalUNDInscritos); 
             
-            
         });
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
+
         double promedio=((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
 
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -445,11 +408,7 @@ public class ReporteService {
             
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
-        logger.info("lista size - " + listaChart.size());
-        
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
+
         
         double promedio=((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get()/sumaTotalUNDParametroAnexo1AllEPS.get())*100;
         
@@ -486,11 +445,7 @@ public class ReporteService {
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
         
-        logger.info("lista size - " + listaChart.size());
-        
-//        double sumaPorcentaje = listaChart
-//                .stream()
-//                .mapToDouble(BarChartBasicoDto::getValue).sum();
+       
         double promedio=((double) sumaTotalUNDFacturaronPagoAdicionalAllEPS.get()/sumaTotalUNDParametroAnexo1AllEPS.get())*100;
 
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -534,12 +489,7 @@ public class ReporteService {
            });
            
 
-//           double sumaPorcentaje = listaChart
-//                   .stream()
-//                   .mapToDouble(BarChartBasicoDto::getValue).sum();
-           
            double promedio=((double) sumaTotalUNDRealizaronPagoAdicionalAllEPS.get()/sumaTotalUNDFacturaronPagoAdicionalAllEPS.get())*100;
-//           logger.info(" promedio - " + promedio);
            listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio ));
            return listaChart;
     
@@ -623,10 +573,7 @@ public class ReporteService {
              listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
          });
          
-//         double sumaPorcentaje = listaChart
-//                 .stream()
-//                 .mapToDouble(BarChartBasicoDto::getValue).sum();
-         
+    
          double promedio=((double) sumaTotalUNDPlazoAdicionalAllEPS.get()/sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get())*100;
          
          listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -638,12 +585,7 @@ public class ReporteService {
       // Gráfico 18: Porcentaje de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, 
       // ....el cumplimiento de los VMA, según tamaño de la EP
     
-    /*
-     *  formula = Sumatoria de Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado,.. ..los VMA de las EPS por tamaño/
-     *  Sumatoria de las Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de las EPS por tamaño
-          promedio la formula = Sumatoria del Número de UND que han suscrito un acuerdo en el que se establece un plazo otorgado, por única vez, a fin de ejecutar las acciones de mejora y acreditar el cumplimiento de los VMA de todas las EPS /Sumatoria del Número de UND que sobrepasan algún(os) parámetro(s) del Anexo N° 2 de todas las EPS 
-     */
-    
+
       public List<BarChartBasicoDto> reportePorcentajeUNDSuscritoAcuerdo(String anio) {
     	  
     	  AtomicInteger sumaTotalUNDSuscritoPlazoAllEPS = new AtomicInteger(0);
@@ -705,10 +647,7 @@ public class ReporteService {
                
                listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
            });
-//           double sumaPorcentaje = listaChart
-//                   .stream()
-//                   .mapToDouble(BarChartBasicoDto::getValue).sum();
-           
+
            double promedio=((double) sumaTotalReclamosRecibidosVMAAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
            
            listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
@@ -720,14 +659,7 @@ public class ReporteService {
     
  // grafico 20-  Porcentaje de reclamos por VMA resueltos fundados, según tamaño de la EP
     
-    /*
-     * 
-     * formula = Sumatoria de Número de reclamos por VMA resueltos fundados. de las EPS por tamaño / Sumatoria de las Número de reclamos recibidos por VMA, de las EPS por tamaño
-         promedio =  Sumatoria del Número de reclamos por VMA resueltos fundados. / Sumatoria del Número de reclamos recibidos por VMA 
-     *  PREGUNTA_CANTIDAD_RECLAMOS_FUNDADOS_VMA_ID
-     * 
-     */
-    
+   
     public List<BarChartBasicoDto> reporteReclamosFundadosVMA(String anio) {
     	
     	AtomicInteger sumaTotalReclamosFundadosVMAAllEPS = new AtomicInteger(0); 
@@ -773,8 +705,8 @@ public class ReporteService {
         List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
        registros.forEach(registro -> {
-           if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
-                   registro.getEstado().equals("COMPLETO")) {
+           if(!registro.getEmpresa().getNombre().equals(Constants.EMPRESA_SUNASS) && !registro.getEmpresa().getNombre().equals(Constants.EPS_SEDAPAL) &&
+                   registro.getEstado().equals(Constants.ESTADO_COMPLETO)) {
                BigDecimal costoAnual = respuestaVMARepository
                        .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_total_anual_und());
                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
@@ -786,7 +718,7 @@ public class ReporteService {
        registrosPorTipo.forEach((tipoEmpresa, listaRegistros) -> {
            List<RegistroVMA> registrosCompletos = listaRegistros
                    .stream()
-                   .filter(registro -> registro.getEstado().equals("COMPLETO"))
+                   .filter(registro -> registro.getEstado().equals(Constants.ESTADO_COMPLETO))
                    .collect(Collectors.toList());
 
            List<Integer> idsVmaCompleto = mapToIdsRegistrosVma(registrosCompletos);
@@ -834,9 +766,9 @@ public class ReporteService {
 
         List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
-       registros.forEach(registro -> {
-           if(!registro.getEmpresa().getNombre().equals("SUNASS") && !registro.getEmpresa().getNombre().equals("SEDAPAL") &&
-                   registro.getEstado().equals("COMPLETO")) {
+        registros.forEach(registro -> {
+           if(!registro.getEmpresa().getNombre().equals(Constants.EMPRESA_SUNASS) && !registro.getEmpresa().getNombre().equals(Constants.EPS_SEDAPAL) &&
+                   registro.getEstado().equals(Constants.ESTADO_COMPLETO)) {
                BigDecimal costoAnual = respuestaVMARepository
                        .getCostoAnualIncurridoPorRegistro(registro.getIdRegistroVma(), preguntasAlternativasVMA.getId_pregunta_costo_anual_muestras_inopinadas());
                listaChart.add(new BarChartBasicoDto(registro.getEmpresa().getNombre(), costoAnual.doubleValue()));
@@ -848,7 +780,7 @@ public class ReporteService {
        registrosPorTipo.forEach((tipoEmpresa, listaRegistros) -> {
            List<RegistroVMA> registrosCompletos = listaRegistros
                    .stream()
-                   .filter(registro -> registro.getEstado().equals("COMPLETO"))
+                   .filter(registro -> registro.getEstado().equals(Constants.ESTADO_COMPLETO))
                    .collect(Collectors.toList());
 
            List<Integer> idsVmaCompleto = mapToIdsRegistrosVma(registrosCompletos);
@@ -908,5 +840,4 @@ public class ReporteService {
     }
    
  
-    
 }

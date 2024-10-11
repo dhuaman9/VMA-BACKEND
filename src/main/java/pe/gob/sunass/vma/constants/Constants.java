@@ -4,25 +4,27 @@ package pe.gob.sunass.vma.constants;
 
 public class Constants {
 
-	final public static String SUNASS = "SUNASS";
-	final public static String TIPO_EMPRESA_SUNASS = "NINGUNO"; // En caso de empresa Sunass, tipo = NINGUNO 
-	final public static String TIPO_EPS_SEDAPAL = "SEDAPAL";
+	final public static String EMPRESA_EPS = "EPS";
+	final public static String EMPRESA_SUNASS = "SUNASS";
+	final public static String TIPO_EMPRESA_NINGUNO = "NINGUNO"; // En caso de empresa Sunass, tipo = NINGUNO 
+	final public static String EPS_SEDAPAL = "SEDAPAL";
 	final public static String ESTADO_INCOMPLETO = "INCOMPLETO";
 	final public static String ESTADO_COMPLETO = "COMPLETO";
+	final public static String ESTADO_SIN_REGISTRO = "SIN REGISTRO";
 	final public static String LABEL_PROMEDIO = "PROMEDIO";
 	final public static String LABEL_TOTAL = "TOTAL";
 	
 	final public static class Alternativas{
-		final private static String Opcion_SI = "SI";
-		final private static String Opcion_NO = "NO";
+		final public static String Opcion_SI = "SI";
+		final public static String Opcion_NO = "NO";
 	}
 	
 	 final public static String CRLF     = "\r\n";
 	 final public static String Quotes   = Character.toString((char) 34);
 
 	 final public static class Locale{
-	   final private static String Language_Spanish = "es";
-	   final private static String Country_Peru   = "PE";
+	   final public static String Language_Spanish = "es";
+	   final public static String Country_Peru   = "PE";
 	   final public static java.util.Locale Spanish = new java.util.Locale(Language_Spanish, Country_Peru);
 	 }
 
@@ -108,7 +110,7 @@ public class Constants {
 	  final public static class Archivos{
 		  
 		  final public static String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
-	    final public static String EXCEL_FILENAME = "attachment; filename=registros_vma.xlsx";
+	      final public static String EXCEL_FILENAME = "attachment; filename=registros_vma.xlsx";
 		  
 	  }
 

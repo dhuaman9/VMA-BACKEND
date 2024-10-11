@@ -5,31 +5,21 @@ package pe.gob.sunass.vma.model;
 public class UsuarioLdap {
 
 	private String cuenta;//cambiar por correo
-    private String nombre;
+    //private String nombre;
     private String usuario;
     private String unidadOrganica;
-//    private String nombres;
-//	private String apellidos;
+    private String nombres;
+	private String apellidos;
 //	private String userName;
-//	private String correo;
+	private String correo;
 	
     
-    
-
     public String getCuenta() {
         return cuenta;
     }
 
     public void setCuenta(String cuenta) {
         this.cuenta = cuenta;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public String getUsuario() {
@@ -46,6 +36,30 @@ public class UsuarioLdap {
 
 	public void setUnidadOrganica(String unidadOrganica) {
 		this.unidadOrganica = unidadOrganica;
+	}
+
+	public String getNombres() {
+		return nombres;
+	}
+
+	public void setNombres(String nombres) {
+		this.nombres = nombres;
+	}
+
+	public String getApellidos() {
+		return apellidos;
+	}
+
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	public String getCorreo() {
+		return correo;
+	}
+
+	public void setCorreo(String correo) {
+		this.correo = correo;
 	}
     
     

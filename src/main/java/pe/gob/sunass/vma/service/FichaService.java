@@ -40,14 +40,7 @@ public class FichaService {
 	    return listDTO;
 	  }
 
-	  /*@Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public Page<FichaDTO> findAll(Pageable pageable) throws Exception {
-	    Page<FichaRegistro> pageDomain = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc(pageable);
-	    Page<FichaDTO> pageDTO = FichaAssembler.buildDtoModelCollection(pageDomain);
-
-	    return pageDTO;
-	  }*/
-
+	 
 	  
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public FichaDTO findById(Integer id) throws Exception {
@@ -100,7 +93,6 @@ public class FichaService {
 	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
 	            
 	        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
-	            
 	            
 	        } else {
 	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");

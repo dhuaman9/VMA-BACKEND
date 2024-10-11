@@ -135,7 +135,7 @@ public class LdapUtil {
                 if (attrs != null && attrs.size() == 3) {
                     UsuarioLdap userLdap=new UsuarioLdap();
                     userLdap.setCuenta( (String) attrs.get("SAMAccountName").get() );
-                    userLdap.setNombre( ((String) attrs.get("givenName").get()).toUpperCase().trim() );
+                    userLdap.setNombres( ((String) attrs.get("givenName").get()).toUpperCase().trim() ); //dhr
                     userLdap.setUsuario( ((String) attrs.get("sn").get()).toUpperCase().trim() );
                    // userLdap.setUnidadOrganica(((String) attrs.get("physicalDeliveryOfficeName").get()).toUpperCase().trim()); //dhr
                     listaUsuario.add(userLdap);
@@ -284,7 +284,7 @@ public class LdapUtil {
                 if (attrs != null && attrs.size() == 3) {
                     UsuarioLdap userLdap = new UsuarioLdap();
                     userLdap.setCuenta((String) attrs.get("SAMAccountName").get());
-                    userLdap.setNombre(((String) attrs.get("givenName").get()).toUpperCase().trim());
+                    userLdap.setNombres(((String) attrs.get("givenName").get()).toUpperCase().trim());
                     userLdap.setUsuario(((String) attrs.get("sn").get()).toUpperCase().trim());
 
                     listaUsuario.add(userLdap);
@@ -319,7 +319,8 @@ public class LdapUtil {
             Attributes attrs = sr.getAttributes();
             UsuarioLdap userLdap = new UsuarioLdap();
             userLdap.setCuenta((String) (attrs.get("SAMAccountName")==null?"":attrs.get("SAMAccountName").get()) );
-            userLdap.setNombre(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
+            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
+            userLdap.setApellidos(((String) (attrs.get("sn")==null?"":attrs.get("sn").get()) ).toUpperCase().trim());
             userLdap.setUsuario(((String) (attrs.get("sn")==null?"":attrs.get("sn").get()) ).toUpperCase().trim());
             listaUsuario.add(userLdap);
         }
@@ -329,7 +330,7 @@ public class LdapUtil {
             Attributes attrs = sr.getAttributes();
             UsuarioLdap userLdap = new UsuarioLdap();
             userLdap.setCuenta((String) (attrs.get("SAMAccountName")==null?"":attrs.get("SAMAccountName").get()) );
-            userLdap.setNombre(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
+            userLdap.setNombres(((String) (attrs.get("givenName")==null?"":attrs.get("givenName").get()) ).toUpperCase().trim());
             userLdap.setUsuario(((String) (attrs.get("sn")==null?"":attrs.get("sn").get()) ).toUpperCase().trim());
             listaUsuario.add(userLdap);
         }

@@ -3,17 +3,22 @@ package pe.gob.sunass.vma.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 
 
@@ -53,6 +58,11 @@ public class FichaRegistro implements Serializable {
 	
 	@Column(name="id_usuario_actualizacion", nullable=true)
 	private Integer idUsuarioActualizacion;
+	
+	@OneToMany(mappedBy = "fichaRegistro")
+	@JsonIgnore 
+	private List<RegistroVMA> registrosVMA;
+	
 	
 
 	public Integer getIdFichaRegistro() {
@@ -119,8 +129,13 @@ public class FichaRegistro implements Serializable {
 		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
 
-	
+	public List<RegistroVMA> getRegistrosVMA() {
+		return registrosVMA;
+	}
+
+	public void setRegistrosVMA(List<RegistroVMA> registrosVMA) {
+		this.registrosVMA = registrosVMA;
+	}
 
 	
-
 }

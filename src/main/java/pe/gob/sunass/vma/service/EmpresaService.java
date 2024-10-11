@@ -39,7 +39,7 @@ public class EmpresaService {
 	 
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public List<EmpresaDTO> findAll() throws Exception {
-	    List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueOrderByIdEmpresa();
+	    List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueExcludingSunassOrderByIdEmpresa();
 	    List<EmpresaDTO> listDTO = EmpresaAssembler.buildDtoModelCollection(listEmpresa);
 
 	    return listDTO;
@@ -56,7 +56,7 @@ public class EmpresaService {
 	  //paginacion
 	  @Transactional(Transactional.TxType.REQUIRES_NEW)
 	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
-	    Page<Empresa> pageDomain = this.empresaRepository.findAllByOrderByIdEmpresa(pageable);  //  findByEstadoTrueOrderByIdEmpresa  findAllByOrderByIdEmpresa
+	    Page<Empresa> pageDomain = this.empresaRepository.findAllEmpresa(pageable);  //  findByEstadoTrueOrderByIdEmpresa  findAllByOrderByIdEmpresa
 	    Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
 
 	    return pageDTO;

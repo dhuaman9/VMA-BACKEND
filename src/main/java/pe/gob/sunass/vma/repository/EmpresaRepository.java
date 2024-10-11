@@ -15,11 +15,15 @@ import pe.gob.sunass.vma.model.Empresa;
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
-	  //public List<Empresa> findAllByOrderByIdEmpresa();
+	
+	 // public List<Empresa> findByEstadoTrueOrderByIdEmpresa();
 	  
-	  public List<Empresa> findByEstadoTrueOrderByIdEmpresa();
+	  // Método que excluye a la empresa sunass
+	  @Query("SELECT e FROM Empresa e WHERE e.estado = true AND e.idEmpresa <> 1  ORDER BY e.idEmpresa")
+	  public  List<Empresa> findByEstadoTrueExcludingSunassOrderByIdEmpresa();
 
-	  public Page<Empresa> findAllByOrderByIdEmpresa(Pageable pageable);
+	  @Query("SELECT e  FROM Empresa e  WHERE e.nombre <> 'SUNASS'  order by idEmpresa")
+	  public Page<Empresa> findAllEmpresa(Pageable pageable);
 
 	  public Optional<Empresa> findByIdEmpresa(Integer id);
 
@@ -32,7 +36,9 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 	  @Query("SELECT e FROM Empresa e WHERE " +
 			  "LOWER(e.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
 			  "LOWER(e.regimen) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
-			  "LOWER(e.tipo) LIKE LOWER(CONCAT('%', :filter, '%'))")
+			  "LOWER(e.tipo) LIKE LOWER(CONCAT('%', :filter, '%')) "+
+			  "AND e.nombre <> 'SUNASS'  "
+			  )
 			  Page<Empresa> findByFilter(@Param("filter") String filter, Pageable pageable);
 
 	  @Query("SELECT e "

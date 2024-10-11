@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.UsuarioAssembler;
+import pe.gob.sunass.vma.constants.Constants;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
@@ -101,7 +102,7 @@ public class UsuarioService   {
 	      dto = UsuarioAssembler.buildDtoDomain(user);
 
 	    }
-	    logger.info("dto - " + dto);
+	
 	    return dto;
 	  }
 	  
@@ -134,17 +135,11 @@ public class UsuarioService   {
 	    
 	    Usuario usuario = new Usuario();
 	    
-	    if (dto.getTipo().equals("SUNASS")) {
-	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName("SUNASS");
+	    if (dto.getTipo().equals(Constants.EMPRESA_SUNASS)) {
+	    	Optional<Empresa> optEmpresa1 = this.empresaRepository.findEmpresaByName(Constants.EMPRESA_SUNASS);
 	    	
-	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
-	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
-	    	logger.info("dto.getNombres() - "+dto.getNombres());
-	    	logger.info("dto.getNombres() to upper- "+dto.getNombres().toUpperCase());
-	    	logger.info("dto.getApellidos() - "+dto.getApellidos());
-	    	logger.info("dto.getUserName().toLowerCase - "+dto.getUserName().toLowerCase());
 	    	
-	    	usuario.setTipo("SUNASS");
+	    	usuario.setTipo(Constants.EMPRESA_SUNASS);
 	    	usuario.setRole(optRole.get());
 	    	usuario.setNombres(dto.getNombres().toUpperCase());
 			usuario.setApellidos(dto.getApellidos().toUpperCase());
@@ -338,8 +333,7 @@ public class UsuarioService   {
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		    }
-		    return null;
-		
+		   
 	}*/
 	
 	public  List<UsuarioDTO> obtenerUsuariosLdap() {
