@@ -59,9 +59,10 @@ ldap:
   cn: OU=Usuarios,DC=sunass,DC=gob,DC=pe
   cnSearch: DC=sunass,DC=gob,DC=pe
   group: GS_GSF
+  user: userval
   password: Validador2000
   prefix: '@sunass.gob.pe'
   timeout: 3000
   url: ldap://10.10.3.9:389
-  user: userval
+  
   

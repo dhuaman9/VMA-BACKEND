@@ -1,10 +1,11 @@
 package pe.gob.sunass.vma.dto;
 
-import java.io.Serializable;
-
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import pe.gob.sunass.vma.model.TipoEmpresa;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
@@ -19,6 +20,8 @@ public class EmpresaDTO {
 	private String regimen;
 	
 	private String tipo;
+	
+	//private TipoEmpresa tipoEmpresa;
 	
 	private Boolean estado;
 
@@ -43,6 +46,7 @@ public class EmpresaDTO {
 		this.regimen = regimen;
 	}
 
+	
 	public String getTipo() {
 		return tipo;
 	}
@@ -50,6 +54,14 @@ public class EmpresaDTO {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
+
+//	public TipoEmpresa getTipoEmpresa() {
+//		return tipoEmpresa;
+//	}
+//
+//	public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
+//		this.tipoEmpresa = tipoEmpresa;
+//	}
 
 	public String getCreatedAt() {
 		return createdAt;

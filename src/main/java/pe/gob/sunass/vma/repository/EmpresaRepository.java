@@ -51,14 +51,14 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 	  public List<Empresa> findByRegistroVmaIsNull();
 	  
 	  //para listar empresas que no tienen registro en vma, de acuerdo a cada anio
-	  @Query(value = "SELECT e.nombre, e.tipo, fr.anio , fr.fecha_inicio, fr.fecha_fin " +
+	  /*@Query(value = "SELECT e.nombre, e.tipo, fr.anio , fr.fecha_inicio, fr.fecha_fin " +
 				"FROM vma.empresa e " +
 				"CROSS JOIN vma.ficha_registro fr " +
 				"LEFT JOIN vma.registro_vma rv ON rv.id_empresa = e.id_empresa " +
 				"AND rv.id_ficha_registro = fr.id_ficha_registro " +
 				"WHERE rv.id_ficha_registro IS NULL AND e.nombre <> 'SUNASS' " +
 				"ORDER BY e.id_empresa, fr.anio", nativeQuery = true)
-		List<Object[]> findMissingFichaRegistros();
+		List<Object[]> findMissingFichaRegistros();*/
 		
 
 }

@@ -182,21 +182,14 @@ public class RegistroVMAService {
 					archivoRepository.deleteById(archivoByIdAlfresco.getIdArchivo());
 				}
 
-				alfrescoService.deleteFile(respuestaVMA.getRespuesta());
+				alfrescoService.deleteFile(respuestaVMA.getRespuesta());  // pendiente x cambiar  dhr
 			});
 		}
 
 		RegistroVMA registroVMA = new RegistroVMA();
 		registroVMA.setIdRegistroVma(registroVMAId);
 		respuestaVMARepository
-				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId)); // pendiente
-																													// de
-																													// guardar
-																													// fechas
-																													// y/o
-																													// usuario,
-																													// x
-																													// auditoria
+				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId)); // pendiente de guardar fechas y/o  usuario, x auditoria
 	}
 
 	/**
@@ -290,19 +283,7 @@ public class RegistroVMAService {
 	/**
 	 * Establece las condiciones de la consulta paginada realizada en el metodo
 	 * searchRegistroVMA
-	 * 
-	 * @param cb
-	 * @param empresaRoot
-	 * @param fichaRegistro
-	 * @param registroVMA
-	 * @param empresaId
-	 * @param estado
-	 * @param startDate
-	 * @param endDate
-	 * @param year
-	 * @param username
-	 * @param search
-	 * @return
+	 *
 	 */
 	private List<Predicate> getPredicatesSearch(CriteriaBuilder cb, Root empresaRoot, Root fichaRegistro,
 			Join registroVMA, Integer empresaId, String estado, Date startDate, Date endDate, String year,
@@ -355,8 +336,8 @@ public class RegistroVMAService {
 		respuestaVMARepository.saveAll(respuestasRequest.stream().map(respuesta -> {
 			RespuestaVMA respuestaVMA = respuestaDtoToRespuestaVMA(respuesta, registro);
 
-			// pendiente, falta mas datos de auditoria , fecha actualizacion e id usuario
-			// actualizacion
+			// pendiente, falta mas datos de auditoria , fecha de actualizacion e id usuario
+		
 
 			respuestaVMA.setFechaRegistro(new Date());
 			respuestaVMA.setIdUsuarioRegistro(userUtil.getCurrentUserId());
@@ -734,7 +715,7 @@ public class RegistroVMAService {
 		}
 	}
 
-	//
+	
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO obtenerEmpresaSinCompletarRegistroVMA() throws Exception {
 

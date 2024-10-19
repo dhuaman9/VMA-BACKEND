@@ -42,6 +42,8 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 			"FROM RespuestaVMA r WHERE r.idPregunta = :idPregunta AND r.registroVMA.idRegistroVma = :idRegistroVMA")
 	boolean isRespuestaArchivoInformacionCompleto(Integer idPregunta, Integer idRegistroVMA);
 
+	//pendiente probar con:
+	// @Query("SELECT SUM(CAST(r.respuesta AS integer)) FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId AND r.idRegistroVma IN :registroVMAIds")
 	@Query(value="SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumaTrabajadoresDesdicadosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 

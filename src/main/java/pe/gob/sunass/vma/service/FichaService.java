@@ -159,16 +159,12 @@ public class FichaService {
 		        }
 		   }
 	      
-//	      if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio()) >0 ) {  this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0
-//	    		throw new FailledValidationException("Ya existe otro periodo con el mismo año, en este año actual");  //pendiente por validar
-//			}
-	      
-	     
+
 	      if (  this.fichaRepository.nroRegistroPorAnioUpdate(dto.getAnio(), dto.getFechaInicio(),dto.getIdFichaRegistro()) >0 ) { 
 	    		throw new FailledValidationException("Ya existe otro periodo registrado en este año.");  //pendiente por validar
 			}
 
-	      List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista de Periodos ordenados por ID en Desc.
+	      List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();  //lista de Periodos ordenados  desc por ID .
 	      if (listPeriodoVMA != null && !listPeriodoVMA.isEmpty()) {
 		    	
 	    	  logger.info("fecha inicio " + dto.getFechaInicio());
@@ -254,7 +250,7 @@ public class FichaService {
 		    return dto;
 	  }
 
-	  //pendiente de usarlo en el front
+
 	  public Integer contarDiasFaltantesEnPeriodoActual() {
 		    List<Integer> diasRestantes = fichaRepository.findDiasRestantes();
 		    if (diasRestantes.isEmpty()) {
@@ -280,9 +276,6 @@ public class FichaService {
 
 	  }
 	  
-//	  public FichaDTO obtenerPeriodoActivo() {
-//	        return fichaRegistroRepository.findRegistroActivo()
-//	            .orElseThrow(() -> new FailledValidationException("No se encontró un periodo activo."));
-//	    }
+
 	
 }

@@ -148,7 +148,7 @@ public class RegistroVMAController {
 	         @RequestParam(required = false) String busquedaGlobal) throws ParseException {
 		 
 		 // Conversión de fechas
-		 SimpleDateFormat simpleFormat = new SimpleDateFormat("dd-MM-yyyy");
+		  SimpleDateFormat simpleFormat = new SimpleDateFormat("dd-MM-yyyy");
 		  Date fechaDesde = null;
 		    if (fechaDesdeString != null) {
 		    	fechaDesde = simpleFormat.parse(fechaDesdeString);
@@ -185,7 +185,8 @@ public class RegistroVMAController {
 //	 }
 
 	 
-	 @GetMapping("/reporte-eps-no-registraron-vma")
+	 //por el momento en desuso
+	/* @GetMapping("/reporte-eps-no-registraron-vma")
 	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
 	 public ResponseEntity<byte[]> descargaReporteNoRegistraronVMA(
 			 @RequestParam(required = false) List<Integer> idsVma) {
@@ -196,7 +197,7 @@ public class RegistroVMAController {
 		 headers.add("Content-Disposition", "attachment; filename=eps_no_registraron_vma.xlsx");
 
 		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
-	 }
+	 }*/
 
 	@PutMapping("/estado-incompleto/{id}")
 	public ResponseEntity<Void> actualizarEstadoIncompleto(@PathVariable Integer id) {

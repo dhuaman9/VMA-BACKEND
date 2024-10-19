@@ -173,8 +173,8 @@ public class GenerarExcelService {
     }
     
     
-    
-    public ByteArrayInputStream generarExcelEPSSinRegistro() { // genera otro excel , pero ya no es necesario
+    // genera otro excel de EPS sin registro. Por ahora en desuso
+   /* public ByteArrayInputStream generarExcelEPSSinRegistro() { // genera otro excel , pero ya no es necesario
     	
         List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();  
 
@@ -222,7 +222,7 @@ public class GenerarExcelService {
         } catch (IOException e) {
             throw new RuntimeException("Error al generar el excel" + e.getMessage());
         }
-    }
+    }*/
 
 
 
