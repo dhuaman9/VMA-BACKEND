@@ -21,4 +21,13 @@ public class UserUtil {
         Optional<Usuario> user = usuarioRepository.findByUserName(username);
         return user.get().getId();//Accedemos al optional directo sin validar si es null porque siempre habrá un usuario logeado
     }
+    
+    public String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) authentication.getPrincipal();
+        Optional<Usuario> user = usuarioRepository.findByUserName(username);
+        return user.get().getUserName();//Accedemos al optional directo sin validar si es null porque siempre habrá un usuario logeado
+    }
+    
+    
 }

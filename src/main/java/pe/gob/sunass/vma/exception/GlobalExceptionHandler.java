@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El cuerpo del parámetro no puede estar vacío");
     }
 	
-    //se utiliza para el front
+    //para validar datos y enviar mensaje de error al front.
     @ExceptionHandler(FailledValidationException.class)
     public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
     	logger.info("BAD REQUEST : FailledValidationException"+ ex.getMessage());
@@ -30,17 +30,9 @@ public class GlobalExceptionHandler {
       
     }
     
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleResourceException(ResourceNotFoundException ex) {
-    	logger.info("BAD REQUEST : ResourceNotFoundException"+ ex.getMessage());
-    	 ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
-	     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); //falta cambiar el tipo de status
-      
-    }
-    
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<?> handleConflictException(ConflictException ex) {
-    	logger.info("BAD REQUEST : ResourceNotFoundException"+ ex.getMessage());
+    @ExceptionHandler(FileConflictException.class)
+    public ResponseEntity<?> handleFileConflictException(FileConflictException ex) {
+    	logger.info("CONFLICT EXCEPTION : FileConflictException"+ ex.getMessage());
     	 ErrorResponse errorResponse = new ErrorResponse("CONFLICT", ex.getMessage());
 	     return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
       

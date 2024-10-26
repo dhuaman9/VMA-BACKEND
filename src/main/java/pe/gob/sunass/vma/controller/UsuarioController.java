@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import pe.gob.sunass.vma.dto.CambioPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.UsuarioService;
+import pe.gob.sunass.vma.util.UserUtil;
 
 
 @RestController
@@ -33,6 +35,9 @@ public class UsuarioController {
 	 
 	 @Autowired
 	  private UsuarioService usuarioService;
+	 
+	 @Autowired
+	 private UserUtil userUtil;
 
 	  public UsuarioController() {
 	    super();
@@ -215,5 +220,17 @@ public class UsuarioController {
 	  
 	  //endpoint para obtener el rol segun el userName , para usarlo al  menu dinamico .
 
+	  
+	  
+	  //
+	  @PostMapping("/cambiar-password")
+	    public ResponseEntity<String> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
+		
+	        String username = userUtil.getCurrentUsername();
+	        usuarioService.cambiarPassword(username, cambioPasswordDTO);
+	        return ResponseEntity.ok("Contraseña actualizada con éxito");
+	    }
+	  
+	  
 
 }
