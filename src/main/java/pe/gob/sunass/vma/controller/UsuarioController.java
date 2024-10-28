@@ -224,11 +224,11 @@ public class UsuarioController {
 	  
 	  //
 	  @PostMapping("/cambiar-password")
-	    public ResponseEntity<String> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
+	    public ResponseEntity<Void> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
 		
 	        String username = userUtil.getCurrentUsername();
 	        usuarioService.cambiarPassword(username, cambioPasswordDTO);
-	        return ResponseEntity.ok("Contraseña actualizada con éxito");
+	        return ResponseEntity.ok().build();
 	    }
 	  
 	  

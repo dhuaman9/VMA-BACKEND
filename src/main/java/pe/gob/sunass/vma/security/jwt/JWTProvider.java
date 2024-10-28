@@ -129,6 +129,7 @@ public class JWTProvider {
         extraClaims.put("role", user.getRole().getAuth());
         extraClaims.put("permissions", user.getAuthorities());
         extraClaims.put("username", user.getUsername());
+        extraClaims.put("typeUser", user.getTipo());
 
         return extraClaims;
     }
