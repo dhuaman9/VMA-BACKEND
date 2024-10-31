@@ -213,12 +213,12 @@ public class ReporteService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, List<RegistroVMA>> getRegistrosPorTipoEmpresa(String anio) {
-        List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
-        return registrosCompletos
-                .stream()
-                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
-    }
+//    private Map<String, List<RegistroVMA>> getRegistrosPorTipoEmpresa(String anio) {
+//        List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
+//        return registrosCompletos
+//                .stream()
+//                .collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+//    }
     
     // grafico 8
     public List<BarChartBasicoDto> reporteDiagramaFlujoYBalancePresentados(String anio) {

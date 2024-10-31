@@ -51,6 +51,7 @@ import pe.gob.sunass.vma.dto.anexos.AnexoReclamosVMADTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRegistroVmaDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRespuestaSiDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoTresListadoEPDTO;
+import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.model.Usuario;
@@ -139,12 +140,15 @@ public class RegistroVMAService {
 	@Transactional
 	public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
 		RegistroVMA registroVMA;
+		Integer currentUserId = userUtil.getCurrentUserId();
 		if (idRegistroVMA != null) {
 			registroVMA = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			registroVMA.setUpdatedAt(new Date());
 			registroVMA.setEstado(
 					registroRequest.isRegistroValido() ? Constants.ESTADO_COMPLETO : Constants.ESTADO_INCOMPLETO);
 			saveRespuestas(registroRequest.getRespuestas(), registroVMA);
+			registroVMA.setIdUsuarioActualizacion(currentUserId);
+			registroVMA.setUpdatedAt(new Date());
 			return registroVMA.getIdRegistroVma();
 		} else {
 			Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
@@ -157,7 +161,7 @@ public class RegistroVMAService {
 					registroRequest.isRegistroValido() ? Constants.ESTADO_COMPLETO : Constants.ESTADO_INCOMPLETO);
 			nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			nuevoRegistro.setCreatedAt(new Date());
-			nuevoRegistro.setIdUsuarioRegistro(userUtil.getCurrentUserId());
+			nuevoRegistro.setIdUsuarioRegistro(currentUserId);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
 			return registroDB.getIdRegistroVma();
@@ -168,35 +172,45 @@ public class RegistroVMAService {
 	public void saveRespuestaVMAArchivo(MultipartFile file, Integer registroVMAId, Integer preguntaId,
 			Integer respuestaId) throws IOException {
 
-		Optional<RegistroVMA> optRegistroVMA = this.registroVMARepository.findByIdRegistroVma(registroVMAId);
-
-		// ArchivoDTO archivoDTO = alfrescoService.uploadFile(file);
-		ArchivoDTO archivoDTO = alfrescoService.uploadFile(file, optRegistroVMA.get());
+		RegistroVMA optRegistroVMA = this.registroVMARepository.findByIdRegistroVma(registroVMAId)
+				.orElseThrow(() -> new ResourceNotFoundException("Registro VMA no encontrado"));
+		Integer currentUserId = userUtil.getCurrentUserId();
+		ArchivoDTO archivoDTO = alfrescoService.uploadFile(file, optRegistroVMA, respuestaId);
 
 		if (Objects.nonNull(respuestaId)) {
 
 			Optional<RespuestaVMA> respuestaOpt = respuestaVMARepository.findById(respuestaId);
-			respuestaOpt.ifPresent(respuestaVMA -> {
-				Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
-				if (Objects.nonNull(archivoByIdAlfresco)) {
-					archivoRepository.deleteById(archivoByIdAlfresco.getIdArchivo());
-				}
 
-				alfrescoService.deleteFile(respuestaVMA.getRespuesta());
-			});
+			if(respuestaOpt.isPresent()) {
+				RespuestaVMA respuestaVMA = respuestaOpt.get();
+
+				alfrescoService.deleteFile(respuestaVMA.getRespuesta());  // pendiente x cambiar  dhr
+
+				respuestaVMA.setRespuesta(archivoDTO.getIdAlfresco());
+				respuestaVMA.setIdUsuarioActualizacion(currentUserId);
+				respuestaVMA.setFechaActualizacion(new Date());
+				respuestaVMARepository
+						.save(respuestaVMA);
+			} else {
+				registrarNuevaRespuetaArchivo(registroVMAId, respuestaId, archivoDTO, preguntaId);
+			}
+		} else {
+			registrarNuevaRespuetaArchivo(registroVMAId, null, archivoDTO, preguntaId);
 		}
 
+		optRegistroVMA.setIdUsuarioActualizacion(currentUserId);
+		optRegistroVMA.setUpdatedAt(new Date());
+		registroVMARepository.save(optRegistroVMA);
+	}
+
+	private void registrarNuevaRespuetaArchivo(Integer registroVMAId, Integer respuestaId, ArchivoDTO archivoDTO, Integer preguntaId) {
 		RegistroVMA registroVMA = new RegistroVMA();
 		registroVMA.setIdRegistroVma(registroVMAId);
+		RespuestaVMA respuestaVMA = new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId);
+		respuestaVMA.setFechaRegistro(new Date());
+		respuestaVMA.setIdUsuarioRegistro(userUtil.getCurrentUserId());
 		respuestaVMARepository
-				.save(new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA, preguntaId)); // pendiente
-																													// de
-																													// guardar
-																													// fechas
-																													// y/o
-																													// usuario,
-																													// x
-																													// auditoria
+				.save(respuestaVMA);
 	}
 
 	/**
@@ -290,19 +304,7 @@ public class RegistroVMAService {
 	/**
 	 * Establece las condiciones de la consulta paginada realizada en el metodo
 	 * searchRegistroVMA
-	 * 
-	 * @param cb
-	 * @param empresaRoot
-	 * @param fichaRegistro
-	 * @param registroVMA
-	 * @param empresaId
-	 * @param estado
-	 * @param startDate
-	 * @param endDate
-	 * @param year
-	 * @param username
-	 * @param search
-	 * @return
+	 *
 	 */
 	private List<Predicate> getPredicatesSearch(CriteriaBuilder cb, Root empresaRoot, Root fichaRegistro,
 			Join registroVMA, Integer empresaId, String estado, Date startDate, Date endDate, String year,
@@ -355,8 +357,8 @@ public class RegistroVMAService {
 		respuestaVMARepository.saveAll(respuestasRequest.stream().map(respuesta -> {
 			RespuestaVMA respuestaVMA = respuestaDtoToRespuestaVMA(respuesta, registro);
 
-			// pendiente, falta mas datos de auditoria , fecha actualizacion e id usuario
-			// actualizacion
+			// pendiente, falta mas datos de auditoria , fecha de actualizacion e id usuario
+		
 
 			respuestaVMA.setFechaRegistro(new Date());
 			respuestaVMA.setIdUsuarioRegistro(userUtil.getCurrentUserId());
@@ -734,7 +736,7 @@ public class RegistroVMAService {
 		}
 	}
 
-	//
+	
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO obtenerEmpresaSinCompletarRegistroVMA() throws Exception {
 

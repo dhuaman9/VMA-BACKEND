@@ -25,6 +25,7 @@ public class EmpresaAssembler {
 	      dto.setNombre(empresa.getNombre());
 	      dto.setRegimen(empresa.getRegimen());
 	      dto.setTipo(empresa.getTipo());
+	      //dto.setTipoEmpresa(empresa.getTipoEmpresa());
 	      dto.setEstado(empresa.getEstado());
 	      dto.setIdUsuarioRegistro(empresa.getIdUsuarioRegistro());
 	      dto.setIdUsuarioActualizacion(empresa.getIdUsuarioActualizacion());

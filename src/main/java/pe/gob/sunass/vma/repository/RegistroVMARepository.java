@@ -46,7 +46,7 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ( SELECT e.idEmpresa FROM Empresa e WHERE e.nombre = :nombre)")
 	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndEPS(@Param("nombre") String nombre);
 
-	@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
+	/*@Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END " +
 		       "FROM RegistroVMA e " +
 		       "INNER JOIN e.fichaRegistro fr " +
 			   "WHERE e.fichaRegistro.idFichaRegistro IN ( " +
@@ -56,7 +56,7 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 			   ") " +
 		       "AND e.empresa.idEmpresa = :idEmpresa " +
 		       "AND (e.createdAt BETWEEN fr.fechaInicio AND fr.fechaFin) ")
-	boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA
+	boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);  //para deshabilitar o habilitar el boton de Registrar para VMA*/
 
 	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
 	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
@@ -76,9 +76,25 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	public	Optional<RegistroVMA> findEmpresaSinCompletarRegistro(@Param("id") Integer userId);
 	
 	
-	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids")
+	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids order by r.idRegistroVma desc")
 	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids); //se usa cuando se descarga excel, segun los ids seleccionados en la tabla.
 	
-	
+	 @Query(value = "SELECT CASE " +
+             "WHEN NOT EXISTS ( " +
+             "    SELECT 1 " +
+             "    FROM vma.ficha_registro fr " +
+             "    WHERE CURRENT_DATE >= fr.fecha_inicio AND CURRENT_DATE <= fr.fecha_fin " +
+             ") " +
+             "OR EXISTS ( " +
+             "    SELECT 1 " +
+             "    FROM vma.registro_vma rv " +
+             "    INNER JOIN vma.ficha_registro fr ON rv.id_ficha_registro = fr.id_ficha_registro " +
+             "    WHERE rv.id_empresa = :idEmpresa " +
+             "    AND rv.fecha_creacion BETWEEN fr.fecha_inicio AND fr.fecha_fin " +
+             ") " +
+             "THEN true " +
+             "ELSE false " +
+             "END AS resultado",  nativeQuery = true)
+	 public boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);
 	
 }

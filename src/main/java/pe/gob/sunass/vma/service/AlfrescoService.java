@@ -27,6 +27,7 @@ import pe.gob.sunass.vma.dto.ArchivoDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.cuestionario.Archivo;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
+import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
 import pe.gob.sunass.vma.constants.Constants;
 
@@ -39,6 +40,7 @@ import java.util.regex.Matcher;
 
 import org.springframework.http.*;
 
+import pe.gob.sunass.vma.repository.RespuestaVMARepository;
 import pe.gob.sunass.vma.security.jwt.JWTProvider;
 
 @Service
@@ -60,9 +62,11 @@ public class AlfrescoService {
 
 	
 	private final RestTemplate restTemplate;
-	
-	 
-    public AlfrescoService(RestTemplate restTemplate) {
+    @Autowired
+    private RespuestaVMARepository respuestaVMARepository;
+
+
+	public AlfrescoService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 	
@@ -83,9 +87,9 @@ public class AlfrescoService {
     }
     
 	//public ArchivoDTO uploadFile(MultipartFile file) throws IOException {
-	public ArchivoDTO uploadFile(MultipartFile file, RegistroVMA registroVMA) throws IOException {
+	public ArchivoDTO uploadFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
         validateFile(file);
-        return processFile(file, registroVMA);
+        return processFile(file, registroVMA, respuestaId);
        // return processFile(file);
 	}
 	
@@ -124,31 +128,31 @@ public class AlfrescoService {
 	    }
 
 	    // revisar, si hace falta el mapper o assembler de dto a model, o viceversa - dhr
-	    private ArchivoDTO processFile(MultipartFile file, RegistroVMA registroVMA) throws IOException {  
+	    private ArchivoDTO processFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
 	    	
 	        // Obtener la fecha actual para nombrar la subcarpeta
 	        LocalDate now = LocalDate.now();
 	        String mesAnio = now.getMonthValue() + "-" + now.getYear();
-	        
+
 	        // Verificar si la subcarpeta ya existe
 	        String subcarpetaId = getOrCreateSubfolder(mesAnio);
-	        
+
 	        // URL de subida del archivo a la subcarpeta creada
 	        String uploadUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
 	                + subcarpetaId + "/children";
-	        
+
 	        CloseableHttpClient client = HttpClients.createDefault();
 	        HttpPost post = new HttpPost(uploadUrl);
-	        
+
 	        post.addHeader("Authorization", "Basic " + Base64.getEncoder()
 	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
-	        
+
 	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 	        builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY, file.getOriginalFilename());
 	        builder.addTextBody("name", getFilenameWithUUID(file.getOriginalFilename()), ContentType.TEXT_PLAIN);
-	        
+
 	        post.setEntity(builder.build());
-	        
+
 	        HttpResponse response = client.execute(post);
 	        String responseString = EntityUtils.toString(response.getEntity());
 	        client.close();
@@ -157,26 +161,52 @@ public class AlfrescoService {
 	            ObjectMapper objectMapper = new ObjectMapper();
 	            JsonNode responseJson = objectMapper.readTree(responseString);
 	            String idAlfresco = responseJson.get("entry").get("id").asText();
-	            
-	            Archivo archivo = new Archivo();
-	            archivo.setNombreArchivo(getFilenameWithUUID(file.getOriginalFilename()));
-	            archivo.setIdAlfresco(idAlfresco);
-	            archivo.setRegistroVma(registroVMA);
-	            archivo.setUsername(getCurrentUsername());
-	            archivo.setCreatedAt(new Date());
-	            archivo.setUpdatedAt(null);
-	            archivo = archivoRepository.save(archivo);
-	            
-	            ArchivoDTO archivoDTO = new ArchivoDTO();
-	            archivoDTO.setIdArchivo(archivo.getIdArchivo());
-	            archivoDTO.setNombreArchivo(archivo.getNombreArchivo());
-	            archivoDTO.setIdAlfresco(archivo.getIdAlfresco());
-	            
-	            return archivoDTO;
+
+
+				if (Objects.isNull(respuestaId)) {
+					return mapToArchivoDTO(crarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
+				}
+
+				Optional<RespuestaVMA> respuesta = respuestaVMARepository.findById(respuestaId);
+
+				if (respuesta.isEmpty()) {
+					return mapToArchivoDTO(crarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
+				}
+
+				RespuestaVMA respuestaVMA = respuesta.get();
+				Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
+
+				if (Objects.nonNull(archivoByIdAlfresco)) {
+					archivoByIdAlfresco.setIdAlfresco(idAlfresco);
+					archivoByIdAlfresco.setNombreArchivo(getFilenameWithUUID(file.getOriginalFilename()));
+					archivoByIdAlfresco.setUpdatedAt(new Date());
+					return mapToArchivoDTO(archivoRepository.save(archivoByIdAlfresco));
+				}
+
+				return mapToArchivoDTO(crarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
 	        } else {
 	            throw new RuntimeException("Failed to upload file, status code: " + response.getStatusLine().getStatusCode());
 	        }
 	    }
+
+		private Archivo crarArchivo(String nombreArchivo, String idAlfresco, RegistroVMA registroVMA) throws IOException {
+			Archivo archivo = new Archivo();
+			archivo.setNombreArchivo(getFilenameWithUUID(nombreArchivo));
+			archivo.setIdAlfresco(idAlfresco);
+			archivo.setRegistroVma(registroVMA);
+			archivo.setUsername(getCurrentUsername());
+			archivo.setCreatedAt(new Date());
+			archivo.setUpdatedAt(null);
+			return archivoRepository.save(archivo);
+		}
+
+		private ArchivoDTO mapToArchivoDTO(Archivo archivo) {
+			ArchivoDTO archivoDTO = new ArchivoDTO();
+			archivoDTO.setIdArchivo(archivo.getIdArchivo());
+			archivoDTO.setNombreArchivo(archivo.getNombreArchivo());
+			archivoDTO.setIdAlfresco(archivo.getIdAlfresco());
+			return archivoDTO;
+		}
 	    
 	    
 	    private String getOrCreateSubfolder(String folderName) throws IOException {

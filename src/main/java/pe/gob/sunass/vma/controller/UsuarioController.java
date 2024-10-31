@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import pe.gob.sunass.vma.dto.CambioPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.UsuarioService;
+import pe.gob.sunass.vma.util.UserUtil;
 
 
 @RestController
@@ -33,6 +35,9 @@ public class UsuarioController {
 	 
 	 @Autowired
 	  private UsuarioService usuarioService;
+	 
+	 @Autowired
+	 private UserUtil userUtil;
 
 	  public UsuarioController() {
 	    super();
@@ -95,8 +100,6 @@ public class UsuarioController {
 	      
 	      //pendiente usar el otro metodo 
 	      //logger.info("obtener count lista ldap2, metodo 2 : "+usuarioService.obtenerUsuariosLdap2().size());
-	    
-	
 	      if (list.size() == 0) {
 	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 	      }
@@ -154,14 +157,12 @@ public class UsuarioController {
 	        response = new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);
 	        logger.info("response : "+ response);
 	      }
-	    }
-	    catch (Exception ex) {
+	    } catch (Exception ex) {
 	      logger.error(ex.getMessage(), ex);
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 	                                             HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	    
-
 	    return response;
 	  }
 
@@ -208,12 +209,20 @@ public class UsuarioController {
 	      //throw ex;
 	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	    
-//
+	 
 	    return response;
 	  }
-	  
-	  //endpoint para obtener el rol segun el userName , para usarlo al  menu dinamico .
+	 
 
+	  @PostMapping("/cambiar-password")
+	  public ResponseEntity<Void> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
+		
+	        String username = userUtil.getCurrentUsername();
+	        usuarioService.cambiarPassword(username, cambioPasswordDTO);
+	       // return ResponseEntity.ok("Contraseña actualizada con éxito");
+	        return ResponseEntity.ok().build();
+	  }
+	  
+	  
 
 }

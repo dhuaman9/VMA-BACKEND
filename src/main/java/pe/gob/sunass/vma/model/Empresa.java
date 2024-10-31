@@ -41,6 +41,10 @@ public class Empresa implements Serializable {
 		
 		@Column(name="tipo", length=50, nullable=false)
 		private String tipo;
+		
+//		@ManyToOne(fetch=FetchType.EAGER, optional=false)
+//		@JoinColumn(name="id_tipo_empresa", referencedColumnName="id_tipo_empresa", nullable=false)
+//		private TipoEmpresa tipoEmpresa;
 
 		@Temporal(TemporalType.TIMESTAMP)
 		@Column(name="created_at", nullable=false)
@@ -143,6 +147,14 @@ public class Empresa implements Serializable {
 		public void setRegistrosVMA(List<RegistroVMA> registrosVMA) {
 			this.registrosVMA = registrosVMA;
 		}
+
+//		public TipoEmpresa getTipoEmpresa() {
+//			return tipoEmpresa;
+//		}
+//
+//		public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
+//			this.tipoEmpresa = tipoEmpresa;
+//		}
 		
 	
 }
