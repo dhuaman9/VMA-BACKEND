@@ -36,7 +36,18 @@ spring:
   servlet:
     multipart:
       max-file-size: 30MB
-      max-request-size: 30MB 
+      max-request-size: 30MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: anderson.bengolea@gmail.com
+    password: ogfv twxk whkj vklz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 myapp:
   datasource:
@@ -47,6 +58,7 @@ myapp:
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  front-url: http://localhost:4200/#
 
 cors:
   urls: 

@@ -36,6 +36,7 @@ public class HttpSecurityConfig {
 						.antMatchers("http://apps.sunass.gob.pe/").permitAll()
 						.antMatchers("/", "/home/index", "/swagger/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger.json/**").permitAll()
 						.antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+						.antMatchers( "/tokens/**").permitAll()
 						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DAP", "CONSULTOR")
 						.anyRequest().authenticated()
 						)
