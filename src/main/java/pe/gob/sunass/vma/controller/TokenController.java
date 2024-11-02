@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import pe.gob.sunass.vma.dto.RecuperarPasswordDTO;
 import pe.gob.sunass.vma.dto.TokenPasswordDTO;
@@ -28,6 +29,7 @@ public class TokenController {
     }
 
     @PostMapping("/recuperar-password/{token}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void recuperarPassword(@PathVariable String token, @RequestBody RecuperarPasswordDTO dto) {
         usuarioService.recuperarPassword(token, dto);
     }

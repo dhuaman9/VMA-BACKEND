@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.UsuarioAssembler;
 import pe.gob.sunass.vma.constants.Constants;
+import pe.gob.sunass.vma.dto.CambiarPasswordUsuarioDTO;
 import pe.gob.sunass.vma.dto.CambioPasswordDTO;
 import pe.gob.sunass.vma.dto.RecuperarPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
@@ -438,6 +439,18 @@ public class UsuarioService {
         usuario.setPassword(passwordEncoder.encode(cambioPasswordDTO.getNuevaPassword()));
         usuarioRepository.save(usuario);
     }
+
+	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) {
+		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+		if (!dto.getNuevaPassword().equals(dto.getRepetirPassword())) {
+			throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
+		}
+
+		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuarioRepository.save(usuario);
+	}
 
 	@org.springframework.transaction.annotation.Transactional
 	public void recuperarPassword(String token, RecuperarPasswordDTO dto) {
