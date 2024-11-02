@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Credenciales Generadas</title>
+    </head>
+    <body style="background: #f6fbff;
+            color: #353e4a;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px; border-radius: 8px;">
+        <h1 style="text-align: center; color: #066ec8; font-weight: 600;">Sunass</h1>
+        <h1 style="font-size: 20px;">Estimado(a) [[${fullname}]],</h1>
+        <p>Se han generado sus credenciales para el sistema VMA.</p>
+        <p>Su usuario es: <strong>[[${username}]]</strong></p>
+        <p>Su clave es: <strong>[[${password}]]</strong></p>
+        <p>
+            Por motivo de seguridad, debe cambiar su contraseña para lograr ingresar al sistema VMA
+            entrando a este <a href="[[${changePasswordLink}]]" style="color: #007BFF;">enlace</a>, donde encontrará un formulario
+            para cambiar su contraseña de forma segura.
+        </p>
+    </body>
+</html>

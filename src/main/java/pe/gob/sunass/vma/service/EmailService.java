@@ -29,8 +29,7 @@ public class EmailService {
     public void sendEmail(UsuarioDTO usuario, String token) throws MessagingException, IOException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-
-        String htmlContent = new String(Files.readAllBytes(Paths.get("src/main/resources/mail-template.html")));
+        String htmlContent = new String(Files.readAllBytes(Paths.get("src/main/resources/email/mail-template.html")));
 
         htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
                 .replace("[[${password}]]", usuario.getPassword())
