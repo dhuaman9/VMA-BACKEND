@@ -38,7 +38,7 @@ public class RegistroVMA implements Serializable {
 	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
 	private Empresa empresa;
 	
-	@OneToOne(fetch=FetchType.EAGER)
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=false)
 	private FichaRegistro fichaRegistro;
 	

@@ -29,11 +29,14 @@ import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.UsuarioAssembler;
 import pe.gob.sunass.vma.constants.Constants;
+import pe.gob.sunass.vma.dto.CambiarPasswordUsuarioDTO;
 import pe.gob.sunass.vma.dto.CambioPasswordDTO;
+import pe.gob.sunass.vma.dto.RecuperarPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.Role;
+import pe.gob.sunass.vma.model.TokenPassword;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RoleRepository;
@@ -68,6 +71,12 @@ public class UsuarioService {
 
 	@Autowired
 	LdapUtil ldapUtil;
+
+	@Autowired
+	private EmailService emailService;
+
+	@Autowired
+	private TokenPasswordService tokenPasswordService;
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public List<UsuarioDTO> findAll() throws Exception {
@@ -175,6 +184,11 @@ public class UsuarioService {
 
 		usuario = this.usuarioRepository.save(usuario);
 
+		if(usuario.getTipo().equals("EPS")) {
+			String token = tokenPasswordService.crearToken(usuario);
+			emailService.sendEmail(dto, token);
+		}
+
 		return UsuarioAssembler.buildDtoDomain(usuario);
 
 	}
@@ -204,6 +218,15 @@ public class UsuarioService {
 				}
 			}
 			if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+				
+				// dhr - envio de correo en caso de cambio de clave
+				/*if(usuario.getTipo().equals("EPS")) {
+					String token = tokenPasswordService.crearToken(usuario);
+					emailService.sendEmail(dto, token);
+				}*/
+				//.....
+
+				
 				if (!dto.getPassword().equals(usuario.getPassword())) {
 					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 				}
@@ -425,8 +448,27 @@ public class UsuarioService {
         usuario.setPassword(passwordEncoder.encode(cambioPasswordDTO.getNuevaPassword()));
         usuarioRepository.save(usuario);
     }
-	
-	
-	
 
+	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) {
+		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+		if (!dto.getNuevaPassword().equals(dto.getRepetirPassword())) {
+			throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
+		}
+
+		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuarioRepository.save(usuario);
+	}
+
+	@org.springframework.transaction.annotation.Transactional
+	public void recuperarPassword(String token, RecuperarPasswordDTO dto) {
+		TokenPassword tokenDB = tokenPasswordService.findTokenByToken(token);
+
+		Usuario usuario = tokenDB.getUsuario();
+		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuarioRepository.save(usuario);
+		tokenDB.setCompletado(true);
+		tokenPasswordService.save(tokenDB);
+	}
 }
