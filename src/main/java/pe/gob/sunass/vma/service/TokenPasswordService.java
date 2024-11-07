@@ -7,6 +7,7 @@ import pe.gob.sunass.vma.model.TokenPassword;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.repository.TokenPasswordRepository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -19,9 +20,10 @@ public class TokenPasswordService {
     }
 
     public String crearToken(Usuario usuario) {
+        final int agregarDiasExpiracion = 2;
         TokenPassword tokenPassword = new TokenPassword();
         tokenPassword.setToken(generarToken());
-        tokenPassword.setFechaExpiracion(null);
+        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(agregarDiasExpiracion));//cambiar a plusMinutes para probar local
         tokenPassword.setUsuario(usuario);
         tokenPassword.setCompletado(false);
         tokenPasswordRepository.save(tokenPassword);

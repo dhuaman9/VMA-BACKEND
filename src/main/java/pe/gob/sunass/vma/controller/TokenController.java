@@ -25,7 +25,7 @@ public class TokenController {
     @GetMapping("/{token}")
     public TokenPasswordDTO getToken(@PathVariable String token) {
         TokenPassword tokenDB = tokenService.findTokenByToken(token);
-        return new TokenPasswordDTO(tokenDB.getToken(), tokenDB.isCompletado());
+        return new TokenPasswordDTO(tokenDB.getToken(), tokenDB.isCompletado(), tokenDB.getFechaExpiracion());
     }
 
     @PostMapping("/recuperar-password/{token}")
