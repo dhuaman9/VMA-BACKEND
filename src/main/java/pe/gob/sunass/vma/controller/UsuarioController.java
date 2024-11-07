@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import pe.gob.sunass.vma.dto.CambiarPasswordUsuarioDTO;
 import pe.gob.sunass.vma.dto.CambioPasswordDTO;
+import pe.gob.sunass.vma.dto.RecuperarPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.UsuarioService;
@@ -218,13 +219,13 @@ public class UsuarioController {
 
 	@PostMapping("/cambiar-password-usuario")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) {
+	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) throws Exception {
 		usuarioService.cambiarPasswordUsuario(dto);
 	}
 
-	@PutMapping("/actualizar-token-password")
+	@PutMapping("/{userId}/actualizar-token-password")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void actualizarTokenPasswordUsuario(@RequestParam(name = "userId") Integer userId) throws Exception {
+	public void actualizarTokenPasswordUsuario(@PathVariable Integer userId) throws Exception {
 		usuarioService.actualizarTokenPasswordUsuario(userId);
 	}
 }

@@ -47,6 +47,11 @@ public class TokenPasswordService {
                 .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
     }
 
+    public TokenPassword findTokenByUserId(Integer userId) {
+        return tokenPasswordRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
+    }
+
     public void save(TokenPassword tokenPassword) {
         tokenPasswordRepository.save(tokenPassword);
     }

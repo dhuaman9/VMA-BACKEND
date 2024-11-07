@@ -50,7 +50,7 @@ public class EmailService {
 
     
     // metodo para probar en local
-    public void sendEmail(UsuarioDTO usuario, String token) throws MessagingException, IOException {
+    public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
         
         InputStream inputStream = null;
      // Construir la URL completa con el contexto y el token
@@ -70,7 +70,7 @@ public class EmailService {
      // Construir la URL completa con el contexto y el token
        
         htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
-                .replace("[[${password}]]", usuario.getPassword())
+                .replace("[[${password}]]", password)
                 .replace("[[${username}]]", usuario.getUserName())
                 .replace("[[${changePasswordLink}]]", changePasswordLink);
         
