@@ -11,6 +11,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import pe.gob.sunass.vma.configuration.ConfigProperties;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
+import pe.gob.sunass.vma.model.Usuario;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -75,6 +76,30 @@ public class EmailService {
         
         helper.setTo(usuario.getCorreo());
         helper.setSubject("Credenciales VMA");
+        helper.setText(htmlContent, true);
+        mailSender.send(mimeMessage);
+    }
+
+    public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
+        InputStream inputStream = null;
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+        inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template-actualizar-token.html");
+        if (inputStream == null) {
+            throw new IOException("No se pudo encontrar la plantilla HTML en el classpath: email/mail-template-actualizar-token.html");
+        }
+
+        String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        String changePasswordLink = String.format("%s/recuperar-password/%s", appUrl, token);
+
+        // Construir la URL completa con el contexto y el token
+        htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
+                .replace("[[${changePasswordLink}]]", changePasswordLink);
+
+        helper.setTo(usuario.getCorreo());
+        helper.setSubject("Cambiar contraseña VMA");
         helper.setText(htmlContent, true);
         mailSender.send(mimeMessage);
     }

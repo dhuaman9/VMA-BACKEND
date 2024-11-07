@@ -471,4 +471,12 @@ public class UsuarioService {
 		tokenDB.setCompletado(true);
 		tokenPasswordService.save(tokenDB);
 	}
+
+	@org.springframework.transaction.annotation.Transactional
+	public void actualizarTokenPasswordUsuario(Integer userId) throws Exception {
+		Usuario user = usuarioRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+		String token = tokenPasswordService.actualizarTiempoToken(user.getId());
+		emailService.enviarMailActualizarToken(user, token);
+	}
 }
