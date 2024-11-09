@@ -1,5 +1,6 @@
 package pe.gob.sunass.vma.service;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 
+import javax.mail.MessagingException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
@@ -179,6 +181,7 @@ public class UsuarioService {
 			usuario.setEstado(new Boolean(true));
 			usuario.setCreatedAt(new Date());
 			usuario.setUpdatedAt(null);
+			usuario.setPasswordCambiado(false); //el usuario no podra  iniciar sersion, sin haber cambiado su clave.
 
 		}
 
@@ -186,9 +189,9 @@ public class UsuarioService {
 
 		if(usuario.getTipo().equals("EPS")) {
 			String token = tokenPasswordService.crearToken(usuario);
-			emailService.sendEmail(dto, token);
+			emailService.sendEmail(usuario, dto.getPassword(), token);
 		}
-
+		
 		return UsuarioAssembler.buildDtoDomain(usuario);
 
 	}
@@ -449,7 +452,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) {
+	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -458,7 +461,10 @@ public class UsuarioService {
 		}
 
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuario.setPasswordCambiado(false);
 		usuarioRepository.save(usuario);
+		String token = tokenPasswordService.actualizarTiempoToken(usuario.getId());//SE SUPONE QUE SIEMPRE EXISTIRÁ UN TOKEN AL CREAR EL USUARIO
+		emailService.sendEmail(usuario, dto.getNuevaPassword(), token);
 	}
 
 	@org.springframework.transaction.annotation.Transactional
@@ -467,8 +473,19 @@ public class UsuarioService {
 
 		Usuario usuario = tokenDB.getUsuario();
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuario.setPasswordCambiado(true);
 		usuarioRepository.save(usuario);
 		tokenDB.setCompletado(true);
 		tokenPasswordService.save(tokenDB);
+	}
+
+	@org.springframework.transaction.annotation.Transactional
+	public void actualizarTokenPasswordUsuario(Integer userId) throws Exception {
+		Usuario user = usuarioRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+		String token = tokenPasswordService.actualizarTiempoToken(user.getId());
+		user.setPasswordCambiado(false);
+		usuarioRepository.save(user);
+		emailService.enviarMailActualizarToken(user, token);
 	}
 }

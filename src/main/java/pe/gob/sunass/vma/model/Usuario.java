@@ -81,6 +81,9 @@ public class Usuario implements UserDetails{
 	@Column(name="updated_at", nullable=true)
 	private Date updatedAt;
 
+	@Column(name = "password_cambiado")
+	private Boolean passwordCambiado;
+
 	public Integer getId() {
 		return id;
 	}
@@ -238,7 +241,11 @@ public class Usuario implements UserDetails{
 		this.empresa = empresa;
 	}
 
+	public Boolean getPasswordCambiado() {
+		return passwordCambiado;
+	}
 
-	
-
+	public void setPasswordCambiado(Boolean passwordCambiado) {
+		this.passwordCambiado = passwordCambiado;
+	}
 }

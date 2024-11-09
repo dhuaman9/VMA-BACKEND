@@ -37,6 +37,14 @@ public class GlobalExceptionHandler {
 	     return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
       
     }
+
+    @ExceptionHandler(PasswordNoCambiadoException.class)
+    public ResponseEntity<?> handleFileConflictException(PasswordNoCambiadoException ex) {
+        logger.info("PASSWORD_NO_CAMBIADO_EXCEPTION : PasswordNoCambiadoException"+ ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponseToken("PASSWORD_NO_CAMBIADO_EXCEPTION", ex.getMessage(), ex.getToken());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+
+    }
     
     
 	@ExceptionHandler(LocalNotFoundException.class)
@@ -85,6 +93,18 @@ public class GlobalExceptionHandler {
 
         public void setMessage(String message) {
             this.message = message;
+        }
+    }
+
+    public static class ErrorResponseToken extends ErrorResponse {
+        private final String token;
+        public ErrorResponseToken(String code, String message, String token) {
+            super(code, message);
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
         }
     }
     

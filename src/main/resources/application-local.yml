@@ -61,6 +61,7 @@ myapp:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     
   app-front-url: http://localhost:4200/#
+  dias-expiracion: 2
 
 cors:
   urls: 

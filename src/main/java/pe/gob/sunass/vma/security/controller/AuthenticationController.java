@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import pe.gob.sunass.vma.exception.LocalNotFoundException;
+import pe.gob.sunass.vma.exception.PasswordNoCambiadoException;
 import pe.gob.sunass.vma.security.dto.AuthenticationRequestDTO;
 import pe.gob.sunass.vma.security.dto.AuthenticationResponseDTO;
 import pe.gob.sunass.vma.security.dto.JwtTokenDTO;
@@ -49,6 +50,10 @@ public class AuthenticationController {
 			return response;
 	        
 		} catch (Exception ex) {
+
+			if(ex instanceof PasswordNoCambiadoException) {
+				throw new PasswordNoCambiadoException(ex.getMessage(), ((PasswordNoCambiadoException) ex).getToken());
+			}
 
 			if (ex instanceof InternalAuthenticationServiceException)
 				return ResponseEntity.error(DefaultMessage.Error.customMessage(ex.getMessage()));

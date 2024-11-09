@@ -10,4 +10,7 @@ public interface TokenPasswordRepository extends JpaRepository<TokenPassword, In
 
     @Query("FROM TokenPassword t WHERE t.token = :token")
     Optional<TokenPassword> findByToken(String token);
+
+    @Query("FROM TokenPassword t WHERE t.usuario.id = :userId")
+    Optional<TokenPassword> findByUserId(Integer userId);
 }
