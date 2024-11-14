@@ -146,8 +146,9 @@ public class ReporteService {
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
 
-        double promedio=((double) sumaTotalInspeccionadosAllEPS.get()/sumaTotalIdentificadosAllEPS.get())*100;
-        
+        double promedio = (sumaTotalIdentificadosAllEPS.get() != 0)
+                ? ((double) sumaTotalInspeccionadosAllEPS.get() / sumaTotalIdentificadosAllEPS.get()) * 100
+                : 0.0;
        // listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, sumaPorcentaje / listaChart.size()));
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
 
@@ -189,8 +190,9 @@ public class ReporteService {
 
         });
 
-        double promedio=((double) sumaTotalDiagramaFlujoAllEPS.get()/sumaTotalInspeccionadosAllEPS.get())*100;
-
+        double promedio = (sumaTotalDiagramaFlujoAllEPS.get() != 0)
+                ? ((double) sumaTotalDiagramaFlujoAllEPS.get() / sumaTotalInspeccionadosAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
 
         return listaChart;
@@ -242,13 +244,17 @@ public class ReporteService {
 
             sumaTotalUNDPresentaronDiagramaAllEPS.addAndGet(totalPresentaronDiagrama); // suma total de  UND a los que se le ha solicitado el diagrama de flujo , de todas las EPS
             sumaTotalUNDSolicitaronDiagramaAllEPS.addAndGet(totalSolicitaronDiagrama);// suma total de UND Inspeccionados, de todas las EPS
-            
-            double porcentaje = ((double) totalPresentaronDiagrama / totalSolicitaronDiagrama) * 100;
+
+            double porcentaje = (totalPresentaronDiagrama != 0)
+                    ? ((double) totalPresentaronDiagrama / totalSolicitaronDiagrama) * 100
+                    : 0.0;
+
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
 
-        double promedio=((double) sumaTotalUNDPresentaronDiagramaAllEPS.get()/sumaTotalUNDSolicitaronDiagramaAllEPS.get())*100;
-
+        double promedio = (sumaTotalUNDPresentaronDiagramaAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDPresentaronDiagramaAllEPS.get() / sumaTotalUNDSolicitaronDiagramaAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio ));
 
         return listaChart;
@@ -315,9 +321,10 @@ public class ReporteService {
             sumaTotalUNDInscritosAllEPS.addAndGet(totalUNDInscritos);
             
         });
-        
-        double promedio=((double) sumaTotalUNDCajaRegistroAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
-        
+
+        double promedio = (sumaTotalUNDCajaRegistroAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDCajaRegistroAllEPS.get() / sumaTotalUNDInscritosAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         
         return listaChart;
@@ -350,8 +357,9 @@ public class ReporteService {
             
         });
 
-        double promedio=((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
-
+        double promedio = (sumaTotalUNDTomaMuestraInopinadaAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get() / sumaTotalUNDInscritosAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         return listaChart;
     }
@@ -374,7 +382,9 @@ public class ReporteService {
 
         registrosPorTipo.forEach((tipo, lista) -> {
             Integer sumaTotalPorTipoEPSTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_total_muestras_inopinadas());
-            double porcentaje = ((double) sumaTotalPorTipoEPSTomasMuestraInopinadas / sumaTotalTomasMuestraInopinadas) * 100;
+            double porcentaje = (sumaTotalPorTipoEPSTomasMuestraInopinadas != 0)
+                    ? ((double) sumaTotalPorTipoEPSTomasMuestraInopinadas / sumaTotalTomasMuestraInopinadas) * 100
+                    : 0.0;
             listaTotalTomasMuestraInopinadas.add(
                     new PieChartBasicoDto(tipo, porcentaje)
             );
@@ -401,7 +411,9 @@ public class ReporteService {
                     .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada());
             Integer totalUNDParametroAnexo1 = respuestaVMARepository
                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo1());
-            double porcentaje = ((double) totalUNDParametroAnexo1 / totalUNDTomaMuestraInopinada) * 100;
+            double porcentaje = (totalUNDParametroAnexo1 != 0)
+                    ? ((double) totalUNDParametroAnexo1 / totalUNDTomaMuestraInopinada) * 100
+                    : 0.0;
             
             sumaTotalUNDTomaMuestraInopinadaAllEPS.addAndGet(totalUNDTomaMuestraInopinada); 
             sumaTotalUNDParametroAnexo1AllEPS.addAndGet(totalUNDParametroAnexo1);
@@ -409,8 +421,10 @@ public class ReporteService {
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
 
-        
-        double promedio=((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get()/sumaTotalUNDParametroAnexo1AllEPS.get())*100;
+
+        double promedio = (sumaTotalUNDTomaMuestraInopinadaAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDTomaMuestraInopinadaAllEPS.get() / sumaTotalUNDParametroAnexo1AllEPS.get()) * 100
+                : 0.0;
         
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         return listaChart;
@@ -437,17 +451,18 @@ public class ReporteService {
             		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_facturaron_pago_adicional());
             Integer totalUNDParametroAnexo1 = respuestaVMARepository
                     .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo1());
-            double porcentaje = ((double) totalUNDFacturaronPagoAdicional / totalUNDParametroAnexo1) * 100;
-            
+            double porcentaje = (totalUNDFacturaronPagoAdicional != 0)
+                    ? ((double) totalUNDFacturaronPagoAdicional / totalUNDParametroAnexo1) * 100
+                    : 0.0;
             sumaTotalUNDFacturaronPagoAdicionalAllEPS.addAndGet(totalUNDFacturaronPagoAdicional); 
             sumaTotalUNDParametroAnexo1AllEPS.addAndGet(totalUNDParametroAnexo1);
                         
             listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
         });
-        
-       
-        double promedio=((double) sumaTotalUNDFacturaronPagoAdicionalAllEPS.get()/sumaTotalUNDParametroAnexo1AllEPS.get())*100;
 
+        double promedio = (sumaTotalUNDFacturaronPagoAdicionalAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDFacturaronPagoAdicionalAllEPS.get() / sumaTotalUNDParametroAnexo1AllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         
         return listaChart;
@@ -479,17 +494,20 @@ public class ReporteService {
                		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_realizaron_pago_adicional());
                Integer totalUNDFacturaronPagoAdicional = respuestaVMARepository
                        .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_facturaron_pago_adicional());
-               
-               double porcentaje = ((double) totalUNDRealizaronPagoAdicional / totalUNDFacturaronPagoAdicional) * 100;
-               
+
+               double porcentaje = (totalUNDRealizaronPagoAdicional != 0)
+                       ? ((double) totalUNDRealizaronPagoAdicional / totalUNDFacturaronPagoAdicional) * 100
+                       : 0.0;
                sumaTotalUNDRealizaronPagoAdicionalAllEPS.addAndGet(totalUNDRealizaronPagoAdicional); 
                sumaTotalUNDFacturaronPagoAdicionalAllEPS.addAndGet(totalUNDFacturaronPagoAdicional);
                
                listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
            });
-           
 
-           double promedio=((double) sumaTotalUNDRealizaronPagoAdicionalAllEPS.get()/sumaTotalUNDFacturaronPagoAdicionalAllEPS.get())*100;
+            double promedio = (sumaTotalUNDRealizaronPagoAdicionalAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDRealizaronPagoAdicionalAllEPS.get() / sumaTotalUNDFacturaronPagoAdicionalAllEPS.get()) * 100
+                : 0.0;
+
            listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio ));
            return listaChart;
     
@@ -520,8 +538,9 @@ public class ReporteService {
             		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
             Integer totalUNDTomaMuestraInopinada = respuestaVMARepository
                     .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_und_toma_muestra_inopinada());
-            double porcentaje = ((double) totalUNDSobrepasanParametroAnexo2 / totalUNDTomaMuestraInopinada) * 100;
-           
+            double porcentaje = (totalUNDSobrepasanParametroAnexo2 != 0)
+                    ? ((double) totalUNDSobrepasanParametroAnexo2 / totalUNDTomaMuestraInopinada) * 100
+                    : 0.0;
             sumaTotalUNDSobrepasanParametroAnexo2AllEPS.addAndGet(totalUNDSobrepasanParametroAnexo2); 
             sumaTotalUNDTomaMuestraInopinadaAllEPS.addAndGet(totalUNDTomaMuestraInopinada);
             
@@ -531,9 +550,10 @@ public class ReporteService {
 //        double sumaPorcentaje = listaChart
 //                .stream()
 //                .mapToDouble(BarChartBasicoDto::getValue).sum();
-        
-        double promedio=((double) sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get()/sumaTotalUNDTomaMuestraInopinadaAllEPS.get())*100;
-        
+
+        double promedio = (sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get() != 0)
+                ? ((double) sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get() / sumaTotalUNDTomaMuestraInopinadaAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         
         return listaChart;
@@ -565,17 +585,19 @@ public class ReporteService {
              		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_otorgado_plazo_adicional());
              Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
                      .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
-             double porcentaje = ((double) totalUNDPlazoAdicional / totalUNDSobrepasanParametroAnexo2) * 100;
-             
+
+             double porcentaje = (totalUNDPlazoAdicional != 0)
+                     ? ((double) totalUNDPlazoAdicional / totalUNDSobrepasanParametroAnexo2) * 100
+                     : 0.0;
              sumaTotalUNDPlazoAdicionalAllEPS.addAndGet(totalUNDPlazoAdicional); 
              sumaTotalUNDSobrepasanParametroAnexo2AllEPS.addAndGet(totalUNDSobrepasanParametroAnexo2);
              
              listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
          });
-         
-    
-         double promedio=((double) sumaTotalUNDPlazoAdicionalAllEPS.get()/sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get())*100;
-         
+
+        double promedio = (sumaTotalUNDPlazoAdicionalAllEPS.get() != 0)
+                ? ((double) sumaTotalUNDPlazoAdicionalAllEPS.get() / sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get()) * 100
+                : 0.0;
          listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
          return listaChart;
   
@@ -602,8 +624,10 @@ public class ReporteService {
               		.getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_suscrito_plazo_otorgado());
               Integer totalUNDSobrepasanParametroAnexo2 = respuestaVMARepository
                       .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_sobrepasan_parametro_anexo2());
-              double porcentaje = ((double) totalUNDSuscritoPlazo / totalUNDSobrepasanParametroAnexo2) * 100;
-              
+
+              double porcentaje = (totalUNDSuscritoPlazo != 0)
+                      ? ((double) totalUNDSuscritoPlazo / totalUNDSobrepasanParametroAnexo2) * 100
+                      : 0.0;
               sumaTotalUNDSuscritoPlazoAllEPS.addAndGet(totalUNDSuscritoPlazo); 
               sumaTotalUNDSobrepasanParametroAnexo2AllEPS.addAndGet(totalUNDSobrepasanParametroAnexo2);
               
@@ -612,9 +636,10 @@ public class ReporteService {
 //          double sumaPorcentaje = listaChart
 //                  .stream()
 //                  .mapToDouble(BarChartBasicoDto::getValue).sum();
-          
-          double promedio=((double) sumaTotalUNDSuscritoPlazoAllEPS.get()/sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get())*100;
-          
+
+          double promedio = (sumaTotalUNDSuscritoPlazoAllEPS.get() != 0)
+                  ? ((double) sumaTotalUNDSuscritoPlazoAllEPS.get() / sumaTotalUNDSobrepasanParametroAnexo2AllEPS.get()) * 100
+                  : 0.0;
           listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
           
           return listaChart;
@@ -640,16 +665,18 @@ public class ReporteService {
                		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_nro_reclamos_recibidos());
                Integer totalUNDInscritos = respuestaVMARepository
                        .getSumaTotalRespuestaAlternativaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_alternativa_und_inscritos());
-               double porcentaje = ((double) totalReclamosRecibidosVMA / totalUNDInscritos) * 100;
-               
+               double porcentaje = (totalReclamosRecibidosVMA != 0)
+                       ? ((double) totalReclamosRecibidosVMA / totalUNDInscritos) * 100
+                       : 0.0;
                sumaTotalReclamosRecibidosVMAAllEPS.addAndGet(totalReclamosRecibidosVMA); 
                sumaTotalUNDInscritosAllEPS.addAndGet(totalUNDInscritos);
                
                listaChart.add(new BarChartBasicoDto(tipo, porcentaje));
            });
 
-           double promedio=((double) sumaTotalReclamosRecibidosVMAAllEPS.get()/sumaTotalUNDInscritosAllEPS.get())*100;
-           
+        double promedio = (sumaTotalReclamosRecibidosVMAAllEPS.get() != 0)
+                ? ((double) sumaTotalReclamosRecibidosVMAAllEPS.get() / sumaTotalUNDInscritosAllEPS.get()) * 100
+                : 0.0;
            listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
            return listaChart;
     
@@ -676,8 +703,9 @@ public class ReporteService {
             		.getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista), preguntasAlternativasVMA.getId_pregunta_nro_reclamos_fundados());
             Integer totalReclamosRecibidosVMA = respuestaVMARepository
                     .getSumatotalRespuestaPorRegistros(mapToIdsRegistrosVma(lista),preguntasAlternativasVMA.getId_pregunta_nro_reclamos_recibidos());
-            double porcentaje = ((double) totalReclamosFundadosVMA / totalReclamosRecibidosVMA) * 100;
-            
+            double porcentaje = (totalReclamosFundadosVMA != 0)
+                    ? ((double) totalReclamosFundadosVMA / totalReclamosRecibidosVMA) * 100
+                    : 0.0;
             sumaTotalReclamosFundadosVMAAllEPS.addAndGet(totalReclamosFundadosVMA); 
             sumaTotalReclamosRecibidosVMAAllEPS.addAndGet(totalReclamosRecibidosVMA);
             
@@ -686,9 +714,10 @@ public class ReporteService {
 //        double sumaPorcentaje = listaChart
 //                .stream()
 //                .mapToDouble(BarChartBasicoDto::getValue).sum();
-        
-        double promedio=((double) sumaTotalReclamosFundadosVMAAllEPS.get()/sumaTotalReclamosRecibidosVMAAllEPS.get())*100;
-        
+
+        double promedio = (sumaTotalReclamosFundadosVMAAllEPS.get() != 0)
+                ? ((double) sumaTotalReclamosFundadosVMAAllEPS.get() / sumaTotalReclamosRecibidosVMAAllEPS.get()) * 100
+                : 0.0;
         listaChart.add(new BarChartBasicoDto(Constants.LABEL_PROMEDIO, promedio));
         return listaChart;
  
