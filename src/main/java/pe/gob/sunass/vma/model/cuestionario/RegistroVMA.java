@@ -61,7 +61,15 @@ public class RegistroVMA implements Serializable {
 	
 	@Column(name="id_usuario_actualizacion", nullable=true)
 	private Integer idUsuarioActualizacion;
-	
+
+	@Column(name = "nombre_completo")
+	private String nombreCompleto;
+
+	@Column(name = "email")
+	private String email;
+
+	@Column(name = "telefono")
+	private String telefono;
 	
 	public Integer getIdRegistroVma() {
 		return idRegistroVma;
@@ -135,6 +143,27 @@ public class RegistroVMA implements Serializable {
 		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
 
+	public String getNombreCompleto() {
+		return nombreCompleto;
+	}
 
-	
+	public void setNombreCompleto(String nombreCompleto) {
+		this.nombreCompleto = nombreCompleto;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTelefono() {
+		return telefono;
+	}
+
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
 }

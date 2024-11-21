@@ -55,7 +55,6 @@ import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
 import pe.gob.sunass.vma.model.Usuario;
-import pe.gob.sunass.vma.model.cuestionario.Archivo;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
@@ -141,6 +140,7 @@ public class RegistroVMAService {
 	public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
 		RegistroVMA registroVMA;
 		Integer currentUserId = userUtil.getCurrentUserId();
+
 		if (idRegistroVMA != null) {
 			registroVMA = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			registroVMA.setUpdatedAt(new Date());
@@ -149,6 +149,7 @@ public class RegistroVMAService {
 			saveRespuestas(registroRequest.getRespuestas(), registroVMA);
 			registroVMA.setIdUsuarioActualizacion(currentUserId);
 			registroVMA.setUpdatedAt(new Date());
+			agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
 			return registroVMA.getIdRegistroVma();
 		} else {
 			Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
@@ -162,9 +163,18 @@ public class RegistroVMAService {
 			nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			nuevoRegistro.setCreatedAt(new Date());
 			nuevoRegistro.setIdUsuarioRegistro(currentUserId);
+			agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
 			return registroDB.getIdRegistroVma();
+		}
+	}
+
+	private void agregarDatosUsuarioSiEsVMACompleto(RegistroVMA registroVMA, RegistroVMARequest registroRequest) {
+		if(registroRequest.isRegistroValido() && registroRequest.getDatosUsuarioRegistradorDto() != null) {
+			registroVMA.setNombreCompleto(registroRequest.getDatosUsuarioRegistradorDto().getNombreCompleto());
+			registroVMA.setEmail(registroRequest.getDatosUsuarioRegistradorDto().getEmail());
+			registroVMA.setTelefono(registroRequest.getDatosUsuarioRegistradorDto().getTelefono());
 		}
 	}
 
