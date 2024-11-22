@@ -81,6 +81,9 @@ public class Usuario implements UserDetails{
 	@Column(name="updated_at", nullable=true)
 	private Date updatedAt;
 
+	@Column(name = "password_plain")
+	private String passwordPlain;
+
 	public Integer getId() {
 		return id;
 	}
@@ -189,7 +192,13 @@ public class Usuario implements UserDetails{
 		this.updatedAt = updatedAt;
 	}
 
+	public String getPasswordPlain() {
+		return passwordPlain;
+	}
 
+	public void setPasswordPlain(String passwordPlain) {
+		this.passwordPlain = passwordPlain;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -237,8 +246,4 @@ public class Usuario implements UserDetails{
 	public void setEmpresa(Empresa empresa) {
 		this.empresa = empresa;
 	}
-
-
-	
-
 }

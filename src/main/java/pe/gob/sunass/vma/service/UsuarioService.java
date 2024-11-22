@@ -170,13 +170,14 @@ public class UsuarioService {
 			usuario.setNombres(dto.getNombres().toUpperCase());
 			usuario.setApellidos(dto.getApellidos().toUpperCase());
 			usuario.setUserName(dto.getUserName().toLowerCase());
+			usuario.setPasswordPlain(dto.getPassword());
 			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
 																			// BCryptPasswordEncoder
 			usuario.setUnidadOrganica("");
 			usuario.setCorreo(dto.getCorreo());
 			usuario.setEmpresa(optEmpresa2.get());
 			usuario.setTelefono(dto.getTelefono());
-			usuario.setEstado(new Boolean(true));
+			usuario.setEstado(Boolean.TRUE);
 			usuario.setCreatedAt(new Date());
 			usuario.setUpdatedAt(null);
 
@@ -184,10 +185,12 @@ public class UsuarioService {
 
 		usuario = this.usuarioRepository.save(usuario);
 
-		if(usuario.getTipo().equals("EPS")) {
-			String token = tokenPasswordService.crearToken(usuario);
-			emailService.sendEmail(dto, token);
-		}
+		//Se genera token y se envía correo para cambiar contraseña
+		//DESHABILITADO POR EL MOMENTO
+//		if(usuario.getTipo().equals("EPS")) {
+//			String token = tokenPasswordService.crearToken(usuario);
+//			emailService.sendEmail(dto, token);
+//		}
 
 		return UsuarioAssembler.buildDtoDomain(usuario);
 
@@ -225,9 +228,11 @@ public class UsuarioService {
 					emailService.sendEmail(dto, token);
 				}*/
 				//.....
-
 				
 				if (!dto.getPassword().equals(usuario.getPassword())) {
+					if(usuario.getTipo().equals("EPS")) {
+						usuario.setPasswordPlain(dto.getPassword());
+					}
 					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 				}
 			}
