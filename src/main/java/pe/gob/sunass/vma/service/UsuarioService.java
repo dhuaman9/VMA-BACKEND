@@ -2,11 +2,7 @@ package pe.gob.sunass.vma.service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -146,8 +142,8 @@ public class UsuarioService {
 
 			usuario.setTipo(Constants.EMPRESA_SUNASS);
 			usuario.setRole(optRole.get());
-			usuario.setNombres(dto.getNombres().toUpperCase());
-			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
+			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
 			usuario.setPassword("");// no se registra, sino se valida por el AD
 
@@ -167,8 +163,8 @@ public class UsuarioService {
 
 			usuario.setTipo(dto.getTipo());
 			usuario.setRole(optRole.get());
-			usuario.setNombres(dto.getNombres().toUpperCase());
-			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
+			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
 			usuario.setPasswordPlain(dto.getPassword());
 			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
