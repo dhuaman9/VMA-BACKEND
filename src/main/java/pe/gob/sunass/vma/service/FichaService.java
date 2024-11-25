@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.service;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +11,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.FichaAssembler;
@@ -275,5 +276,36 @@ public class FichaService {
 	    }
 
 	  }
+	  
+	  /**
+	   * expresiones cron
+	   *   1.- 0 0 0 26 12 *    A las 12:00 del 26 de diciembre de cada año  -> para produccion
+	   *   2.- 0 0 0 23 11 *    A las 12:00 del 23 de noviembre
+	   *   3.- 0 * * * * *  cada minuto
+	   *   4.-  0 * /2 * * * *    cada 2  minutos
+	   */
+	  @Scheduled(cron = " 0 0 0 23 11 * ")  // para prueba se usa :  0 */2 * * * *    es cda 2 minutos
+	    public void registrarFichaRegistroProximoAnio() {  // para registrar el proximo trimestre del proximo año : del 01 enero al 31 de marzo.
+		  int proximoAnio = Year.now().getValue() + 1;
+
+	        LocalDate fechaInicio = LocalDate.of(proximoAnio, 1, 1);
+	        LocalDate fechaFin = LocalDate.of(proximoAnio, 3, 31);
+
+	        // Crea una instancia de FichaRegistro y asigna valores
+	        FichaRegistro fichaRegistro = new FichaRegistro();
+	        fichaRegistro.setAnio(String.valueOf(Year.now().getValue()));
+	        fichaRegistro.setFechaInicio(fechaInicio);
+	        fichaRegistro.setFechaFin(fechaFin);
+	        fichaRegistro.setCreatedAt(new Date()); //dato de auditoria
+	      
+
+	        // Guarda el registro en la base de datos
+	        fichaRepository.save(fichaRegistro);
+
+	        System.out.println("Trimestre registrado: " + fichaRegistro);
+		  
+	  }
+	  
+	  
 	  
 }

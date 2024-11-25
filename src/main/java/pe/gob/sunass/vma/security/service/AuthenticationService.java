@@ -38,8 +38,8 @@ public class AuthenticationService {
     @Autowired
     private JWTProvider _jwtProvider;
 
-	@Autowired
-    private TokenPasswordService tokenPasswordService;
+//	@Autowired
+//    private TokenPasswordService tokenPasswordService;
 
     public AuthenticationResponseDTO login(AuthenticationRequestDTO authRequest) {
     	
@@ -53,10 +53,10 @@ public class AuthenticationService {
     	
         Usuario user = this.findByUsername(userName).get();
 
-		if(Boolean.FALSE.equals(user.getPasswordCambiado())) {
-			TokenPassword token = tokenPasswordService.findTokenByUserId(user.getId());
-			throw new PasswordNoCambiadoException("El usuario no ha cambiado su contraseña", token.getToken());
-		}
+//		if(Boolean.FALSE.equals(user.getPasswordCambiado())) {
+//			TokenPassword token = tokenPasswordService.findTokenByUserId(user.getId());
+//			throw new PasswordNoCambiadoException("El usuario no ha cambiado su contraseña", token.getToken());
+//		}
 
         String jwt = _jwtProvider.generateToken(user);
 

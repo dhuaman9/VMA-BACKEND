@@ -137,7 +137,7 @@ public class RegistroVMAController {
 
 	 
 	 @GetMapping("/reporte-registros-vma")
-	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
 	 public ResponseEntity<byte[]> descargarReporteVMA(
 	         @RequestParam(required = false) List<Integer> idsVma,
 	         @RequestParam(required = false) Integer eps,
@@ -173,7 +173,7 @@ public class RegistroVMAController {
 	 
 	 
 //	 @GetMapping("/reporte-registros-vma")
-//	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+//	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
 //	 public ResponseEntity<byte[]> generarExcel(
 //			 @RequestParam(required = false) List<Integer> idsVma) {
 //		 ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma);
@@ -187,7 +187,7 @@ public class RegistroVMAController {
 	 
 	 //por el momento en desuso
 	/* @GetMapping("/reporte-eps-no-registraron-vma")
-	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DAP','CONSULTOR')")
+	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
 	 public ResponseEntity<byte[]> descargaReporteNoRegistraronVMA(
 			 @RequestParam(required = false) List<Integer> idsVma) {
 		 ByteArrayInputStream byteArrayExcel = excelService

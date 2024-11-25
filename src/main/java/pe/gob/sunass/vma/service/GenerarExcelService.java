@@ -173,59 +173,7 @@ public class GenerarExcelService {
     }
     
     
-    // genera otro excel de EPS sin registro. Por ahora en desuso
-   /* public ByteArrayInputStream generarExcelEPSSinRegistro() { // genera otro excel , pero ya no es necesario
-    	
-        List<Object[]> missingFichaRegistros = empresaRepository.findMissingFichaRegistros();  
-
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("Registros VMA");
-
-            Row headerRow = sheet.createRow(0);
-            List<String> headersList = new ArrayList<>(Arrays.asList("N°", "Empresa EPS","Tamaño", "Estado", "Año" , "Periodo de registro"));
-
-
-            CellStyle headerStyle = workbook.createCellStyle();
-            headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-            Font font = workbook.createFont();
-            font.setColor(IndexedColors.WHITE.getIndex());
-            headerStyle.setFont(font);
-
-            CellStyle centeredStyle = workbook.createCellStyle();
-            centeredStyle.setAlignment(HorizontalAlignment.CENTER);
-
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-            int rowIdx = 1;
-           
-            SimpleDateFormat formatFechaInicioFin = new SimpleDateFormat("dd-MM-yyyy");
-            	
-            	 for (Object[] item: missingFichaRegistros) {
-            		 Row row = sheet.createRow(rowIdx++);
-                     agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx-1));  // correlativo  - N°
-                     agregarCelda(1, row, centeredStyle, (String) item[0]);   // EPS
-                     agregarCelda(2, row, centeredStyle, (String) item[1]);   //tamanio
-                     agregarCelda(3, row, centeredStyle, Constants.ESTADO_SIN_REGISTRO); //  Estado
-                     agregarCelda(4, row, centeredStyle, (String) item[2]); //  anio
-                     agregarCelda(5, row, centeredStyle, formatFechaInicioFin.format(item[3]) +"  al  " +formatFechaInicioFin.format(item[4]) );  //periodo de registro
-                 }
-            	
-            for (int i = 0; i < headersList.size(); i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headersList.get(i));
-                cell.setCellStyle(headerStyle);
-            }
-
-            workbook.write(out);
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("Error al generar el excel" + e.getMessage());
-        }
-    }*/
-
-
-
+   
     private String getRepuesta(RespuestaDTO respuestaDTO) {
         return Objects.nonNull(respuestaDTO) ? respuestaDTO.getRespuesta() : " ";
     }

@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import pe.gob.sunass.vma.dto.CambiarPasswordUsuarioDTO;
 import pe.gob.sunass.vma.dto.CambioPasswordDTO;
-import pe.gob.sunass.vma.dto.RecuperarPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.UsuarioService;
+import pe.gob.sunass.vma.util.CommonUtil;
 import pe.gob.sunass.vma.util.UserUtil;
+
 
 @RestController
 @RequestMapping("/usuario")
@@ -219,13 +220,13 @@ public class UsuarioController {
 
 	@PostMapping("/cambiar-password-usuario")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) throws Exception {
+	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) {
 		usuarioService.cambiarPasswordUsuario(dto);
 	}
 
-	@PutMapping("/{userId}/actualizar-token-password")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void actualizarTokenPasswordUsuario(@PathVariable Integer userId) throws Exception {
-		usuarioService.actualizarTokenPasswordUsuario(userId);
+	@GetMapping("/generar-clave-aleatoria")
+	public String generarClaveAleatoria() {
+		  int cantidadCaracteres = 15;
+		  return CommonUtil.generarPasswordAleatorio(cantidadCaracteres);
 	}
 }

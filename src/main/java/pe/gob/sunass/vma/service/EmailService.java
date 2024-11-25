@@ -38,19 +38,19 @@ public class EmailService {
     @Value("${myapp.app-front-url}")
     private String appUrl;
     
-	private final JavaMailSender mailSender;   // en local
+//	private final JavaMailSender mailSender;   // en local
     
     @Autowired
 	ConfigProperties propiedadesMail;
 
-    @Autowired
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+//    @Autowired
+//    public EmailService(JavaMailSender mailSender) {  // en local
+//        this.mailSender = mailSender;
+//    }
 
     
     //metodo funcional en dev y producccion
-  /*  public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
+    public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
    	
    	InputStream inputStream = null;
   
@@ -109,12 +109,12 @@ public class EmailService {
                }
            }
        }
-   }*/
+   }
     
     
     
     // metodo para probar en local
-     public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
+     /*public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
         
         InputStream inputStream = null;
      // Construir la URL completa con el contexto y el token
@@ -142,10 +142,10 @@ public class EmailService {
         helper.setSubject("Credenciales VMA");
         helper.setText(htmlContent, true);
         mailSender.send(mimeMessage);
-    }
+    }*/
 
     //en local
-    public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
+    /*public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
         InputStream inputStream = null;
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -167,10 +167,10 @@ public class EmailService {
         helper.setSubject("Cambiar contraseña VMA");
         helper.setText(htmlContent, true);
         mailSender.send(mimeMessage);
-    }
+    }*/
     
     //probar en dev
-    /*public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
+    public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
         InputStream inputStream = null;
 
         String servidorSmtp = propiedadesMail.getSmtphost();
@@ -216,7 +216,7 @@ public class EmailService {
 
         // Enviar el mensaje
         Transport.send(msg);
-    }*/
+    }
     
    
     

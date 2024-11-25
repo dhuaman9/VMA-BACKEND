@@ -27,20 +27,15 @@ public class UsuarioAssembler {
 	      dto.setRole(RoleAssembler.buildDtoModel(usuario.getRole()));
 	      dto.setEmpresa(EmpresaAssembler.buildDtoModel(usuario.getEmpresa()));
 	      dto.setUserName(usuario.getUserName());
-	      dto.setPassword(usuario.getPassword());
 	      dto.setNombres(usuario.getNombres());
 	      dto.setApellidos(usuario.getApellidos());
 	      dto.setTipo(usuario.getTipo());
 	      dto.setUnidadOrganica(usuario.getUnidadOrganica());
 	      dto.setTelefono(usuario.getTelefono());
 	      dto.setCorreo(usuario.getCorreo());
+		  dto.setPasswordPlain(usuario.getPasswordPlain());
 	    //  dto.setEps(usuario.getEps());//quitar
 	      dto.setEstado(usuario.getEstado());
-	      dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
-	    		  usuario.getCreatedAt()));
-	      dto.setUpdatedAt(usuario.getUpdatedAt() == null ? null :
-	                             DateUtil.format(Constants.Format.DateTime.DateTime,
-	                            		 usuario.getUpdatedAt()));
 	    }
 
 	    return dto;

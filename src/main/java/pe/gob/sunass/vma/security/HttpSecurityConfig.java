@@ -37,7 +37,7 @@ public class HttpSecurityConfig {
 						.antMatchers("/", "/home/index", "/swagger/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger.json/**").permitAll()
 						.antMatchers(HttpMethod.POST, "/auth/**").permitAll()
 						.antMatchers( "/tokens/**").permitAll()
-						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DAP", "CONSULTOR")
+						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DF", "CONSULTOR")
 						.anyRequest().authenticated()
 						)
 				.exceptionHandling()

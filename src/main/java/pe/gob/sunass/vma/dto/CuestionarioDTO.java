@@ -6,11 +6,13 @@ public class CuestionarioDTO {
     private Integer idCuestionario;
     private String nombre;
     private List<SeccionDTO> secciones;
+    private DatosUsuarioRegistradorDto datosUsuarioRegistradorDto;
 
-    public CuestionarioDTO(Integer idCuestionario, String nombre, List<SeccionDTO> secciones) {
+    public CuestionarioDTO(Integer idCuestionario, String nombre, List<SeccionDTO> secciones, DatosUsuarioRegistradorDto datosUsuarioRegistradorDto) {
         this.idCuestionario = idCuestionario;
         this.nombre = nombre;
         this.secciones = secciones;
+        this.datosUsuarioRegistradorDto = datosUsuarioRegistradorDto;
     }
 
     public Integer getIdCuestionario() {
@@ -35,5 +37,13 @@ public class CuestionarioDTO {
 
     public void setSecciones(List<SeccionDTO> secciones) {
         this.secciones = secciones;
+    }
+
+    public DatosUsuarioRegistradorDto getDatosUsuarioRegistradorDto() {
+        return datosUsuarioRegistradorDto;
+    }
+
+    public void setDatosUsuarioRegistradorDto(DatosUsuarioRegistradorDto datosUsuarioRegistradorDto) {
+        this.datosUsuarioRegistradorDto = datosUsuarioRegistradorDto;
     }
 }

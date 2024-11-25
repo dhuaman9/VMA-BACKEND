@@ -95,12 +95,12 @@ public class Constants {
 		    final public static class Roles{
 				  
 		    	final public static String ROLE_ADMINISTRADOR_OTI = "ADMINISTRADOR OTI";
-		    	final public static String ROLE_ADMINISTRADOR_DAP = "ADMINISTRADOR DAP";
+		    	final public static String ROLE_ADMINISTRADOR_DF = "ADMINISTRADOR DF";
 		    	final public static String ROLE_REGISTRADOR = "REGISTRADOR";
 		    	final public static String ROLE_CONSULTOR = "CONSULTOR";
 		    	
 				final public static int ID_AdministradorOTI = 1;
-				final public static int ID_AdministradorDAP = 2; 
+				final public static int ID_AdministradorDF = 2; 
 				final public static int ID_Registrador = 3; 
 				final public static int ID_Consultor = 4; 
 				  

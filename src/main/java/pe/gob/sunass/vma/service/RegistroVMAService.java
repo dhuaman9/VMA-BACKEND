@@ -113,11 +113,13 @@ public class RegistroVMAService {
 	public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		List<RegistroVMA> listRegistroVMA = null;
-		if (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_AdministradorDAP
-				|| usuario.getRole().getIdRol() == Constants.Security.Roles.ID_Consultor) {
+		if (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_AdministradorDF
+				|| (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_Consultor && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) {
 			listRegistroVMA = this.registroVMARepository.findAllByOrderByIdRegistroVma();
+			logger.info("usuario.getTipo() consultor - "+usuario.getTipo());
 		} else {
 			listRegistroVMA = this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
+			logger.info("usuario.getTipo() - "+usuario.getTipo());
 		}
 
 		List<RegistroVMADTO> listRegistroVMADTO = RegistroVMAAssembler.buildDtoDomainCollection(listRegistroVMA);
@@ -246,7 +248,7 @@ public class RegistroVMAService {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		Pageable pageable = PageRequest.of(page, pageSize);
 
-		if (usuario.getRole().getIdRol() == 2 || usuario.getRole().getIdRol() == 4) {
+		if (usuario.getRole().getIdRol() == 2 || (usuario.getRole().getIdRol() == 4  && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) {
 			List<Predicate> predicates = getPredicatesSearch(cb, empresaRoot, fichaRegistro, registroVMA, empresaId,
 					estado, startDate, endDate, year, username, search);
 

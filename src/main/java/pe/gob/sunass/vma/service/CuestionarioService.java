@@ -77,17 +77,27 @@ public class CuestionarioService {
         List<RespuestaVMA> respuestas = respuestaVMARepository.findByRegistroVMAId(idRegistroVma);
 
         Cuestionario cuestionario = lastCuestionario.get();
+        DatosUsuarioRegistradorDto datosUsuarioRegistradorDto = null;
+        if(registroVMAOpt.get().getEstado().equals("COMPLETO")) {
+            datosUsuarioRegistradorDto =
+                    new DatosUsuarioRegistradorDto(
+                            registroVMAOpt.get().getNombreCompleto(),
+                            registroVMAOpt.get().getEmail(),
+                            registroVMAOpt.get().getTelefono());
+        }
 
-        return mapToCuestionarioDTO(cuestionario, respuestas, idRegistroVma);
+
+        return mapToCuestionarioDTO(cuestionario, respuestas, idRegistroVma, datosUsuarioRegistradorDto);
     }
 
-    private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas, Integer idRegistroVma){
+    private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas, Integer idRegistroVma, DatosUsuarioRegistradorDto datosUsuarioRegistradorDto){
         return new CuestionarioDTO(cuestionario.getIdCuestionario(),
                 cuestionario.getNombre(),
                 cuestionario.getSecciones()
                         .stream()
                         .map(sec -> mapToSeccionDTO(sec, respuestas, idRegistroVma))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()),
+                datosUsuarioRegistradorDto);
     }
 
     private SeccionDTO mapToSeccionDTO(Seccion seccion, List<RespuestaVMA> respuestas, Integer idRegistroVma) {
