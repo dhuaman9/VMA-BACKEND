@@ -42,24 +42,23 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 			"FROM RespuestaVMA r WHERE r.idPregunta = :idPregunta AND r.registroVMA.idRegistroVma = :idRegistroVMA")
 	boolean isRespuestaArchivoInformacionCompleto(Integer idPregunta, Integer idRegistroVMA);
 
-	//pendiente probar con:
 	// @Query("SELECT SUM(CAST(r.respuesta AS integer)) FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId AND r.idRegistroVma IN :registroVMAIds")
-	@Query(value="SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
+	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumaTrabajadoresDesdicadosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
 	
-	@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_alternativa = :alternativaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
+	@Query(value = "SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_alternativa = :alternativaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumaTotalRespuestaAlternativaPorRegistros(List<Integer> registroVMAIds, Integer alternativaId);
 	
-	@Query(value="SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
+	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalUNDInscritosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
 	
 	//generico
-	@Query(value="SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
+	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalRespuestaPorRegistros(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 	
-	@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVmaIds", nativeQuery = true)
+	@Query(value = "SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVmaIds", nativeQuery = true)
 	BigDecimal getSumaCostoTotalAnualIncurridoVmasCompleto(List<Integer> registroVmaIds, Integer preguntaId);
 
 	@Query("SELECT r.respuesta FROM RespuestaVMA r WHERE r.registroVMA.idRegistroVma = :registroVmaId AND r.idPregunta = :preguntaId")

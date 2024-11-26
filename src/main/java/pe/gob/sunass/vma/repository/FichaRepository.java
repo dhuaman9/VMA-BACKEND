@@ -69,5 +69,8 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	  @Query("SELECT r FROM FichaRegistro r WHERE CURRENT_DATE >= r.fechaInicio AND CURRENT_DATE <= r.fechaFin")
 	  public Optional<FichaRegistro> findOptionalPeriodosActivos();  // obtiene el periodo actual segun la fecha actual
 	  
+	  @Query("SELECT r.anio FROM FichaRegistro r WHERE r.anio = :anio ")
+	  public String findAnioFichaRegistro(@Param("anio") String anio);  // obtiene el anio de la fichaRegistro
+	  
 	  
 }

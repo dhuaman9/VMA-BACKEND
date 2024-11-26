@@ -1,7 +1,6 @@
 package pe.gob.sunass.vma.controller;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +18,7 @@ import pe.gob.sunass.vma.dto.CambioPasswordDTO;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.UsuarioService;
+import pe.gob.sunass.vma.util.CommonUtil;
 import pe.gob.sunass.vma.util.UserUtil;
 
 
@@ -222,5 +222,11 @@ public class UsuarioController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) {
 		usuarioService.cambiarPasswordUsuario(dto);
+	}
+
+	@GetMapping("/generar-clave-aleatoria")
+	public String generarClaveAleatoria() {
+		  int cantidadCaracteres = 15;
+		  return CommonUtil.generarPasswordAleatorio(cantidadCaracteres);
 	}
 }

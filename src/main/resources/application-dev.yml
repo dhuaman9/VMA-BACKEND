@@ -48,10 +48,11 @@ myapp:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   app-front-url: https://appsdev.sunass.gob.pe/vma/#
+  dias-expiracion: 2
 
 
 cors:
-  urls: http://localhost:4501,http://10.10.3.93,http://10.10.3.141,http://appsdev.sunass.gob.pe,https://appsdev.sunass.gob.pe,
+  urls: http://localhost:4501,http://10.10.3.93,http://10.10.3.141,http://appsdev.sunass.gob.pe,https://appsdev.sunass.gob.pe
           
 security:
   jwt:

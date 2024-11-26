@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.service;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +11,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import pe.gob.sunass.vma.assembler.FichaAssembler;
@@ -72,33 +73,53 @@ public class FichaService {
 		      throw new FailledValidationException("La [FechaFin] es obligatorio");
 		}
 	    
+	    else if (dto.getAnio().equals(this.fichaRepository.findAnioFichaRegistro(dto.getAnio())) ) { 
+	    	logger.info("año seleccionado ya esta registrado");
+    		throw new FailledValidationException("El año seleccionado ya esta registrado, debe elegir otro  año.");
+		}
+	    else if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
+            logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
+            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
+        }
+
+	    else if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
+    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
+		}
 	  
+	    else if (!validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+            
+	    	  logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
+	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
+            
+        } 
+	    
 	    List<FichaRegistro> listaFichas = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc();
 	    
 	    if (listaFichas != null && !listaFichas.isEmpty()) {
 	    	
-	    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
-	            logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
-	            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
-	        }
+//	    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
+//	            logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
+//	            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
+//	        }
 
-	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
-	    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
-			}
+//	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
+//	    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
+//			}
+//	    	
 	    	
-	    	if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0 ) {  //dto.getFechaInicio()
-	    		throw new FailledValidationException("No se permite registrar otro periodo en el año actual."); 
-			}
+//	    	if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0 ) {  //dto.getFechaInicio()
+//	    		throw new FailledValidationException("No se permite registrar otro periodo en el año actual."); 
+//			}
 
-	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
-	            
-	        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
-	            
-	        } else {
-	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
-	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
-	        }
-	    
+//	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
+//	            
+//	        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
+//	            
+//	        } else {
+//	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
+//	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
+//	        }
+//	    
         } else {
             logger.info("No hay fichas en la base de datos.");
         }
@@ -275,5 +296,36 @@ public class FichaService {
 	    }
 
 	  }
+	  
+	  /**
+	   * expresiones cron
+	   *   1.- 0 0 0 26 12 *    A las 12:00 del 26 de diciembre de cada año  -> para produccion
+	   *   2.- 0 0 0 23 11 *    A las 12:00 del 23 de noviembre
+	   *   3.- 0 * * * * *  cada minuto
+	   *   4.-  0 * /2 * * * *    cada 2  minutos
+	   */
+	  @Scheduled(cron = " 0 0 0 23 11 * ")  // para prueba se usa :  0 */2 * * * *    es cda 2 minutos
+	    public void registrarFichaRegistroProximoAnio() {  // para registrar el proximo trimestre del proximo año : del 01 enero al 31 de marzo.
+		  int proximoAnio = Year.now().getValue() + 1;
+
+	        LocalDate fechaInicio = LocalDate.of(proximoAnio, 1, 1);
+	        LocalDate fechaFin = LocalDate.of(proximoAnio, 3, 31);
+
+	        // Crea una instancia de FichaRegistro y asigna valores
+	        FichaRegistro fichaRegistro = new FichaRegistro();
+	        fichaRegistro.setAnio(String.valueOf(Year.now().getValue()));
+	        fichaRegistro.setFechaInicio(fechaInicio);
+	        fichaRegistro.setFechaFin(fechaFin);
+	        fichaRegistro.setCreatedAt(new Date()); //dato de auditoria
+	      
+
+	        // Guarda el registro en la base de datos
+	        fichaRepository.save(fichaRegistro);
+
+	        System.out.println("Trimestre registrado: " + fichaRegistro);
+		  
+	  }
+	  
+	  
 	  
 }

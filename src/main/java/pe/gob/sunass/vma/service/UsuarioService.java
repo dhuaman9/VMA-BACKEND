@@ -2,11 +2,7 @@ package pe.gob.sunass.vma.service;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -146,8 +142,8 @@ public class UsuarioService {
 
 			usuario.setTipo(Constants.EMPRESA_SUNASS);
 			usuario.setRole(optRole.get());
-			usuario.setNombres(dto.getNombres().toUpperCase());
-			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
+			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
 			usuario.setPassword("");// no se registra, sino se valida por el AD
 
@@ -164,19 +160,20 @@ public class UsuarioService {
 		} else if (dto.getTipo().equals("EPS")) {
 
 			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
-
+			
 			usuario.setTipo(dto.getTipo());
 			usuario.setRole(optRole.get());
-			usuario.setNombres(dto.getNombres().toUpperCase());
-			usuario.setApellidos(dto.getApellidos().toUpperCase());
+			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
+			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
+			usuario.setPasswordPlain(dto.getPassword());
 			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
 																			// BCryptPasswordEncoder
 			usuario.setUnidadOrganica("");
 			usuario.setCorreo(dto.getCorreo());
 			usuario.setEmpresa(optEmpresa2.get());
 			usuario.setTelefono(dto.getTelefono());
-			usuario.setEstado(new Boolean(true));
+			usuario.setEstado(Boolean.TRUE);
 			usuario.setCreatedAt(new Date());
 			usuario.setUpdatedAt(null);
 
@@ -184,10 +181,12 @@ public class UsuarioService {
 
 		usuario = this.usuarioRepository.save(usuario);
 
-		if(usuario.getTipo().equals("EPS")) {
-			String token = tokenPasswordService.crearToken(usuario);
-			emailService.sendEmail(dto, token);
-		}
+		//Se genera token y se envía correo para cambiar contraseña
+		//DESHABILITADO POR EL MOMENTO
+//		if(usuario.getTipo().equals("EPS")) {
+//			String token = tokenPasswordService.crearToken(usuario);
+//			emailService.sendEmail(dto, token);
+//		}
 
 		return UsuarioAssembler.buildDtoDomain(usuario);
 
@@ -225,9 +224,11 @@ public class UsuarioService {
 					emailService.sendEmail(dto, token);
 				}*/
 				//.....
-
 				
 				if (!dto.getPassword().equals(usuario.getPassword())) {
+					if(usuario.getTipo().equals("EPS")) {
+						usuario.setPasswordPlain(dto.getPassword());
+					}
 					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 				}
 			}
@@ -236,6 +237,16 @@ public class UsuarioService {
 				if (!dto.getTipo().equals(usuario.getTipo())) {
 					usuario.setTipo(dto.getTipo());
 				}
+			}
+			if (dto.getEmpresa() != null && dto.getEmpresa().getIdEmpresa()!= null) {
+				
+				Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getEmpresa().getIdEmpresa());
+
+				if (!optEmpresa.isPresent()) {
+					throw new Exception(" la empresa no existe");
+				}
+				usuario.setEmpresa(optEmpresa.get());
+				
 			}
 			if (dto.getNombres() != null && !dto.getNombres().isEmpty()) {
 				if (!dto.getNombres().equals(usuario.getNombres())) {

@@ -1,17 +1,22 @@
 package pe.gob.sunass.vma.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.TokenPassword;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.repository.TokenPasswordRepository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 public class TokenPasswordService {
     private final TokenPasswordRepository tokenPasswordRepository;
+
+    @Value("${myapp.dias-expiracion}")
+    private int dias_expiracion;
 
     @Autowired
     public TokenPasswordService(TokenPasswordRepository tokenPasswordRepository) {
@@ -21,15 +26,30 @@ public class TokenPasswordService {
     public String crearToken(Usuario usuario) {
         TokenPassword tokenPassword = new TokenPassword();
         tokenPassword.setToken(generarToken());
-        tokenPassword.setFechaExpiracion(null);
+        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion));//cambiar a plusMinutes para probar local
         tokenPassword.setUsuario(usuario);
         tokenPassword.setCompletado(false);
         tokenPasswordRepository.save(tokenPassword);
         return tokenPassword.getToken();
     }
 
+    public String actualizarTiempoToken(Integer userId) {
+        TokenPassword token = tokenPasswordRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
+
+        token.setCompletado(false);
+        token.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion));
+        return tokenPasswordRepository.save(token).getToken();
+    }
+
     public TokenPassword findTokenByToken(String token) {
-        return tokenPasswordRepository.findByToken(token).orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
+        return tokenPasswordRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
+    }
+
+    public TokenPassword findTokenByUserId(Integer userId) {
+        return tokenPasswordRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
     }
 
     public void save(TokenPassword tokenPassword) {

@@ -11,11 +11,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @SpringBootApplication
 @PropertySource("classpath:alfresco.properties")
+@EnableScheduling
 public class VmaApplication extends SpringBootServletInitializer{
 
 	@Autowired

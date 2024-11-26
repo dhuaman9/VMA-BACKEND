@@ -6,6 +6,7 @@ public class RegistroVMARequest {
     private Integer idEmpresa;
     private boolean registroValido;
     private List<RespuestaDTO> respuestas;
+    private DatosUsuarioRegistradorDto datosUsuarioRegistradorDto;
 
     public RegistroVMARequest(Integer idEmpresa, List<RespuestaDTO> respuestas) {
         this.idEmpresa = idEmpresa;
@@ -34,5 +35,13 @@ public class RegistroVMARequest {
 
     public void setRegistroValido(boolean registroValido) {
         this.registroValido = registroValido;
+    }
+
+    public DatosUsuarioRegistradorDto getDatosUsuarioRegistradorDto() {
+        return datosUsuarioRegistradorDto;
+    }
+
+    public void setDatosUsuarioRegistradorDto(DatosUsuarioRegistradorDto datosUsuarioRegistradorDto) {
+        this.datosUsuarioRegistradorDto = datosUsuarioRegistradorDto;
     }
 }

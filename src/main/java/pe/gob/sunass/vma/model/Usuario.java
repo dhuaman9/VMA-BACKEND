@@ -41,10 +41,10 @@ public class Usuario implements UserDetails{
     @Column(name="tipo", nullable=false)
 	private String tipo;
     
-	@Column(name="nombres")
+	@Column(name="nombres" , nullable=true)
 	private String nombres;
 	
-	@Column(name="apellidos")
+	@Column(name="apellidos" , nullable=true)
 	private String apellidos;
 	
 	@Column(name="username", nullable=false)
@@ -61,13 +61,13 @@ public class Usuario implements UserDetails{
 	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
 	private Empresa empresa;
 
-	@Column(name="unidad_organica")
+	@Column(name="unidad_organica", nullable=true)
 	private String unidadOrganica;
 	
-	@Column(name="correo")
+	@Column(name="correo", nullable=true)
 	private String correo;
 	
-	@Column(name="telefono")
+	@Column(name="telefono", nullable=true)
 	private String telefono;
 	
 	@Column(name="estado",  nullable=false)
@@ -80,6 +80,12 @@ public class Usuario implements UserDetails{
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="updated_at", nullable=true)
 	private Date updatedAt;
+
+//	@Column(name = "password_cambiado")
+//	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña, a traves de emails
+	
+	@Column(name = "password_plain")
+	private String passwordPlain;
 
 	public Integer getId() {
 		return id;
@@ -238,7 +244,15 @@ public class Usuario implements UserDetails{
 		this.empresa = empresa;
 	}
 
+	public String getPasswordPlain() {
+		return passwordPlain;
+	}
+
+	public void setPasswordPlain(String passwordPlain) {
+		this.passwordPlain = passwordPlain;
+	}
 
 	
-
+	
+	
 }

@@ -36,6 +36,7 @@ public class UsuarioDTO  {
 	
 	private Boolean estado;
 	
+	private String passwordPlain;
 
 	@JsonProperty("created_at")
 	private String createdAt;
@@ -156,6 +157,14 @@ public class UsuarioDTO  {
 
 	public void setEstado(Boolean estado) {
 		this.estado = estado;
+	}
+
+	public String getPasswordPlain() {
+		return passwordPlain;
+	}
+
+	public void setPasswordPlain(String passwordPlain) {
+		this.passwordPlain = passwordPlain;
 	}
 
 	
