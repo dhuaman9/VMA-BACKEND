@@ -52,27 +52,7 @@ public class ArchivosController {
 		}
 	}
 	    
-//	@PutMapping("/{id}")  //dhr se usa? 
-//    public ResponseEntity<ArchivoDTO> updateFile(@PathVariable("id") Integer archivoId,
-//                                                  @RequestParam("file") MultipartFile file) {
-//        try {
-//            // Llamar al servicio para actualizar el archivo
-//            ArchivoDTO updatedArchivoDTO = alfrescoService.updateFile(archivoId, file);
-//            // Devolver una respuesta con el archivo actualizado
-//            
-//           //return ResponseEntity.ok(updatedArchivoDTO);
-//            return new ResponseEntity<ArchivoDTO>(updatedArchivoDTO,
-//                    HttpStatus.ACCEPTED);
-//        } catch (ConflictException e) {
-//            throw e; // Let the GlobalExceptionHandler handle it
-//        }catch (IOException e) {
-//            
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-	
 
-//  
 	 @GetMapping("/{nodeId}/download")
 	  public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
 		 	return alfrescoService.downloadFile(nodeId);

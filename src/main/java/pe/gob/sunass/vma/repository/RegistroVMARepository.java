@@ -1,7 +1,6 @@
 package pe.gob.sunass.vma.repository;
 
-import java.time.LocalDate;
-import java.util.Date;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -12,14 +11,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import pe.gob.sunass.vma.model.FichaRegistro;
-import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 @Repository
 public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integer>{
 
 	public List<RegistroVMA> findAllByOrderByIdRegistroVma();
+	
+	public Optional<RegistroVMA> findById(Integer id);
 	
 	//paginacion
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
@@ -37,7 +36,8 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa AND r.fichaRegistro.anio = :anio")
 	RegistroVMA findRegistroVmaPorAnhio(Integer idEmpresa, String anio);
 
-	public Optional<RegistroVMA> findById(Integer id);
+	@Query("FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa AND r.idRegistroVma = :idRegistroVma")// pendiente dhr
+	public Optional<RegistroVMA> findByIdItem(Integer idRegistroVma, Integer idEmpresa);
 	
 	@Query("FROM RegistroVMA r WHERE r.idRegistroVma = :id")
 	public Optional<RegistroVMA> findByIdRegistroVma(@Param("id") Integer id);
@@ -79,22 +79,31 @@ public interface RegistroVMARepository  extends JpaRepository<RegistroVMA, Integ
 	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids order by r.idRegistroVma desc")
 	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids); //se usa cuando se descarga excel, segun los ids seleccionados en la tabla.
 	
-	 @Query(value = "SELECT CASE " +
-             "WHEN NOT EXISTS ( " +
-             "    SELECT 1 " +
-             "    FROM vma.ficha_registro fr " +
-             "    WHERE CURRENT_DATE >= fr.fecha_inicio AND CURRENT_DATE <= fr.fecha_fin " +
-             ") " +
-             "OR EXISTS ( " +
-             "    SELECT 1 " +
-             "    FROM vma.registro_vma rv " +
-             "    INNER JOIN vma.ficha_registro fr ON rv.id_ficha_registro = fr.id_ficha_registro " +
-             "    WHERE rv.id_empresa = :idEmpresa " +
-             "    AND rv.fecha_creacion BETWEEN fr.fecha_inicio AND fr.fecha_fin " +
-             ") " +
-             "THEN true " +
-             "ELSE false " +
-             "END AS resultado",  nativeQuery = true)
+	@Query(value = "SELECT CASE " +
+	        "   WHEN EXISTS (" +
+	        "       SELECT 1 " +
+	        "       FROM vma.empresa e " +
+	        "       WHERE e.id_empresa = :idEmpresa " +
+	        "         AND e.estado = false" +
+	        "   ) THEN true " +
+	        "   WHEN NOT EXISTS (" +
+	        "       SELECT 1 " +
+	        "       FROM vma.ficha_registro fr " +
+	        "       WHERE CURRENT_DATE >= fr.fecha_inicio " +
+	        "         AND CURRENT_DATE <= fr.fecha_fin" +
+	        "   ) " +
+	        "   OR EXISTS (" +
+	        "       SELECT 1 " +
+	        "       FROM vma.registro_vma rv " +
+	        "       INNER JOIN vma.ficha_registro fr " +
+	        "           ON rv.id_ficha_registro = fr.id_ficha_registro " +
+	        "       WHERE rv.id_empresa = :idEmpresa " +
+	        "         AND rv.fecha_creacion BETWEEN fr.fecha_inicio AND fr.fecha_fin" +
+	        "   ) THEN true " +
+	        "   ELSE false " +
+	        "END AS resultado", nativeQuery = true)
 	 public boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa);
 	
 }
+
+

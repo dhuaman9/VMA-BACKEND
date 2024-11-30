@@ -24,6 +24,8 @@ import pe.gob.sunass.vma.dto.FichaDTO;
 import pe.gob.sunass.vma.dto.RegistroVMADTO;
 import pe.gob.sunass.vma.dto.RegistroVMAFilterDTO;
 import pe.gob.sunass.vma.dto.RegistroVMARequest;
+import pe.gob.sunass.vma.exception.FailledValidationException;
+import pe.gob.sunass.vma.exception.ForbiddenException;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.security.jwt.JWTProvider;
 import pe.gob.sunass.vma.service.GenerarExcelService;
@@ -64,7 +66,10 @@ public class RegistroVMAController {
 
 	@GetMapping(path = "/activo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getEstadoRegistro(@RequestHeader("Authorization") String token) {
-		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token)); ////para deshabilitar o habilitar el boton de Registrar VMA
+		boolean registroCompletado = registroVMAService.isRegistroCompletado(getUsername(token)); //// para deshabilitar
+																									//// o habilitar el
+																									//// boton de
+																									//// Registrar VMA
 		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
 	}
 
@@ -72,7 +77,6 @@ public class RegistroVMAController {
 	public ResponseEntity<?> getList(@RequestHeader("Authorization") String token) {
 		ResponseEntity<?> response = null;
 
-		
 		try {
 			response = new ResponseEntity<List<RegistroVMADTO>>(
 					this.registroVMAService.findAllOrderById(getUsername(token)), HttpStatus.OK);
@@ -80,27 +84,23 @@ public class RegistroVMAController {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
-		} 
+		}
 
 		return response;
 	}
 
-	
 	@GetMapping("/search")
-	public Page<RegistroVMA> searchRegistroVMA(
-			@RequestParam(required = false) Integer empresaId,
+	public Page<RegistroVMA> searchRegistroVMA(@RequestParam(required = false) Integer empresaId,
 			@RequestParam(required = false) String estado,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
 			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
-			@RequestParam(required = false) String year,
-			@RequestParam(name = "page", defaultValue = "0") Integer page,
+			@RequestParam(required = false) String year, @RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "size", defaultValue = "8") Integer size,
-			@RequestParam(required = false) String search,
-			@RequestHeader("Authorization") String token) {
+			@RequestParam(required = false) String search, @RequestHeader("Authorization") String token) {
 
-		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token), page, size, search);
+		return registroVMAService.searchRegistroVMA(empresaId, estado, startDate, endDate, year, getUsername(token),
+				page, size, search);
 	}
-
 
 	@GetMapping(path = "/findByid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> findById(@PathVariable(name = "id") Integer id) {
@@ -115,11 +115,13 @@ public class RegistroVMAController {
 
 				response = new ResponseEntity<RegistroVMADTO>(dto, HttpStatus.OK);
 			}
+		} catch (ForbiddenException ex) {
+			throw ex;
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
-		} 
+		}
 
 		return response;
 	}
@@ -128,96 +130,62 @@ public class RegistroVMAController {
 		token = token.split(" ")[1];
 		return jwtProvider.extractUsername(token);
 	}
-	
-	 @GetMapping("/filter")   //no se esta utilizando.
-	 public List<RegistroVMA> filterRegistros(RegistroVMAFilterDTO filterDTO) {
-	    return registroVMAService.filterRegistros(filterDTO);
-	 }
 
+	@GetMapping("/filter") // no se esta utilizando.
+	public List<RegistroVMA> filterRegistros(RegistroVMAFilterDTO filterDTO) {
+		return registroVMAService.filterRegistros(filterDTO);
+	}
 
-	 
-	 @GetMapping("/reporte-registros-vma")
-	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
-	 public ResponseEntity<byte[]> descargarReporteVMA(
-	         @RequestParam(required = false) List<Integer> idsVma,
-	         @RequestParam(required = false) Integer eps,
-	         @RequestParam(required = false) String estado,
-	         @RequestParam(required = false) String anio,
-	         @RequestParam(required = false, name="fechaDesde") String fechaDesdeString,
-	         @RequestParam(required = false, name="fechaHasta") String fechaHastaString,
-	         @RequestParam(required = false) String busquedaGlobal) throws ParseException {
-		 
-		 // Conversión de fechas
-		  SimpleDateFormat simpleFormat = new SimpleDateFormat("dd-MM-yyyy");
-		  Date fechaDesde = null;
-		    if (fechaDesdeString != null) {
-		    	fechaDesde = simpleFormat.parse(fechaDesdeString);
-		     
-		    }
+	@GetMapping("/reporte-registros-vma")
+	@PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
+	public ResponseEntity<byte[]> descargarReporteVMA(@RequestParam(required = false) List<Integer> idsVma,
+			@RequestParam(required = false) Integer eps, @RequestParam(required = false) String estado,
+			@RequestParam(required = false) String anio,
+			@RequestParam(required = false, name = "fechaDesde") String fechaDesdeString,
+			@RequestParam(required = false, name = "fechaHasta") String fechaHastaString,
+			@RequestParam(required = false) String busquedaGlobal) throws ParseException {
 
-		   Date fechaHasta = null;
-		    if (fechaHastaString != null) {
-		    	fechaHasta = simpleFormat.parse(fechaHastaString);
-		    	
-		    }
+		// Conversión de fechas
+		SimpleDateFormat simpleFormat = new SimpleDateFormat("dd-MM-yyyy");
+		Date fechaDesde = null;
+		if (fechaDesdeString != null) {
+			fechaDesde = simpleFormat.parse(fechaDesdeString);
 
-	     // Llama al servicio para generar el archivo Excel, pasando los filtros
-	     ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma, eps, estado, anio, fechaDesde, fechaHasta, busquedaGlobal);
+		}
 
-	     // Configurar las cabeceras de respuesta
-	     HttpHeaders headers = new HttpHeaders();
-	     headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+		Date fechaHasta = null;
+		if (fechaHastaString != null) {
+			fechaHasta = simpleFormat.parse(fechaHastaString);
 
-	     return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
-	 }
-	 
-	 
-//	 @GetMapping("/reporte-registros-vma")
-//	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
-//	 public ResponseEntity<byte[]> generarExcel(
-//			 @RequestParam(required = false) List<Integer> idsVma) {
-//		 ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma);
-//		 
-//		 HttpHeaders headers = new HttpHeaders();
-//		 headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx"); //nombre del archivo excel, para descargar el reporte de preguntas y respuestas
-//
-//		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
-//	 }
+		}
 
-	 
-	 //por el momento en desuso
-	/* @GetMapping("/reporte-eps-no-registraron-vma")
-	 @PreAuthorize("hasAnyAuthority('ADMINISTRADOR DF','CONSULTOR')")
-	 public ResponseEntity<byte[]> descargaReporteNoRegistraronVMA(
-			 @RequestParam(required = false) List<Integer> idsVma) {
-		 ByteArrayInputStream byteArrayExcel = excelService
-				 .generarExcelEPSSinRegistro();
-		 
-		 HttpHeaders headers = new HttpHeaders();
-		 headers.add("Content-Disposition", "attachment; filename=eps_no_registraron_vma.xlsx");
+		// Llama al servicio para generar el archivo Excel, pasando los filtros
+		ByteArrayInputStream byteArrayExcel = excelService.generarExcelCuestionario(idsVma, eps, estado, anio,
+				fechaDesde, fechaHasta, busquedaGlobal);
 
-		 return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
-	 }*/
+		// Configurar las cabeceras de respuesta
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=registros_vma.xlsx");
+
+		return ResponseEntity.ok().headers(headers).body(byteArrayExcel.readAllBytes());
+	}
 
 	@PutMapping("/estado-incompleto/{id}")
 	public ResponseEntity<Void> actualizarEstadoIncompleto(@PathVariable Integer id) {
-		 this.registroVMAService.actualizarEstadoIncompleto(id);
+		this.registroVMAService.actualizarEstadoIncompleto(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	 }
-	
-	 @GetMapping("/alerta-para-eps-sin-registrar")
-	    public ResponseEntity<RegistroVMADTO> obtenerRegistroVMASinCompletar() throws Exception {
-		 RegistroVMADTO dto = registroVMAService.obtenerEmpresaSinCompletarRegistroVMA();
+	}
 
-	        if (dto == null) {
-	            
-	            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-	        }
+	@GetMapping("/alerta-para-eps-sin-registrar")
+	public ResponseEntity<RegistroVMADTO> obtenerRegistroVMASinCompletar() throws Exception {
+		RegistroVMADTO dto = registroVMAService.obtenerEmpresaSinCompletarRegistroVMA();
 
-	        return ResponseEntity.ok(dto);
-	    }
-	  
-	
-	
-	
+		if (dto == null) {
+
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+
+		return ResponseEntity.ok(dto);
+	}
+
 }

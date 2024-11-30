@@ -6,7 +6,7 @@ public class Constants {
 
 	final public static String EMPRESA_EPS = "EPS";
 	final public static String EMPRESA_SUNASS = "SUNASS";
-	final public static String TIPO_EMPRESA_NINGUNO = "NINGUNO"; // En caso de empresa Sunass, tipo = NINGUNO 
+	final public static String TIPO_EMPRESA_NINGUNO = "NINGUNO"; // En caso de empresa Sunass, el tipo es : NINGUNO 
 	final public static String EPS_SEDAPAL = "SEDAPAL";
 	final public static String ESTADO_INCOMPLETO = "INCOMPLETO";
 	final public static String ESTADO_COMPLETO = "COMPLETO";
@@ -28,17 +28,6 @@ public class Constants {
 	   final public static java.util.Locale Spanish = new java.util.Locale(Language_Spanish, Country_Peru);
 	 }
 
-//	  final public static class Logger{
-//	    final public static class Class{
-//	      final public static String Initialize  = "Class_Initialize";
-//	      final public static String Finalize    = "Class_Finalize";
-//	    }
-//
-//	    final public static class Method{
-//	      final public static String Initialize = "Method_Initialize";
-//	      final public static String Finalize   = "Method_Finalize";
-//	    }
-//	  }
 
 	  final public static class Format{
 	    final public static class Date{
@@ -107,12 +96,12 @@ public class Constants {
 			}
 	  }
 	  
-	  final public static class Archivos{
+	 /* final public static class Archivos{
 		  
 		  final public static String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 	      final public static String EXCEL_FILENAME = "attachment; filename=registros_vma.xlsx";
 		  
-	  }
+	  }*/
 
 	
 }

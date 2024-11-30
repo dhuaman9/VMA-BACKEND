@@ -166,7 +166,7 @@ public class UsuarioService {
 			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
 			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
-			usuario.setPasswordPlain(dto.getPassword());
+			//usuario.setPasswordPlain(dto.getPassword()); // dhr,  no se utilizara para el registro y cambio de clave
 			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
 																			// BCryptPasswordEncoder
 			usuario.setUnidadOrganica("");
@@ -183,10 +183,11 @@ public class UsuarioService {
 
 		//Se genera token y se envía correo para cambiar contraseña
 		//DESHABILITADO POR EL MOMENTO
-//		if(usuario.getTipo().equals("EPS")) {
-//			String token = tokenPasswordService.crearToken(usuario);
-//			emailService.sendEmail(dto, token);
-//		}
+		if(usuario.getTipo().equals("EPS")) {
+		//	String token = tokenPasswordService.crearToken(usuario);
+			tokenPasswordService.crearToken(usuario);
+//			emailService.sendEmail(dto, token);  // pendiente, no se necesita enviar correo, pero si crear token, para q tenga 5 dias habiles en cambiar su clave.
+		}
 
 		return UsuarioAssembler.buildDtoDomain(usuario);
 
@@ -219,18 +220,25 @@ public class UsuarioService {
 			if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
 				
 				// dhr - envio de correo en caso de cambio de clave
-				/*if(usuario.getTipo().equals("EPS")) {
-					String token = tokenPasswordService.crearToken(usuario);
-					emailService.sendEmail(dto, token);
-				}*/
+				if(usuario.getTipo().equals("EPS")) {
+					//String token = tokenPasswordService.crearToken(usuario);  //antes
+					tokenPasswordService.crearToken(usuario);  //despues
+					//emailService.sendEmail(dto, token);  //no es necesario enviar email
+				}
 				//.....
 				
+				
+//				if (!dto.getPassword().equals(usuario.getPassword())) {
+//					if(usuario.getTipo().equals("EPS")) {
+//						usuario.setPasswordPlain(dto.getPassword());
+//					}
+//					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+//				}
+				
 				if (!dto.getPassword().equals(usuario.getPassword())) {
-					if(usuario.getTipo().equals("EPS")) {
-						usuario.setPasswordPlain(dto.getPassword());
-					}
 					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 				}
+				
 			}
 
 			if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
@@ -460,7 +468,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) {
+	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -469,7 +477,10 @@ public class UsuarioService {
 		}
 
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuario.setPasswordCambiado(false);
 		usuarioRepository.save(usuario);
+		tokenPasswordService.actualizarTiempoToken(usuario.getId()); //dhr retomando
+		//emailService.sendEmail(usuario, dto.getNuevaPassword(), token); nose  utiliza  el envio de correo
 	}
 
 	@org.springframework.transaction.annotation.Transactional
@@ -478,8 +489,24 @@ public class UsuarioService {
 
 		Usuario usuario = tokenDB.getUsuario();
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+		usuario.setPasswordCambiado(true);
 		usuarioRepository.save(usuario);
 		tokenDB.setCompletado(true);
 		tokenPasswordService.save(tokenDB);
 	}
+	
+	@org.springframework.transaction.annotation.Transactional
+	public void actualizarTokenPasswordUsuario(Integer userId) throws Exception {
+		Usuario user = usuarioRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+		
+//		String token = tokenPasswordService.actualizarTiempoToken(user.getId());//antes
+		tokenPasswordService.actualizarTiempoToken(user.getId());//despues
+		
+		user.setPasswordCambiado(false);
+		usuarioRepository.save(user);
+		//emailService.enviarMailActualizarToken(user, token);
+	}
+	
+	
 }

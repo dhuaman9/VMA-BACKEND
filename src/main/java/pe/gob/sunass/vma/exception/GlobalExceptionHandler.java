@@ -57,6 +57,14 @@ public class GlobalExceptionHandler {
                 .body(customError);
     }
 	
+	@ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> ForbiddenException(ForbiddenException ex){
+		
+        logger.info("PERMISO_DENEGADO : NotFoundException"+ ex.getMessage());
+   	 	ErrorResponse errorResponse = new ErrorResponse("ACCESO_DENEGADO", ex.getMessage());
+	    return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+	
 	/*
 	@ExceptionHandler(value = {ExpiredJwtException.class})
 	 public ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException ex, WebRequest request) {

@@ -52,6 +52,7 @@ import pe.gob.sunass.vma.dto.anexos.AnexoReclamosVMADTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRegistroVmaDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoRespuestaSiDTO;
 import pe.gob.sunass.vma.dto.anexos.AnexoTresListadoEPDTO;
+import pe.gob.sunass.vma.exception.ForbiddenException;
 import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
@@ -130,14 +131,25 @@ public class RegistroVMAService {
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO findById(Integer id) throws Exception {
 		RegistroVMADTO dto = null;
-		Optional<RegistroVMA> opt = this.registroVMARepository.findById(id);
+		Usuario usuario = usuarioRepository.findByUserName(userUtil.getCurrentUsername()).orElseThrow();
+		Optional<RegistroVMA> opt=null;
+		if (usuario.getRole().getIdRol()==2 || (usuario.getRole().getIdRol()==4 && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) {  //rol2 es admin DF y rol 4 es consultor
+			opt = this.registroVMARepository.findById(id);
+		}else {
+			opt = this.registroVMARepository.findByIdItem(id, userUtil.getCurrentUserIdEmpresa());
+		}
+	
 
 		if (opt.isPresent()) {
 			RegistroVMA registroVMA = opt.get();
 			dto = RegistroVMAAssembler.buildDtoModel(registroVMA);
-
+			return dto;
 		}
-		return dto;
+		else {
+			logger.info("No esta permitido ver otro ID vma");
+	        throw new ForbiddenException("Permiso denegado , no tiene acceso a otro registro  ");
+	    }
+		//return dto;
 	}
 
 	@Transactional

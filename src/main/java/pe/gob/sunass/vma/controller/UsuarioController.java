@@ -220,8 +220,14 @@ public class UsuarioController {
 
 	@PostMapping("/cambiar-password-usuario")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) {
+	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) throws Exception {
 		usuarioService.cambiarPasswordUsuario(dto);
+	}
+	
+	@PutMapping("/{userId}/actualizar-token-password")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void actualizarTokenPasswordUsuario(@PathVariable Integer userId) throws Exception {
+		usuarioService.actualizarTokenPasswordUsuario(userId);
 	}
 
 	@GetMapping("/generar-clave-aleatoria")

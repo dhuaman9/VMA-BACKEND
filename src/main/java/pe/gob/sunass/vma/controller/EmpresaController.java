@@ -25,152 +25,136 @@ import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.service.EmpresaService;
 
-
 @RestController
 @RequestMapping("/empresa")
 public class EmpresaController {
-	
-	  private static Logger logger = LoggerFactory.getLogger(EmpresaController.class);
-	 
-	  @Autowired
-	  private EmpresaService empresaService;
 
-	  public EmpresaController() {
-	    super();
-	  }
+	private static Logger logger = LoggerFactory.getLogger(EmpresaController.class);
 
-	
-	  @GetMapping(path="/list",produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getList() {
-	    ResponseEntity<?> response = null;
+	@Autowired
+	private EmpresaService empresaService;
 
-	    try {
-	      List<EmpresaDTO> list = this.empresaService.findAll();
+	public EmpresaController() {
+		super();
+	}
 
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
-	      }
-	    }catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+	@GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList() {
+		ResponseEntity<?> response = null;
 
-	    return response;
-	  }
+		try {
+			List<EmpresaDTO> list = this.empresaService.findAll();
 
-		@GetMapping(path = "/listarPaginado", produces = MediaType.APPLICATION_JSON_VALUE)
-		public ResponseEntity<?> getList(
-				@RequestParam(value = "page", defaultValue = "0") int page,
-				@RequestParam(value = "size", defaultValue = "10") int size,
-				@RequestParam(value = "filter", required = false) String filter) {
-
-			ResponseEntity<?> response = null;
-
-			
-
-			try {
-				Pageable pageable = PageRequest.of(page, size);
-				Page<EmpresaDTO> empresaPage;
-
-				if (filter != null && !filter.isEmpty()) {
-					empresaPage = this.empresaService.findByFilter(filter, pageable);
-				} else {
-					empresaPage = this.empresaService.findAll(pageable);
-				}
-
-				if (empresaPage.isEmpty()) {
-					response = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-				} else {
-					response = new ResponseEntity<>(empresaPage, HttpStatus.OK);
-				}
-			} catch (Exception ex) {
-				logger.error(ex.getMessage(), ex);
-				response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-						HttpStatus.INTERNAL_SERVER_ERROR);
+			if (list.size() == 0) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
 			}
-			return response;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
-	  @GetMapping(path="/findbyid/{id}",produces=MediaType.APPLICATION_JSON_VALUE)
-	 
-	  public ResponseEntity<?> findById(@PathVariable(name="id") Integer id) {
-	    ResponseEntity<?> response = null;
-	    
+		return response;
+	}
 
-	    try {
-	    	EmpresaDTO dto = this.empresaService.findById(id, true);
+	@GetMapping(path = "/listarPaginado", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "10") int size,
+			@RequestParam(value = "filter", required = false) String filter) {
 
-	      if (dto == null) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<EmpresaDTO>(dto, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
+		ResponseEntity<?> response = null;
 
-	    return response;
-	  }
+		try {
+			Pageable pageable = PageRequest.of(page, size);
+			Page<EmpresaDTO> empresaPage;
 
-	  @PostMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	
-	  public ResponseEntity<?> registrar(@RequestBody EmpresaDTO request) {
-	    ResponseEntity<?> response = null;
-	    //long startProcess = System.currentTimeMillis();
+			if (filter != null && !filter.isEmpty()) {
+				empresaPage = this.empresaService.findByFilter(filter, pageable);
+			} else {
+				empresaPage = this.empresaService.findAll(pageable);
+			}
 
-	    //logger.info(Constants.Logger.Method.Initialize);
+			if (empresaPage.isEmpty()) {
+				response = new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<>(empresaPage, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return response;
+	}
 
-	    try {
-	    	EmpresaDTO dto = this.empresaService.registrar(request);
-	         response = new ResponseEntity<>(dto,HttpStatus.CREATED);
-	    }
-	    catch (FailledValidationException ex) {  //BadRequestException ex
-	    	
-	    	throw ex;
-	    }
-	    catch (Exception ex) {
-		      logger.error(ex.getMessage(), ex);
-		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
-		 }
-	   
-	    return response;
-	  }
+	@GetMapping(path = "/findbyid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 
-	  @PutMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> update(@RequestBody EmpresaDTO request) {
-	    ResponseEntity<?> response = null;
-	    
-	    try {
-	    	EmpresaDTO dto = this.empresaService.update(request);
+	public ResponseEntity<?> findById(@PathVariable(name = "id") Integer id) {
+		ResponseEntity<?> response = null;
 
-	      if (dto == null) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
-	      }
-	      else {
-	        response = new ResponseEntity<EmpresaDTO>(dto,HttpStatus.ACCEPTED);
-	      }
-	    }
-	    catch (FailledValidationException ex) {  //BadRequestException ex
-	    	
-	    	throw ex;
-	    }
-	    catch (Exception ex) {
-	    	logger.error(ex.getMessage(), ex);
-		      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
+		try {
+			EmpresaDTO dto = this.empresaService.findById(id, true);
 
-	    return response;
-	  }
+			if (dto == null) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<EmpresaDTO>(dto, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
+
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+
+	public ResponseEntity<?> registrar(@RequestBody EmpresaDTO request) {
+		ResponseEntity<?> response = null;
+		
+
+		try {
+			EmpresaDTO dto = this.empresaService.registrar(request);
+			response = new ResponseEntity<>(dto, HttpStatus.CREATED);
+		} catch (FailledValidationException ex) { // BadRequestException ex
+
+			throw ex;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
+
+	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> update(@RequestBody EmpresaDTO request) {
+		ResponseEntity<?> response = null;
+
+		try {
+			EmpresaDTO dto = this.empresaService.update(request);
+
+			if (dto == null) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+			} else {
+				response = new ResponseEntity<EmpresaDTO>(dto, HttpStatus.ACCEPTED);
+			}
+		} catch (FailledValidationException ex) { // BadRequestException ex
+
+			throw ex;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
 
 //	  @DeleteMapping(path="/{id}",
 //	                 produces=MediaType.APPLICATION_JSON_VALUE)

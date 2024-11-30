@@ -81,11 +81,11 @@ public class Usuario implements UserDetails{
 	@Column(name="updated_at", nullable=true)
 	private Date updatedAt;
 
-//	@Column(name = "password_cambiado")
-//	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña, a traves de emails
+	@Column(name = "password_cambiado")
+	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña, a traves de emails
 	
-	@Column(name = "password_plain")
-	private String passwordPlain;
+//	@Column(name = "password_plain")
+//	private String passwordPlain;
 
 	public Integer getId() {
 		return id;
@@ -244,13 +244,21 @@ public class Usuario implements UserDetails{
 		this.empresa = empresa;
 	}
 
-	public String getPasswordPlain() {
-		return passwordPlain;
+	public Boolean getPasswordCambiado() {
+		return passwordCambiado;
 	}
 
-	public void setPasswordPlain(String passwordPlain) {
-		this.passwordPlain = passwordPlain;
+	public void setPasswordCambiado(Boolean passwordCambiado) {
+		this.passwordCambiado = passwordCambiado;
 	}
+
+//	public String getPasswordPlain() {
+//		return passwordPlain;
+//	}
+//
+//	public void setPasswordPlain(String passwordPlain) {
+//		this.passwordPlain = passwordPlain;
+//	}
 
 	
 	

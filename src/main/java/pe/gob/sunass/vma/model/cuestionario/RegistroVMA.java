@@ -63,7 +63,7 @@ public class RegistroVMA implements Serializable {
 	private Integer idUsuarioActualizacion;
 	
 	
-	@Column(name = "nombre_completo")
+	@Column(name = "nombre_completo")  //pendiente de cambiar por bd y en clases , dtos,etc
 	private String nombreCompleto;
 
 	@Column(name = "email")
