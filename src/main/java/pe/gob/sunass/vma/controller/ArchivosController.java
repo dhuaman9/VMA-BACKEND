@@ -15,10 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import pe.gob.sunass.vma.exception.FailledValidationException;
+import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.service.AlfrescoService;
 import pe.gob.sunass.vma.service.RegistroVMAService;
 
@@ -53,12 +56,40 @@ public class ArchivosController {
 	}
 	    
 
+//	 @GetMapping("/{nodeId}/download")
+//	  public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
+//		 	return alfrescoService.downloadFile(nodeId);
+//	  }
+//	 
 	 @GetMapping("/{nodeId}/download")
-	  public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
-		 	return alfrescoService.downloadFile(nodeId);
-	  }
-	 
-	  
+	 public ResponseEntity<Map<String, String>> downloadFile(@PathVariable String nodeId) {
+	     try {
+	    	 logger.info("Llamada al servicio de descarga");
+	         // Llamada al servicio de descarga
+	         return alfrescoService.downloadFile(nodeId);
+	         
+	     } catch (ResourceNotFoundException e) {
+	         // Si el archivo no se encuentra, devolver error 404
+	    	 logger.info(e.getMessage(), e);
+	         Map<String, String> errorResponse = Map.of("message", "File not found");
+	         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	     } catch (HttpClientErrorException | HttpServerErrorException e) {
+	         // Si hay un error en la solicitud HTTP (401, 403, 500, etc.), devolver error con detalles
+	    	 logger.info("HttpClientErrorException | HttpServerErrorException  "+e.getMessage(), e);
+	         Map<String, String> errorResponse = Map.of(
+	             "message", "Error downloading file: " + e.getMessage(),
+	             "status", String.valueOf(e.getStatusCode())
+	         );
+	         return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(e.getStatusCode().value()));
+	     } catch (Exception e) {
+	    	 logger.info("otro error:" + e.getMessage(), e);
+	         // Capturar cualquier otra excepción genérica
+	         Map<String, String> errorResponse = Map.of("message", "Internal Server Error", "error", e.getMessage());
+	         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	     }finally {
+	    	 logger.info("ningun error:");
+	     }
+	 } 
 	  
 	 @DeleteMapping("/{nodeId}")
 	  public ResponseEntity<Void> deleteFile(@PathVariable String nodeId) {

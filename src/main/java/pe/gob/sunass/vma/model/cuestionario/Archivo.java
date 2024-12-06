@@ -41,6 +41,11 @@ public class Archivo  implements Serializable  {
 		@Column(name="username", nullable=false)
 		private String username;
 		
+		@Column(name="id_usuario_registro",  nullable=false)
+		private Integer idUsuarioRegistro;
+		
+	
+
 		@Temporal(TemporalType.TIMESTAMP)
 		@Column(name="fecha_creacion", nullable=false)
 		private Date createdAt;
@@ -104,8 +109,14 @@ public class Archivo  implements Serializable  {
 		public void setIdAlfresco(String idAlfresco) {
 			this.idAlfresco = idAlfresco;
 		}
-	
-	
+
+		public Integer getIdUsuarioRegistro() {
+			return idUsuarioRegistro;
+		}
+
+		public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
+			this.idUsuarioRegistro = idUsuarioRegistro;
+		}
 		
 		
 

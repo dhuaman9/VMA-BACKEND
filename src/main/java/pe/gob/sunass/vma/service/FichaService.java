@@ -75,21 +75,21 @@ public class FichaService {
 	    
 	    else if (dto.getAnio().equals(this.fichaRepository.findAnioFichaRegistro(dto.getAnio())) ) { 
 	    	logger.info("año seleccionado ya esta registrado");
-    		throw new FailledValidationException("El año seleccionado ya esta registrado, debe elegir otro  año.");
+    		throw new FailledValidationException("El año ya esta registrado, debe elegir otro  año.");
 		}
 	    else if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
             logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
-            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
+            throw new FailledValidationException("La Fecha de Inicio no debe ser mayor o igual a la Fecha Fin");
         }
 
 	    else if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
-    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
+    		throw new FailledValidationException("El año no puede ser mayor que el año de la fecha de inicio.");
 		}
 	  
 	    else if (!validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
             
 	    	  logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
-	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
+	            throw new FailledValidationException(" La feha de inicio o fin,  se solapa con otras fechas registradas.");
             
         } 
 	    
@@ -97,29 +97,7 @@ public class FichaService {
 	    
 	    if (listaFichas != null && !listaFichas.isEmpty()) {
 	    	
-//	    	if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
-//	            logger.info(" La fecha de inicio es mayor o igual que la fecha fin.");
-//	            throw new FailledValidationException("La Fecha de Inicio no debe ser  mayor o igual a la Fecha Fin");
-//	        }
-
-//	    	if (Integer.parseInt(dto.getAnio())>(dto.getFechaInicio().getYear())) { //pendiente de validar con el usuario DF
-//	    		throw new FailledValidationException("El año  no puede ser mayor que el año de la fecha de inicio.");
-//			}
-//	    	
-	    	
-//	    	if (this.fichaRepository.nroRegistroPorAnio(dto.getAnio(), dto.getFechaInicio()) >0 ) {  //dto.getFechaInicio()
-//	    		throw new FailledValidationException("No se permite registrar otro periodo en el año actual."); 
-//			}
-
-//	        if (validarFechas(dto.getFechaInicio(), dto.getFechaFin())) {  // Validar que el rango de fechas no interfiera con ningún rango existente.
-//	            
-//	        	logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
-//	            
-//	        } else {
-//	            logger.info("Error, el rango de fechas se solapa con un rango de fechas existente.");
-//	            throw new FailledValidationException(" El rango de fechas se solapa con un rango registrado.");
-//	        }
-//	    
+  
         } else {
             logger.info("No hay fichas en la base de datos.");
         }

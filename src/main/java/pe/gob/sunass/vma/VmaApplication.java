@@ -33,8 +33,8 @@ public class VmaApplication extends SpringBootServletInitializer{
 	}
 	
 
-	
-	@Profile({"dev","local"})
+	//prueba de generacion de claves encriptadas
+	/*@Profile({"dev","local"})
 	@Bean
 	public CommandLineRunner createPasswordsCommand(){
 		
@@ -51,6 +51,6 @@ public class VmaApplication extends SpringBootServletInitializer{
 
 			System.out.println(passwordEncoder.matches("clave123","$2a$10$v69WhacenRdHFFnK4u4LR.SpGV4Hrvlcg4S4ED5wkDHbQhg7KHH9S"));
 		};
-	}
+	}*/
 
 }

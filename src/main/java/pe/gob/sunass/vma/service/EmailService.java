@@ -38,13 +38,13 @@ public class EmailService {
     @Value("${myapp.app-front-url}")
     private String appUrl;
     
-//	private final JavaMailSender mailSender;   // en local
+//	private final JavaMailSender mailSender;   // probar en local
     
     @Autowired
 	ConfigProperties propiedadesMail;
 
 //    @Autowired
-//    public EmailService(JavaMailSender mailSender) {  // en local
+//    public EmailService(JavaMailSender mailSender) {  //probar  en local
 //        this.mailSender = mailSender;
 //    }
 

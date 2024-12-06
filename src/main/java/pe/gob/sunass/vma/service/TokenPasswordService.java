@@ -26,7 +26,8 @@ public class TokenPasswordService {
     public String crearToken(Usuario usuario) {
         TokenPassword tokenPassword = new TokenPassword();
         tokenPassword.setToken(generarToken());
-        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion));//cambiar a plusMinutes para probar local
+        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion)); //para dev o prod
+        //tokenPassword.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion));//para probar en  local
         tokenPassword.setUsuario(usuario);
         tokenPassword.setCompletado(false);
         tokenPasswordRepository.save(tokenPassword);
@@ -34,11 +35,11 @@ public class TokenPasswordService {
     }
 
     public String actualizarTiempoToken(Integer userId) {
-        TokenPassword token = tokenPasswordRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Token no encontrado"));
-
+        TokenPassword token = tokenPasswordRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Token no encontrado")); //interfaz funcional que usa expresion lambda 
+        
         token.setCompletado(false);
         token.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion));
+        //token.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion)); //en local
         return tokenPasswordRepository.save(token).getToken();
     }
 

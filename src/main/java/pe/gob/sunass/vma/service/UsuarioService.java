@@ -68,8 +68,8 @@ public class UsuarioService {
 	@Autowired
 	LdapUtil ldapUtil;
 
-	@Autowired
-	private EmailService emailService;
+//	@Autowired
+//	private EmailService emailService;
 
 	@Autowired
 	private TokenPasswordService tokenPasswordService;
@@ -157,7 +157,7 @@ public class UsuarioService {
 			usuario.setCreatedAt(new Date()); // auditoria
 			usuario.setUpdatedAt(null); // auditoria
 
-		} else if (dto.getTipo().equals("EPS")) {
+		} else if (dto.getTipo().equals(Constants.EMPRESA_EPS)) {
 
 			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
 			
@@ -166,7 +166,6 @@ public class UsuarioService {
 			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
 			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
-			//usuario.setPasswordPlain(dto.getPassword()); // dhr,  no se utilizara para el registro y cambio de clave
 			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
 																			// BCryptPasswordEncoder
 			usuario.setUnidadOrganica("");
@@ -176,13 +175,14 @@ public class UsuarioService {
 			usuario.setEstado(Boolean.TRUE);
 			usuario.setCreatedAt(new Date());
 			usuario.setUpdatedAt(null);
+			usuario.setPasswordCambiado(false);
 
 		}
 
 		usuario = this.usuarioRepository.save(usuario);
 
 		//Se genera token y se envía correo para cambiar contraseña
-		//DESHABILITADO POR EL MOMENTO
+	
 		if(usuario.getTipo().equals("EPS")) {
 		//	String token = tokenPasswordService.crearToken(usuario);
 			tokenPasswordService.crearToken(usuario);
@@ -204,6 +204,8 @@ public class UsuarioService {
 
 		if (optUser.isPresent()) {
 			usuario = optUser.get();
+			
+
 
 			if (dto.getUserName() != null && !dto.getUserName().isEmpty()) {
 				if (!dto.getUserName().equals(usuario.getUserName())) {
@@ -217,30 +219,18 @@ public class UsuarioService {
 					usuario.setUserName(dto.getUserName().toLowerCase());
 				}
 			}
-			if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+			// si se necesita enviar   correos, usar esto : 
+			/*if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
 				
-				// dhr - envio de correo en caso de cambio de clave
+				// si se necesita enviar   correos, usar esto :  
 				if(usuario.getTipo().equals("EPS")) {
-					//String token = tokenPasswordService.crearToken(usuario);  //antes
-					tokenPasswordService.crearToken(usuario);  //despues
-					//emailService.sendEmail(dto, token);  //no es necesario enviar email
+					String token = tokenPasswordService.crearToken(usuario);
+					emailService.sendEmail(dto, token);
 				}
 				//.....
 				
-				
-//				if (!dto.getPassword().equals(usuario.getPassword())) {
-//					if(usuario.getTipo().equals("EPS")) {
-//						usuario.setPasswordPlain(dto.getPassword());
-//					}
-//					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
-//				}
-				
-				if (!dto.getPassword().equals(usuario.getPassword())) {
-					usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
-				}
-				
-			}
-
+			}*/
+			
 			if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
 				if (!dto.getTipo().equals(usuario.getTipo())) {
 					usuario.setTipo(dto.getTipo());
@@ -376,7 +366,7 @@ public class UsuarioService {
 			List<UsuarioDTO> listaUsuario = new ArrayList<>();
 			DirContext ldapContext = conectarLDAP();
 			SearchControls searchCtls = new SearchControls();
-			String returnedAtts[] = { "sn", "givenName", "mail", "physicalDeliveryOfficeName", "SAMAccountName" };
+			String returnedAtts[] = { Constants.AD.APELLIDOS, Constants.AD.NOMBRES, Constants.AD.CORREO, Constants.AD.AREA, Constants.AD.USERNAME };
 			searchCtls.setReturningAttributes(returnedAtts);
 			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			String searchFilter = "(&(objectClass=user))";
@@ -392,15 +382,15 @@ public class UsuarioService {
 				SearchResult sr = (SearchResult) answerLima.next();
 				Attributes attrs = sr.getAttributes();
 				UsuarioDTO userLdap = new UsuarioDTO();
-				userLdap.setCorreo((String) (attrs.get("mail") == null ? "" : attrs.get("mail").get()));
-				userLdap.setNombres(((String) (attrs.get("givenName") == null ? "" : attrs.get("givenName").get()))
+				userLdap.setCorreo((String) (attrs.get(Constants.AD.CORREO) == null ? "" : attrs.get(Constants.AD.CORREO).get()));
+				userLdap.setNombres(((String) (attrs.get(Constants.AD.NOMBRES) == null ? "" : attrs.get(Constants.AD.NOMBRES).get()))
 						.toUpperCase().trim());
 				userLdap.setApellidos(
-						((String) (attrs.get("sn") == null ? "" : attrs.get("sn").get())).toUpperCase().trim());
-				userLdap.setUnidadOrganica((String) (attrs.get("physicalDeliveryOfficeName") == null ? ""
-						: attrs.get("physicalDeliveryOfficeName").get()));
+						((String) (attrs.get(Constants.AD.APELLIDOS) == null ? "" : attrs.get(Constants.AD.APELLIDOS).get())).toUpperCase().trim());
+				userLdap.setUnidadOrganica((String) (attrs.get(Constants.AD.AREA) == null ? ""
+						: attrs.get(Constants.AD.AREA).get()));
 				userLdap.setUserName(
-						(String) (attrs.get("SAMAccountName") == null ? "" : attrs.get("SAMAccountName").get()));
+						(String) (attrs.get(Constants.AD.USERNAME) == null ? "" : attrs.get(Constants.AD.USERNAME).get()));
 
 				listaUsuario.add(userLdap);
 			}
@@ -472,15 +462,15 @@ public class UsuarioService {
 		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-		if (!dto.getNuevaPassword().equals(dto.getRepetirPassword())) {
+		/*if (!dto.getNuevaPassword().equals(dto.getRepetirPassword())) {
 			throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
-		}
+		}*/
 
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
 		usuario.setPasswordCambiado(false);
 		usuarioRepository.save(usuario);
-		tokenPasswordService.actualizarTiempoToken(usuario.getId()); //dhr retomando
-		//emailService.sendEmail(usuario, dto.getNuevaPassword(), token); nose  utiliza  el envio de correo
+		tokenPasswordService.actualizarTiempoToken(usuario.getId());
+		//emailService.sendEmail(usuario, dto.getNuevaPassword(), token); // en caso se necesite enviar correos
 	}
 
 	@org.springframework.transaction.annotation.Transactional
@@ -505,7 +495,8 @@ public class UsuarioService {
 		
 		user.setPasswordCambiado(false);
 		usuarioRepository.save(user);
-		//emailService.enviarMailActualizarToken(user, token);
+//		emailService.enviarMailActualizarToken(user, token);
+		
 	}
 	
 	

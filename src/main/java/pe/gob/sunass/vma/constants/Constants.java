@@ -14,6 +14,18 @@ public class Constants {
 	final public static String LABEL_PROMEDIO = "PROMEDIO";
 	final public static String LABEL_TOTAL = "TOTAL";
 	
+	
+	 final public static class AD{ //  datos del usuario Sunass definidos en el AD.
+		  
+		  final public static String NOMBRES = "givenName";
+		  final public static String APELLIDOS = "sn";
+		  final public static String CORREO = "mail";
+		  final public static String AREA = "physicalDeliveryOfficeName"; //  UO, UA , etc.
+		  final public static String USERNAME = "SAMAccountName";
+		  
+		   
+	  }
+	 
 	final public static class Alternativas{
 		final public static String Opcion_SI = "SI";
 		final public static String Opcion_NO = "NO";
@@ -59,20 +71,19 @@ public class Constants {
 	  }
 	  
 	
-	  
 	  final public static class Regimen{
 		  
 		  final public static String RAT = "RAT";
 		  final public static String NO_RAT = "NO RAT"; 
-		  
-		  
+		   
 	  }
 		    
 	
 	  final public static class Security{
 		    
 		    final public static class Headers{
-		      final public static String Authorization                  = "Authorization";
+		      final public static String Authorization = "Authorization";
+		      final public static String Authorization_basic  = "Basic ";
 		      final public static String AuthorizationExpirationSeconds = "Authorization-Expiration-Seconds";
 		    }
 

@@ -48,7 +48,7 @@ myapp:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   app-front-url: https://appsdev.sunass.gob.pe/vma/#
-  dias-expiracion: 2
+  dias-expiracion: 5
 
 
 cors:

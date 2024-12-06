@@ -83,21 +83,6 @@ public class AuthenticationController {
 		}
 	}
 	
-//	@RequestMapping(value = "/admin-access")
-//	public String adminAccess(){
-//		return "hola";
-//	}
-//	
-//	@PreAuthorize("hasAuthority('Administrador OTI')")
-//	@RequestMapping(value = "/admin-test")
-//	public String test() throws LocalNotFoundException{
-//		
-//		if(authenticationService.getUsername().equals("wrivera")){
-//			throw new LocalNotFoundException("es wrivera");
-//		}
-//		
-//		return "hola";
-//	}
-	
+
 	
 }

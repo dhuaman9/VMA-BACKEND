@@ -73,7 +73,7 @@ public class RegistroVMAController {
 		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
 	}
 
-	@GetMapping(path = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
+	/*@GetMapping(path = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getList(@RequestHeader("Authorization") String token) {
 		ResponseEntity<?> response = null;
 
@@ -87,7 +87,7 @@ public class RegistroVMAController {
 		}
 
 		return response;
-	}
+	}*/
 
 	@GetMapping("/search")
 	public Page<RegistroVMA> searchRegistroVMA(@RequestParam(required = false) Integer empresaId,

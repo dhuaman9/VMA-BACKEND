@@ -13,8 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-
-
 import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
@@ -22,142 +20,130 @@ import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.util.UserUtil;
 import pe.gob.sunass.vma.assembler.EmpresaAssembler;
 
-
 @Service
 public class EmpresaService {
 
-	
-	  @SuppressWarnings("unused")
-	  private static Logger logger = LoggerFactory.getLogger(EmpresaService.class);
+	@SuppressWarnings("unused")
+	private static Logger logger = LoggerFactory.getLogger(EmpresaService.class);
 
-	  @Autowired
-	  private EmpresaRepository empresaRepository;
-	  
-	  @Autowired
-	  private UserUtil userUtil;
+	@Autowired
+	private EmpresaRepository empresaRepository;
 
-	 
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public List<EmpresaDTO> findAll() throws Exception {
-	    List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueExcludingSunassOrderByIdEmpresa();
-	    List<EmpresaDTO> listDTO = EmpresaAssembler.buildDtoModelCollection(listEmpresa);
+	@Autowired
+	private UserUtil userUtil;
 
-	    return listDTO;
-	  }
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public List<EmpresaDTO> findAll() throws Exception {
+		List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueExcludingSunassOrderByIdEmpresa();
+		List<EmpresaDTO> listDTO = EmpresaAssembler.buildDtoModelCollection(listEmpresa);
 
-	 
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public Page<EmpresaDTO> findByFilter(String filter, Pageable pageable) throws Exception {
+		return listDTO;
+	}
+
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public Page<EmpresaDTO> findByFilter(String filter, Pageable pageable) throws Exception {
 		Page<Empresa> pageDomain = this.empresaRepository.findByFilter(filter, pageable);
-		Page<EmpresaDTO> pageDTO =  EmpresaAssembler.buildDtoModelCollection(pageDomain);
+		Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
 		return pageDTO;
-	  }
+	}
 
-	  //paginacion
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
-	    Page<Empresa> pageDomain = this.empresaRepository.findAllEmpresa(pageable);  //  findByEstadoTrueOrderByIdEmpresa  findAllByOrderByIdEmpresa
-	    Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
+	// paginacion
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
+		Page<Empresa> pageDomain = this.empresaRepository.findAllEmpresa(pageable); // findByEstadoTrueOrderByIdEmpresa
+																					// findAllByOrderByIdEmpresa
+		Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
 
-	    return pageDTO;
-	  }
-	  
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public EmpresaDTO findById(Integer id, boolean dependency) throws Exception {
-		  
+		return pageDTO;
+	}
+
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public EmpresaDTO findById(Integer id, boolean dependency) throws Exception {
+
 		EmpresaDTO dto = null;
-	    Optional<Empresa> opt = this.empresaRepository.findById(id);
+		Optional<Empresa> opt = this.empresaRepository.findById(id);
 
-	    if (opt.isPresent()) {
-	       Empresa emp = opt.get();
-	        dto = EmpresaAssembler.buildDtoModel(emp);
-	    }
+		if (opt.isPresent()) {
+			Empresa emp = opt.get();
+			dto = EmpresaAssembler.buildDtoModel(emp);
+		}
 
-	    return dto;
-	  }
-	  
-	  
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public EmpresaDTO registrar(EmpresaDTO dto) throws Exception {
-	  
-	  
-	    List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
-	    /*if (list != null && list.size() > 0) {
-	      throw new FailledValidationException("[eps] ya se encuentra registrado");
-	    }*/
-	    if (list != null && list.size() > 0) {
-	    	 throw new FailledValidationException("La empresa "+ dto.getNombre() +" ya existe, registre uno nuevo.");
-	      
-	    }
+		return dto;
+	}
 
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public EmpresaDTO registrar(EmpresaDTO dto) throws Exception {
 
-	    Empresa empresa = new Empresa();
-	    
-	    empresa.setNombre(dto.getNombre().toUpperCase());
-	    empresa.setRegimen(dto.getRegimen());
-	    empresa.setTipo(dto.getTipo());
-	    empresa.setEstado(true);
-	    empresa.setCreatedAt(new Date());
-	    empresa.setUpdatedAt(null);
-	    empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
-	    empresa.setIdUsuarioActualizacion(null);
-	    empresa = this.empresaRepository.save(empresa);
+		List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
 
-	    return EmpresaAssembler.buildDtoModel(empresa);
-	  }
+		if (list != null && list.size() > 0) {
+			throw new FailledValidationException("La empresa " + dto.getNombre() + " ya existe, registre uno nuevo.");
 
-	  @Transactional(Transactional.TxType.REQUIRES_NEW)
-	  public EmpresaDTO update(EmpresaDTO dto) throws Exception {
-	    if (dto == null) {
-	      throw new Exception("datos son obligatorios");
-	    }
-	    
-	    Empresa empresa = null;
-	    Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getIdEmpresa());
+		}
 
-	    if (optEmpresa.isPresent()) {
-	    	empresa = optEmpresa.get();
+		Empresa empresa = new Empresa();
 
-	     
-	      if (dto.getNombre() != null && !dto.getNombre().isEmpty()) {
-	        if (!dto.getNombre().equals(empresa.getNombre())) {
-	          List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
+		empresa.setNombre(dto.getNombre().toUpperCase());
+		empresa.setRegimen(dto.getRegimen());
+		empresa.setTipo(dto.getTipo());
+		empresa.setEstado(true);
+		empresa.setCreatedAt(new Date());
+		empresa.setUpdatedAt(null);
+		empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
+		empresa.setIdUsuarioActualizacion(null);
+		empresa = this.empresaRepository.save(empresa);
 
-	          if (list != null && list.size() > 0) {
-	        	  throw new FailledValidationException("La empresa "+ dto.getNombre() +" ya existe, registre uno nuevo.");
-	          }
-	          empresa.setNombre(dto.getNombre().toUpperCase());
-	        }
-	      }
+		return EmpresaAssembler.buildDtoModel(empresa);
+	}
 
-	      if (dto.getRegimen() != null && !dto.getRegimen().isEmpty()) {
-	        if (!dto.getRegimen().equals(empresa.getRegimen())) {
-	        	empresa.setRegimen(dto.getRegimen());
-	        }
-	      }
-	      
-	      if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
-		        if (!dto.getTipo().equals(empresa.getTipo())) {
-		        	empresa.setTipo(dto.getTipo());
-		        }
-		   }
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	public EmpresaDTO update(EmpresaDTO dto) throws Exception {
+		if (dto == null) {
+			throw new Exception("datos son obligatorios");
+		}
 
-	      if (dto.getEstado() != null ) {
-		        if (!dto.getEstado().equals(empresa.getEstado())) {
-		        	empresa.setEstado(dto.getEstado());
-		        }
-		   }
-	      
-	      empresa.setUpdatedAt(new Date());
-	      empresa.setIdUsuarioActualizacion(userUtil.getCurrentUserId());
-	      empresa = this.empresaRepository.save(empresa);
-	    }
+		Empresa empresa = null;
+		Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getIdEmpresa());
 
-	    return EmpresaAssembler.buildDtoModel(empresa);
-	  }
+		if (optEmpresa.isPresent()) {
+			empresa = optEmpresa.get();
 
+			if (dto.getNombre() != null && !dto.getNombre().isEmpty()) {
+				if (!dto.getNombre().equals(empresa.getNombre())) {
+					List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
 
-	  
+					if (list != null && list.size() > 0) {
+						throw new FailledValidationException(
+								"La empresa " + dto.getNombre() + " ya existe, registre uno nuevo.");
+					}
+					empresa.setNombre(dto.getNombre().toUpperCase());
+				}
+			}
 
-	
+			if (dto.getRegimen() != null && !dto.getRegimen().isEmpty()) {
+				if (!dto.getRegimen().equals(empresa.getRegimen())) {
+					empresa.setRegimen(dto.getRegimen());
+				}
+			}
+
+			if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
+				if (!dto.getTipo().equals(empresa.getTipo())) {
+					empresa.setTipo(dto.getTipo());
+				}
+			}
+
+			if (dto.getEstado() != null) {
+				if (!dto.getEstado().equals(empresa.getEstado())) {
+					empresa.setEstado(dto.getEstado());
+				}
+			}
+
+			empresa.setUpdatedAt(new Date());
+			empresa.setIdUsuarioActualizacion(userUtil.getCurrentUserId());
+			empresa = this.empresaRepository.save(empresa);
+		}
+
+		return EmpresaAssembler.buildDtoModel(empresa);
+	}
+
 }

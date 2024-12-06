@@ -21,209 +21,187 @@ import pe.gob.sunass.vma.service.UsuarioService;
 import pe.gob.sunass.vma.util.CommonUtil;
 import pe.gob.sunass.vma.util.UserUtil;
 
-
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
-	
-	 private static Logger logger = LoggerFactory.getLogger(UsuarioController.class);
-	 
-	 @Autowired
-	 private UsuarioService usuarioService;
-	 
-	 @Autowired
-	 private UserUtil userUtil;
 
-	  public UsuarioController() {
-	    super();
-	  }
+	private static Logger logger = LoggerFactory.getLogger(UsuarioController.class);
 
-	@GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
+	@Autowired
+	private UsuarioService usuarioService;
+
+	@Autowired
+	private UserUtil userUtil;
+
+	public UsuarioController() {
+		super();
+	}
+
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getList(@RequestParam(name = "page", defaultValue = "0") Integer page,
-									 @RequestParam(name = "size", defaultValue = "10") Integer size,
-									 @RequestParam(name = "search", required = false, defaultValue = "") String search) {
+			@RequestParam(name = "size", defaultValue = "10") Integer size,
+			@RequestParam(name = "search", required = false, defaultValue = "") String search) {
 		ResponseEntity<?> response = null;
 
 		try {
 			Page<UsuarioDTO> list = this.usuarioService.findAllPageable(page, size, search);
-			response = new ResponseEntity<Page<UsuarioDTO>>( list, HttpStatus.OK);
-		}
-		catch (Exception ex) {
+			response = new ResponseEntity<Page<UsuarioDTO>>(list, HttpStatus.OK);
+		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
-			response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		return response;
 	}
 
-	  @GetMapping(path="/listar",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	 // @PreAuthorize("hasAuthority('Administrador1')") //dhr
-	  public ResponseEntity<?> getList() {
-	    ResponseEntity<?> response = null;
+	@GetMapping(path = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList() {
+		ResponseEntity<?> response = null;
 
-	    
-	    try {
-	      List<UsuarioDTO> list = this.usuarioService.findAll();
+		try {
+			List<UsuarioDTO> list = this.usuarioService.findAll();
 
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
+			if (list.size() == 0) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-	    return response;
-	  }
+		return response;
+	}
 
-	  
-	  //obtener usuarios del ldap
-	 @GetMapping(path="/listarUsuariosLDAP",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> listarUsuariosLDAP() {
-	    ResponseEntity<?> response = null;
-	
-	
-	    try {
-	      List<UsuarioDTO> list = this.usuarioService.obtenerUsuariosLdap();
-	      
-	      //pendiente usar el otro metodo 
-	      //logger.info("obtener count lista ldap2, metodo 2 : "+usuarioService.obtenerUsuariosLdap2().size());
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
-	    return response;
-	  }
+	// obtener usuarios del ldap
+	@GetMapping(path = "/listarUsuariosLDAP", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listarUsuariosLDAP() {
+		ResponseEntity<?> response = null;
 
-	  @GetMapping(path="/page/{num}/{size}",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getPage(@PathVariable(name="num") Integer num,
-	                                   @PathVariable(name="size") Integer size ) {
-	    ResponseEntity<?> response = null;
+		try {
+			List<UsuarioDTO> list = this.usuarioService.obtenerUsuariosLdap();
 
-	    try {
-	      Pageable pageable = PageRequest.of(num - 1, size);
-	      Page<UsuarioDTO> page = this.usuarioService.findAll(pageable);
+			// pendiente usar el otro metodo
+			// logger.info("obtener count lista ldap2, metodo 2 :
+			// "+usuarioService.obtenerUsuariosLdap2().size());
+			if (list.size() == 0) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-	      if (page == null || page.getContent().size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<Page<UsuarioDTO>>(page, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		return response;
+	}
 
-	    return response;
-	  }
+	@GetMapping(path = "/page/{num}/{size}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getPage(@PathVariable(name = "num") Integer num,
+			@PathVariable(name = "size") Integer size) {
+		ResponseEntity<?> response = null;
 
-	  @GetMapping(path="/findbyid/{id}",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> findById(@PathVariable(name="id") Integer id) {
-	    ResponseEntity<?> response = null;
+		try {
+			Pageable pageable = PageRequest.of(num - 1, size);
+			Page<UsuarioDTO> page = this.usuarioService.findAll(pageable);
 
-	    try {
-	    	UsuarioDTO dto = this.usuarioService.findById(id);
-	    	 logger.info("findById : "+dto);
+			if (page == null || page.getContent().size() == 0) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<Page<UsuarioDTO>>(page, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-	      if (dto == null) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);
-	        logger.info("response : "+ response);
-	      }
-	    } catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
-	    return response;
-	  }
+		return response;
+	}
 
-	  @PostMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> registrar(@RequestBody UsuarioDTO request)  {
-	    ResponseEntity<?> response = null;
-	   
-		    try {
-		    	UsuarioDTO dto = this.usuarioService.registrar(request);
-		      response = new ResponseEntity<>(dto,HttpStatus.CREATED);
-		    }
-		    catch (FailledValidationException ex) {
-		    	
-		    	throw ex;
-		    }
-		    catch (Exception ex) {
-			      logger.error(ex.getMessage(), ex);
-			      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
-			 }
-		    
-	    return response;
-	  }
+	@GetMapping(path = "/findbyid/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findById(@PathVariable(name = "id") Integer id) {
+		ResponseEntity<?> response = null;
 
-	  @PutMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> update(@RequestBody UsuarioDTO request) {
-	    ResponseEntity<?> response = null;
+		try {
+			UsuarioDTO dto = this.usuarioService.findById(id);
+			logger.info("findById : " + dto);
 
-	    try {
-	    	UsuarioDTO dto = this.usuarioService.update(request);
+			if (dto == null) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<UsuarioDTO>(dto, HttpStatus.OK);
+				logger.info("response : " + response);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-        if (dto == null) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
-        }
-	      else {
-	        response = new ResponseEntity<UsuarioDTO>(dto,
-	                                                  HttpStatus.ACCEPTED);
-	      }
-	    }
-	    catch (FailledValidationException ex) {
-	    	throw ex;
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      //throw ex;
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}", HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	 
-	    return response;
-	  }
-	 
+		return response;
+	}
 
-	  @PostMapping("/cambiar-password")
-	  public ResponseEntity<Void> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
-		
-	        String username = userUtil.getCurrentUsername();
-	        usuarioService.cambiarPassword(username, cambioPasswordDTO);
-	       // return ResponseEntity.ok("Contraseña actualizada con éxito");
-	        return ResponseEntity.ok().build();
-	  }
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> registrar(@RequestBody UsuarioDTO request) {
+		ResponseEntity<?> response = null;
+
+		try {
+			UsuarioDTO dto = this.usuarioService.registrar(request);
+			response = new ResponseEntity<>(dto, HttpStatus.CREATED);
+		} catch (FailledValidationException ex) {
+
+			throw ex;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
+
+	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> update(@RequestBody UsuarioDTO request) {
+		ResponseEntity<?> response = null;
+
+		try {
+			UsuarioDTO dto = this.usuarioService.update(request);
+
+			if (dto == null) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+			} else {
+				response = new ResponseEntity<UsuarioDTO>(dto, HttpStatus.ACCEPTED);
+			}
+		} catch (FailledValidationException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			// throw ex;
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
+
+	@PostMapping("/cambiar-password")
+	public ResponseEntity<Void> cambiarPassword(@RequestBody CambioPasswordDTO cambioPasswordDTO) {
+
+		String username = userUtil.getCurrentUsername();
+		usuarioService.cambiarPassword(username, cambioPasswordDTO);
+		// return ResponseEntity.ok("Contraseña actualizada con éxito");
+		return ResponseEntity.ok().build();
+	}
 
 	@PostMapping("/cambiar-password-usuario")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void cambiarPasswordUsuario(@RequestBody CambiarPasswordUsuarioDTO dto) throws Exception {
 		usuarioService.cambiarPasswordUsuario(dto);
 	}
-	
+
 	@PutMapping("/{userId}/actualizar-token-password")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void actualizarTokenPasswordUsuario(@PathVariable Integer userId) throws Exception {
@@ -232,7 +210,9 @@ public class UsuarioController {
 
 	@GetMapping("/generar-clave-aleatoria")
 	public String generarClaveAleatoria() {
-		  int cantidadCaracteres = 15;
-		  return CommonUtil.generarPasswordAleatorio(cantidadCaracteres);
+		
+		return CommonUtil.generarPasswordAleatorio();
 	}
+	
+	
 }

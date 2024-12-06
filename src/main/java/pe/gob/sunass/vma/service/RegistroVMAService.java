@@ -111,14 +111,14 @@ public class RegistroVMAService {
 
 
 
-	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	/*@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public List<RegistroVMADTO> findAllOrderById(String username) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		List<RegistroVMA> listRegistroVMA = null;
 		if (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_AdministradorDF
 				|| (usuario.getRole().getIdRol() == Constants.Security.Roles.ID_Consultor && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) {
 			listRegistroVMA = this.registroVMARepository.findAllByOrderByIdRegistroVma();
-			logger.info("usuario.getTipo() consultor - "+usuario.getTipo());
+			logger.info("usuario.getTipo() - "+usuario.getTipo());
 		} else {
 			listRegistroVMA = this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa());
 			logger.info("usuario.getTipo() - "+usuario.getTipo());
@@ -126,7 +126,7 @@ public class RegistroVMAService {
 
 		List<RegistroVMADTO> listRegistroVMADTO = RegistroVMAAssembler.buildDtoDomainCollection(listRegistroVMA);
 		return listRegistroVMADTO;
-	}
+	}*/
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO findById(Integer id) throws Exception {
@@ -212,7 +212,7 @@ public class RegistroVMAService {
 
 				alfrescoService.deleteFile(respuestaVMA.getRespuesta());  // pendiente x cambiar  dhr
 
-				respuestaVMA.setRespuesta(archivoDTO.getIdAlfresco());
+				respuestaVMA.setRespuesta(archivoDTO.getNombreArchivo());
 				respuestaVMA.setIdUsuarioActualizacion(currentUserId);
 				respuestaVMA.setFechaActualizacion(new Date());
 				respuestaVMARepository
