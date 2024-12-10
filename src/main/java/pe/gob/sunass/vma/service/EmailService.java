@@ -35,8 +35,8 @@ public class EmailService {
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(EmailService.class);
 	
-    @Value("${myapp.app-front-url}")
-    private String appUrl;
+//    @Value("${myapp.app-front-url}")
+//    private String appUrl;
     
 //	private final JavaMailSender mailSender;   // probar en local
     
@@ -49,8 +49,8 @@ public class EmailService {
 //    }
 
     
-    //metodo funcional en dev y producccion
-    public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
+    //metodo funcional en dev , qa  o producccion
+    /*public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
    	
    	InputStream inputStream = null;
   
@@ -109,7 +109,7 @@ public class EmailService {
                }
            }
        }
-   }
+   } */
     
     
     
@@ -170,7 +170,8 @@ public class EmailService {
     }*/
     
     //probar en dev
-    public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
+    //en caso de actualizar clave y enviarlo nuevamente por correo
+    /*public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
         InputStream inputStream = null;
 
         String servidorSmtp = propiedadesMail.getSmtphost();
@@ -216,7 +217,7 @@ public class EmailService {
 
         // Enviar el mensaje
         Transport.send(msg);
-    }
+    }*/
     
    
     

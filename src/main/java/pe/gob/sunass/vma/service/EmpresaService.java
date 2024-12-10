@@ -50,8 +50,7 @@ public class EmpresaService {
 	// paginacion
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public Page<EmpresaDTO> findAll(Pageable pageable) throws Exception {
-		Page<Empresa> pageDomain = this.empresaRepository.findAllEmpresa(pageable); // findByEstadoTrueOrderByIdEmpresa
-																					// findAllByOrderByIdEmpresa
+		Page<Empresa> pageDomain = this.empresaRepository.findAllEmpresa(pageable); 
 		Page<EmpresaDTO> pageDTO = EmpresaAssembler.buildDtoModelCollection(pageDomain);
 
 		return pageDTO;
@@ -82,7 +81,6 @@ public class EmpresaService {
 		}
 
 		Empresa empresa = new Empresa();
-
 		empresa.setNombre(dto.getNombre().toUpperCase());
 		empresa.setRegimen(dto.getRegimen());
 		empresa.setTipo(dto.getTipo());
@@ -92,8 +90,8 @@ public class EmpresaService {
 		empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
 		empresa.setIdUsuarioActualizacion(null);
 		empresa = this.empresaRepository.save(empresa);
-
 		return EmpresaAssembler.buildDtoModel(empresa);
+		
 	}
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)

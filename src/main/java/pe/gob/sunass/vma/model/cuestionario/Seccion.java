@@ -29,7 +29,7 @@ public class Seccion implements Serializable {
 	private Boolean estado;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "fecha_creacion", nullable = false)
+	@Column(name = "fecha_registro", nullable = false)
 	private Date createdAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)

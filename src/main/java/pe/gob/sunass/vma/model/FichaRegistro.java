@@ -43,11 +43,11 @@ public class FichaRegistro implements Serializable {
 	private LocalDate fechaFin;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "fecha_registro", nullable = false)
 	private Date createdAt;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "updated_at", nullable = true)
+	@Column(name = "fecha_actualizacion", nullable = true)
 	private Date updatedAt;
 
 	@Column(name = "id_usuario_registro", nullable = true)

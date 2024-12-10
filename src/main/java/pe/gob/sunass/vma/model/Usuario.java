@@ -74,15 +74,15 @@ public class Usuario implements UserDetails{
 	private Boolean estado;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="created_at", nullable=false)
+	@Column(name="fecha_registro", nullable=false)
 	private Date createdAt;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="updated_at", nullable=true)
+	@Column(name="fecha_actualizacion", nullable=true)
 	private Date updatedAt;
 
 	@Column(name = "password_cambiado")
-	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña, a traves de emails
+	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña.
 	
 //	@Column(name = "password_plain")
 //	private String passwordPlain;

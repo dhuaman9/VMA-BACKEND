@@ -35,7 +35,6 @@ spring:
       max-file-size: 30MB
       max-request-size: 30MB 
 
- 
 myapp:
   datasource:
     remote-secret-ops: http://10.10.3.115:3000
@@ -47,7 +46,7 @@ myapp:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  app-front-url: https://appsdev.sunass.gob.pe/vma/#
+  #app-front-url: https://appsdev.sunass.gob.pe/vma/#
   dias-expiracion: 5
 
 

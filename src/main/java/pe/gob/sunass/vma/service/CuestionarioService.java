@@ -1,7 +1,11 @@
 package pe.gob.sunass.vma.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import pe.gob.sunass.vma.controller.EmpresaController;
 import pe.gob.sunass.vma.dto.*;
 import pe.gob.sunass.vma.model.cuestionario.Alternativa;
 import pe.gob.sunass.vma.model.cuestionario.Cuestionario;
@@ -24,13 +28,17 @@ import java.util.stream.Collectors;
 @Service
 public class CuestionarioService {
 
+	private static Logger logger = LoggerFactory.getLogger(EmpresaController.class);
+
 	@Autowired
 	private CuestionarioRepository cuestionarioRepository;
 
 	@Autowired
 	private SeccionRepository seccionRepository;
+	
 	@Autowired
 	private RespuestaVMARepository respuestaVMARepository;
+	
 	@Autowired
 	private RegistroVMARepository registroVMARepository;
 
@@ -155,7 +163,9 @@ public class CuestionarioService {
 	}
 
 	private MetadatoDto mapToMetadatoDTO(Metadato metadato) {
+
 		return new MetadatoDto(metadato.getTipoArchivosPermitidos(), metadato.getMaxSizeInMB(), metadato.isRequerido(),
 				metadato.getId(), metadato.isDecimal());
 	}
+	
 }

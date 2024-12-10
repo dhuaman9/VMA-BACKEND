@@ -16,7 +16,7 @@ public class TokenPassword {
     @Column(name = "fecha_expiracion")
     private LocalDateTime fechaExpiracion;
 
-    @Column(name = "created_at")
+    @Column(name = "fecha_registro")
     private LocalDateTime createdAt;
 
     @OneToOne
@@ -78,4 +78,5 @@ public class TokenPassword {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
+    
 }

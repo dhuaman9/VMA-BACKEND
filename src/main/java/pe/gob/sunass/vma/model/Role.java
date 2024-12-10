@@ -38,7 +38,7 @@ public class Role  implements Serializable {
 		private String nombre;
 
 		@Temporal(TemporalType.TIMESTAMP)
-		@Column(name="created_at", nullable=false)
+		@Column(name="fecha_registro", nullable=false)
 		private Date createdAt;
 
 		@Column(name="auth", length=30)

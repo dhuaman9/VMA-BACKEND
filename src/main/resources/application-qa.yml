@@ -11,7 +11,7 @@ logging:
 
 org:
   hibernate:
-    sql: false
+    sql: true
     
 spring:
   application:
@@ -27,6 +27,13 @@ spring:
   output:
     ansi:
       enabled: DETECT
+  jpa:
+    hibernate:
+     ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 
 myapp:
   datasource:
@@ -36,6 +43,11 @@ myapp:
   jpa:
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  #app-front-url: https://appsdev.sunass.gob.pe/vma/#
+  dias-expiracion: 5
 
 cors:
   urls: http://localhost:4601,http://10.10.3.184
@@ -48,8 +60,9 @@ ldap:
   cn: OU=Usuarios,DC=sunass,DC=gob,DC=pe
   cnSearch: DC=sunass,DC=gob,DC=pe
   group: GS_GSF
+  user: userval
   password: Validador2000
   prefix: '@sunass.gob.pe'
   timeout: 3000
   url: ldap://10.10.3.9:389
-  user: userval
+  

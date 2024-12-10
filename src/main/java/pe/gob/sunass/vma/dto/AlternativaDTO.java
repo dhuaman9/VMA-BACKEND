@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.dto;
 
 public class AlternativaDTO {
+	
     private Integer idAlternativa;
     private String nombreCampo;
     private boolean requerido;
@@ -44,4 +45,5 @@ public class AlternativaDTO {
     public void setRespuestaDTO(RespuestaDTO respuestaDTO) {
         this.respuestaDTO = respuestaDTO;
     }
+    
 }
