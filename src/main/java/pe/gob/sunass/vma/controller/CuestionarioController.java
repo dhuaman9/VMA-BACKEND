@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,42 +18,41 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class CuestionarioController {
 
 	@Autowired
-    private  CuestionarioService cuestionarioService;
+	private CuestionarioService cuestionarioService;
 
-    @GetMapping(path = "/{idCuestionario}", produces= MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getCuestionarioById(@PathVariable Integer idCuestionario) {
-        Optional<Cuestionario> cuestionario = cuestionarioService.findById(idCuestionario);
+	@GetMapping(path = "/{idCuestionario}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getCuestionarioById(@PathVariable Integer idCuestionario) {
+		Optional<Cuestionario> cuestionario = cuestionarioService.findById(idCuestionario);
 
-        if(cuestionario.isPresent()) {
-            return ResponseEntity.ok(cuestionario.get());
-        } else {
-            return new ResponseEntity<>(NOT_FOUND);
-        }
-    }
-    
-    @GetMapping(path = "/lastId", produces= MediaType.APPLICATION_JSON_VALUE)
-    public  ResponseEntity<?> getCuestionarioByIdMax() {
-       
-        Optional<Cuestionario> cuestionario = cuestionarioService.getLastCuestionario();
+		if (cuestionario.isPresent()) {
+			return ResponseEntity.ok(cuestionario.get());
+		} else {
+			return new ResponseEntity<>(NOT_FOUND);
+		}
+	}
 
-        if(cuestionario.isPresent()) {
-            return ResponseEntity.ok(cuestionario.get());
-        } else {
-            return new ResponseEntity<>(NOT_FOUND);
-        }
-    }
+	@GetMapping(path = "/lastId", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getCuestionarioByIdMax() {
 
-    @GetMapping(path = "/respuestas/{idRegistro}", produces= MediaType.APPLICATION_JSON_VALUE)
-    public  ResponseEntity<?> getCuestionarioConRespuestas(@PathVariable Integer idRegistro) {
+		Optional<Cuestionario> cuestionario = cuestionarioService.getLastCuestionario();
 
-        CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(idRegistro);
+		if (cuestionario.isPresent()) {
+			return ResponseEntity.ok(cuestionario.get());
+		} else {
+			return new ResponseEntity<>(NOT_FOUND);
+		}
+	}
 
-        if(cuestionario != null) {
-            return ResponseEntity.ok(cuestionario);
-        } else {
-            return new ResponseEntity<>(NOT_FOUND);
-        }
-    }
-    
-    
+	@GetMapping(path = "/respuestas/{idRegistro}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getCuestionarioConRespuestas(@PathVariable Integer idRegistro) {
+
+		CuestionarioDTO cuestionario = cuestionarioService.getCuestionarioConRespuestas(idRegistro);
+
+		if (cuestionario != null) {
+			return ResponseEntity.ok(cuestionario);
+		} else {
+			return new ResponseEntity<>(NOT_FOUND);
+		}
+	}
+
 }

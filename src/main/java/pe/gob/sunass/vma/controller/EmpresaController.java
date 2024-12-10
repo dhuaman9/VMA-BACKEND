@@ -115,7 +115,6 @@ public class EmpresaController {
 
 	public ResponseEntity<?> registrar(@RequestBody EmpresaDTO request) {
 		ResponseEntity<?> response = null;
-		
 
 		try {
 			EmpresaDTO dto = this.empresaService.registrar(request);
@@ -156,40 +155,5 @@ public class EmpresaController {
 		return response;
 	}
 
-//	  @DeleteMapping(path="/{id}",
-//	                 produces=MediaType.APPLICATION_JSON_VALUE)
-//	  public ResponseEntity<?> delete(@PathVariable(name="id") Integer id) {
-//	    ResponseEntity<?> response = null;
-//	    long startProcess = System.currentTimeMillis();
-//
-//	    logger.info(Constants.Logger.Method.Initialize);
-//
-//	    try {
-//	      UsuarioDTO dto = this.usuarioService.delete(id);
-//
-//	      if (dto == null) {
-//	        response = new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
-//	      }
-//	      else {
-//	        response = new ResponseEntity<String>("{\"message\" : \"Usuario eliminado correctamente\"}",
-//	                                              HttpStatus.ACCEPTED);
-//	      }
-//	    }
-//	    catch (FailledValidationException ex) {
-//	      response = new ResponseEntity<Object>("{\"error\" : \"" + ex.getMessage() + "\"}",
-//	                                            HttpStatus.FAILED_DEPENDENCY);
-//	    }
-//	    catch (Exception ex) {
-//	      logger.error(ex.getMessage(), ex);
-//	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-//	                                            HttpStatus.INTERNAL_SERVER_ERROR);
-//	    }
-//	    finally {
-//	      logger.info(" > " + DateUtil.timeElapsed(System.currentTimeMillis() - startProcess) + " took");
-//	      logger.info(Constants.Logger.Method.Finalize);
-//	    }
-//
-//	    return response;
-//	  }
 
 }

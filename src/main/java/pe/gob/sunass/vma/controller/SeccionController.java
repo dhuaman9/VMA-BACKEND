@@ -18,40 +18,31 @@ import pe.gob.sunass.vma.service.SeccionesService;
 @RestController
 @RequestMapping("/secciones")
 public class SeccionController {
-	
-	 private static Logger logger = LoggerFactory.getLogger(EmpresaController.class);
-		
-	 @Autowired
-	 private SeccionesService seccionesService;
-	 
 
-	  @GetMapping(path="/listar",
-	              produces=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<?> getList() {
-	    ResponseEntity<?> response = null;
+	private static Logger logger = LoggerFactory.getLogger(EmpresaController.class);
 
-	   
-	    try {
-	      List<SeccionDTO> list = this.seccionesService.findAll();
+	@Autowired
+	private SeccionesService seccionesService;
 
-	      if (list.size() == 0) {
-	        response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-	      }
-	      else {
-	        response = new ResponseEntity<List<SeccionDTO>>(list, HttpStatus.OK);
-	      }
-	    }
-	    catch (Exception ex) {
-	      logger.error(ex.getMessage(), ex);
-	      response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-	                                             HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
-	    
+	@GetMapping(path = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getList() {
+		ResponseEntity<?> response = null;
 
-	    return response;
-	  }
+		try {
+			List<SeccionDTO> list = this.seccionesService.findAll();
 
-	 
-	 
+			if (list.size() == 0) {
+				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+			} else {
+				response = new ResponseEntity<List<SeccionDTO>>(list, HttpStatus.OK);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return response;
+	}
 
 }

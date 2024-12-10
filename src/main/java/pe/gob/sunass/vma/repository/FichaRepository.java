@@ -17,8 +17,6 @@ public interface FichaRepository extends JpaRepository<FichaRegistro, Integer>{
 	
 	  public List<FichaRegistro> findAllByOrderByIdFichaRegistroDesc();
 
-	  //public Page<FichaRegistro> findAllByOrderByIdFichaRegistroDesc(Pageable pageable);//orden descendente de los IDs
-	  
 	  public Optional<FichaRegistro> findById(Integer id);
 	  
 	  @Query("SELECT f FROM FichaRegistro f WHERE f.fechaInicio = :fechaInicio OR f.fechaFin = :fechaFin")

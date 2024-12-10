@@ -3,6 +3,7 @@ package pe.gob.sunass.vma.dto.reportes;
 import java.util.List;
 
 public class CostoAnualIncurridoCompletoDTO {
+	
     private List<BarChartBasicoDto> barChartData;
     private List<CostoAnualIncurridoDTO> costoAnualIncurridoList;
 

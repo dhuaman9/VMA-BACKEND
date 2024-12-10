@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.dto.reportes;
 
 public class BarChartBasicoDto {
+	
     private String label;
     private Double value;
 

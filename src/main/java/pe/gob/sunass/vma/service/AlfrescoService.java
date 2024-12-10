@@ -34,7 +34,6 @@ import pe.gob.sunass.vma.constants.Constants;
 import java.util.*;
 import java.util.regex.Pattern;
 
-
 import java.util.regex.Matcher;
 
 import org.springframework.http.*;
@@ -46,340 +45,338 @@ import pe.gob.sunass.vma.util.UserUtil;
 public class AlfrescoService {
 
 	private static Logger logger = LoggerFactory.getLogger(EmpresaService.class);
-	  
+
 	@Autowired
 	AlfrescoProperties alfrescoProperties;
-	
+
 	@Autowired
-    ArchivoRepository archivoRepository;
-	
+	ArchivoRepository archivoRepository;
+
 //	@Autowired
 //	private JWTProvider jwtProvider;
 //
 //	@Autowired
 //	private HttpServletRequest request;
-	
+
 	@Autowired
 	private UserUtil userUtil;
 
-	
 	private final RestTemplate restTemplate;
-    @Autowired
-    private RespuestaVMARepository respuestaVMARepository;
-
+	@Autowired
+	private RespuestaVMARepository respuestaVMARepository;
 
 	public AlfrescoService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-	
-    //no usado, porque se usa desde  el metodo del userUtil
-    /*public String getCurrentUsername() {
-        // Obtener el token del encabezado de la solicitud
-        String authorizationHeader = request.getHeader(Constants.Security.Headers.Authorization);
-
-        if (authorizationHeader != null && authorizationHeader.startsWith(Constants.Security.Token.BearerPrefix)) {
-            // Extraer el token sin el prefijo "Bearer "
-            String token = authorizationHeader.substring(7);
-
-            // Extraer el nombre de usuario del token usando el proveedor de JWT
-            return jwtProvider.extractUsername(token);
-        }
-
-        throw new RuntimeException("Authorization header is missing or invalid");
-    }*/
-    
-	
-	public ArchivoDTO uploadFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
-        validateFile(file);
-        return processFile(file, registroVMA, respuestaId);
-       // return processFile(file);
+		this.restTemplate = restTemplate;
 	}
-	
-	 
-	    private void validateFile(MultipartFile file) {
-	        String fileType = file.getContentType();
-	        long fileSize = file.getSize();
 
-	        if ("application/pdf".equals(fileType)) {
-	            validatePDF(fileSize);
-	        } else if ("application/msword".equals(fileType) || "application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType)) {
-	        	validateWordOrPDF(fileSize);
-	        } else if ("application/vnd.ms-excel".equals(fileType) || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(fileType)) {
-	            validateExcel(fileSize);
-	        } else {
-	            throw new FailledValidationException("Unsupported file type.");
-	        }
-	    }
+	// en caso no existiera el userUtil, se utilizaria este metodo
+	/*
+	 * public String getCurrentUsername() { // Obtener el token del encabezado de la solicitud 
+	 * String authorizationHeader =
+	 * request.getHeader(Constants.Security.Headers.Authorization);
+	 * 
+	 * if (authorizationHeader != null &&
+	 * authorizationHeader.startsWith(Constants.Security.Token.BearerPrefix)) { //
+	 * Extraer el token sin el prefijo "Bearer " String token =
+	 * authorizationHeader.substring(7);
+	 * 
+	 * // Extraer el nombre de usuario del token usando el proveedor de JWT return
+	 * jwtProvider.extractUsername(token); }
+	 * 
+	 * throw new RuntimeException("Authorization header is missing or invalid"); }
+	 */
 
-	    private void validatePDF(long fileSize) {
-	        if (fileSize > 5 * 1024 * 1024) {
-	            throw new FailledValidationException("El tamaño del archivo PDF excede los 5MB.");
-	        }
-	    }
+	public ArchivoDTO uploadFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
+		validateFile(file);
+		return processFile(file, registroVMA, respuestaId);
+		// return processFile(file);
+	}
 
-	    private void validateWordOrPDF(long fileSize) {
-	        if (fileSize > 20 * 1024 * 1024) {
-	            throw new FailledValidationException("El tamaño del archivo Word o PDF excede los 20MB.");
-	        }
-	    }
+	private void validateFile(MultipartFile file) {
+		String fileType = file.getContentType();
+		long fileSize = file.getSize();
 
-	    private void validateExcel(long fileSize) {
-	        if (fileSize > 20 * 1024 * 1024) {
-	            throw new FailledValidationException("El tamaño del archivo Excel excede los 20MB.");
-	        }
-	    }
+		if ("application/pdf".equals(fileType)) {
+			validatePDF(fileSize);
+		} else if ("application/msword".equals(fileType)
+				|| "application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(fileType)) {
+			validateWordOrPDF(fileSize);
+		} else if ("application/vnd.ms-excel".equals(fileType)
+				|| "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(fileType)) {
+			validateExcel(fileSize);
+		} else {
+			throw new FailledValidationException("Unsupported file type.");
+		}
+	}
 
-	    // revisar, si hace falta el mapper o assembler de dto a model, o viceversa - dhr
-	    private ArchivoDTO processFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
-	    	
-	        // Obtener la fecha actual para nombrar la subcarpeta
-	        LocalDate now = LocalDate.now();
-	        String mesAnio = now.getMonthValue() + "-" + now.getYear();
+	private void validatePDF(long fileSize) {
+		if (fileSize > 5 * 1024 * 1024) {
+			throw new FailledValidationException("El tamaño del archivo PDF excede los 5MB.");
+		}
+	}
 
-	        // Verificar si la subcarpeta ya existe
-	        String subcarpetaId = getOrCreateSubfolder(mesAnio);
+	private void validateWordOrPDF(long fileSize) {
+		if (fileSize > 20 * 1024 * 1024) {
+			throw new FailledValidationException("El tamaño del archivo Word o PDF excede los 20MB.");
+		}
+	}
 
-	        // URL de subida del archivo a la subcarpeta creada
-	        String uploadUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
-	                + subcarpetaId + "/children";
+	private void validateExcel(long fileSize) {
+		if (fileSize > 20 * 1024 * 1024) {
+			throw new FailledValidationException("El tamaño del archivo Excel excede los 20MB.");
+		}
+	}
 
-	        CloseableHttpClient client = HttpClients.createDefault();
-	        HttpPost post = new HttpPost(uploadUrl);
+	// revisar, si hace falta el mapper o assembler de dto a model, o viceversa -
+	// dhr
+	private ArchivoDTO processFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId)
+			throws IOException {
 
-	        post.addHeader("Authorization", "Basic " + Base64.getEncoder()
-	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
+		// Obtener la fecha actual para nombrar la subcarpeta
+		LocalDate now = LocalDate.now();
+		String mesAnio = now.getMonthValue() + "-" + now.getYear();
 
-	        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-	        builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY, file.getOriginalFilename());
-	        builder.addTextBody("name", getFilenameWithUUID(file.getOriginalFilename()), ContentType.TEXT_PLAIN);
+		// Verificar si la subcarpeta ya existe
+		String subcarpetaId = getOrCreateSubfolder(mesAnio);
 
-	        post.setEntity(builder.build());
+		// URL de subida del archivo a la subcarpeta creada
+		String uploadUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
+				+ subcarpetaId + "/children";
 
-	        HttpResponse response = client.execute(post);
-	        String responseString = EntityUtils.toString(response.getEntity());
-	        client.close();
-	        
-	        if (response.getStatusLine().getStatusCode() == 201) {
-	            ObjectMapper objectMapper = new ObjectMapper();
-	            JsonNode responseJson = objectMapper.readTree(responseString);
-	            String idAlfresco = responseJson.get("entry").get("id").asText();
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpPost post = new HttpPost(uploadUrl);
 
+		post.addHeader("Authorization", "Basic " + Base64.getEncoder()
+				.encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
 
-				if (Objects.isNull(respuestaId)) {
-					return mapToArchivoDTO(grabarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
-				}
+		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		builder.addBinaryBody("filedata", file.getInputStream(), ContentType.DEFAULT_BINARY,
+				file.getOriginalFilename());
+		builder.addTextBody("name", getFilenameWithUUID(file.getOriginalFilename()), ContentType.TEXT_PLAIN);
 
-				Optional<RespuestaVMA> respuesta = respuestaVMARepository.findById(respuestaId);
+		post.setEntity(builder.build());
 
-				if (respuesta.isEmpty()) {
-					return mapToArchivoDTO(grabarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
-				}
+		HttpResponse response = client.execute(post);
+		String responseString = EntityUtils.toString(response.getEntity());
+		client.close();
 
-				RespuestaVMA respuestaVMA = respuesta.get();
-				Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
+		if (response.getStatusLine().getStatusCode() == 201) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode responseJson = objectMapper.readTree(responseString);
+			String idAlfresco = responseJson.get("entry").get("id").asText();
 
-				if (Objects.nonNull(archivoByIdAlfresco)) {
-					archivoByIdAlfresco.setIdAlfresco(idAlfresco);
-					archivoByIdAlfresco.setNombreArchivo(getFilenameWithUUID(file.getOriginalFilename()));
-					archivoByIdAlfresco.setUpdatedAt(new Date());
-					return mapToArchivoDTO(archivoRepository.save(archivoByIdAlfresco));
-				}
-
+			if (Objects.isNull(respuestaId)) {
 				return mapToArchivoDTO(grabarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
-	        } else {
-	            throw new RuntimeException("Failed to upload file, status code: " + response.getStatusLine().getStatusCode());
-	        }
-	    }
+			}
 
-	    //grabando los datos del archivo a la BD, pero No al alfresco
-		private Archivo grabarArchivo(String nombreArchivo, String idAlfresco, RegistroVMA registroVMA) throws IOException {
-			Archivo archivo = new Archivo();
-			archivo.setNombreArchivo(getFilenameWithUUID(nombreArchivo));
-			archivo.setIdAlfresco(idAlfresco);
-			archivo.setRegistroVma(registroVMA);
-			archivo.setUsername(userUtil.getCurrentUsername());
-			archivo.setIdUsuarioRegistro(userUtil.getCurrentUserId());
-			archivo.setCreatedAt(new Date());
-			archivo.setUpdatedAt(null);
-			return archivoRepository.save(archivo);
+			Optional<RespuestaVMA> respuesta = respuestaVMARepository.findById(respuestaId);
+
+			if (respuesta.isEmpty()) {
+				return mapToArchivoDTO(grabarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
+			}
+
+			RespuestaVMA respuestaVMA = respuesta.get();
+			Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
+
+			if (Objects.nonNull(archivoByIdAlfresco)) {
+				archivoByIdAlfresco.setIdAlfresco(idAlfresco);
+				archivoByIdAlfresco.setNombreArchivo(getFilenameWithUUID(file.getOriginalFilename()));
+				archivoByIdAlfresco.setUpdatedAt(new Date());
+				return mapToArchivoDTO(archivoRepository.save(archivoByIdAlfresco));
+			}
+
+			return mapToArchivoDTO(grabarArchivo(file.getOriginalFilename(), idAlfresco, registroVMA));
+		} else {
+			throw new RuntimeException(
+					"Failed to upload file, status code: " + response.getStatusLine().getStatusCode());
+		}
+	}
+
+	// grabando los datos del archivo a la BD, pero No al alfresco
+	private Archivo grabarArchivo(String nombreArchivo, String idAlfresco, RegistroVMA registroVMA) throws IOException {
+		Archivo archivo = new Archivo();
+		archivo.setNombreArchivo(getFilenameWithUUID(nombreArchivo));
+		archivo.setIdAlfresco(idAlfresco);
+		archivo.setRegistroVma(registroVMA);
+		archivo.setUsername(userUtil.getCurrentUsername());
+		archivo.setIdUsuarioRegistro(userUtil.getCurrentUserId());
+		archivo.setCreatedAt(new Date());
+		archivo.setUpdatedAt(null);
+		return archivoRepository.save(archivo);
+	}
+
+	private ArchivoDTO mapToArchivoDTO(Archivo archivo) {
+		ArchivoDTO archivoDTO = new ArchivoDTO();
+		archivoDTO.setIdArchivo(archivo.getIdArchivo());
+		archivoDTO.setNombreArchivo(archivo.getNombreArchivo());
+		archivoDTO.setIdAlfresco(archivo.getIdAlfresco());
+		return archivoDTO;
+	}
+
+	private String getOrCreateSubfolder(String folderName) throws IOException {
+		// URL para listar los contenidos en la carpeta base
+		String listFoldersUrl = alfrescoProperties.getUrl()
+				+ "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + alfrescoProperties.getSpaceStore()
+				+ "/children";
+
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpGet get = new HttpGet(listFoldersUrl);
+
+		get.addHeader("Authorization", "Basic " + Base64.getEncoder()
+				.encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
+
+		HttpResponse response = client.execute(get);
+		String responseString = EntityUtils.toString(response.getEntity());
+		client.close();
+
+		System.out.println(responseString); // Imprime la respuesta JSON para depuración
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode responseJson = objectMapper.readTree(responseString);
+
+		// Navegar a la lista de entradas
+		JsonNode entriesNode = responseJson.path("list").path("entries");
+		if (entriesNode.isMissingNode()) {
+			throw new RuntimeException("The expected 'entries' node is missing in the response.");
 		}
 
-		private ArchivoDTO mapToArchivoDTO(Archivo archivo) {
-			ArchivoDTO archivoDTO = new ArchivoDTO();
-			archivoDTO.setIdArchivo(archivo.getIdArchivo());
-			archivoDTO.setNombreArchivo(archivo.getNombreArchivo());
-			archivoDTO.setIdAlfresco(archivo.getIdAlfresco());
-			return archivoDTO;
+		// Comprobar si la carpeta ya existe
+		for (JsonNode entryNode : entriesNode) {
+			JsonNode entry = entryNode.path("entry");
+			String name = entry.path("name").asText();
+			if (name.equals(folderName)) {
+				return entry.path("id").asText(); // Retorna el ID de la carpeta existente
+			}
 		}
-	    
-	    
-	    private String getOrCreateSubfolder(String folderName) throws IOException {
-	        // URL para listar los contenidos en la carpeta base
-	        String listFoldersUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
-	                + alfrescoProperties.getSpaceStore() + "/children";
-	        
-	        CloseableHttpClient client = HttpClients.createDefault();
-	        HttpGet get = new HttpGet(listFoldersUrl);
-	        
-	        get.addHeader("Authorization", "Basic " + Base64.getEncoder()
-	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
-	        
-	        HttpResponse response = client.execute(get);
-	        String responseString = EntityUtils.toString(response.getEntity());
-	        client.close();
-	        
-	        System.out.println(responseString); // Imprime la respuesta JSON para depuración
-	        
-	        ObjectMapper objectMapper = new ObjectMapper();
-	        JsonNode responseJson = objectMapper.readTree(responseString);
-	        
-	        // Navegar a la lista de entradas
-	        JsonNode entriesNode = responseJson.path("list").path("entries");
-	        if (entriesNode.isMissingNode()) {
-	            throw new RuntimeException("The expected 'entries' node is missing in the response.");
-	        }
-	        
-	        // Comprobar si la carpeta ya existe
-	        for (JsonNode entryNode : entriesNode) {
-	            JsonNode entry = entryNode.path("entry");
-	            String name = entry.path("name").asText();
-	            if (name.equals(folderName)) {
-	                return entry.path("id").asText();  // Retorna el ID de la carpeta existente
-	            }
-	        }
-	        
-	        // Si no existe, crear la carpeta
-	        String createFolderUrl = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
-	                + alfrescoProperties.getSpaceStore() + "/children";
-	        
-	        CloseableHttpClient clientCreate = HttpClients.createDefault();
-	        HttpPost postCreate = new HttpPost(createFolderUrl);
-	        
-	        postCreate.addHeader("Authorization", "Basic " + Base64.getEncoder()
-	                .encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
-	        
-	        String jsonPayload = "{ \"name\": \"" + folderName + "\", \"nodeType\": \"cm:folder\" }";
-	        postCreate.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
-	        
-	        HttpResponse responseCreate = clientCreate.execute(postCreate);
-	        String responseStringCreate = EntityUtils.toString(responseCreate.getEntity());
-	        clientCreate.close();
-	        
-	        if (responseCreate.getStatusLine().getStatusCode() == 201) {
-	            JsonNode responseJsonCreate = objectMapper.readTree(responseStringCreate);
-	            return responseJsonCreate.path("entry").path("id").asText();
-	        } else {
-	            throw new RuntimeException("Failed to create folder, status code: " + responseCreate.getStatusLine().getStatusCode());
-	        }
-	    }
 
+		// Si no existe, crear la carpeta
+		String createFolderUrl = alfrescoProperties.getUrl()
+				+ "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + alfrescoProperties.getSpaceStore()
+				+ "/children";
 
-	    public ResponseEntity<Map<String, String>> downloadFile(String nodeId) {
-	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId + "/content";
+		CloseableHttpClient clientCreate = HttpClients.createDefault();
+		HttpPost postCreate = new HttpPost(createFolderUrl);
 
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+		postCreate.addHeader("Authorization", "Basic " + Base64.getEncoder()
+				.encodeToString((alfrescoProperties.getUser() + ":" + alfrescoProperties.getPassword()).getBytes()));
 
-	        HttpEntity<String> entity = new HttpEntity<>(headers);
+		String jsonPayload = "{ \"name\": \"" + folderName + "\", \"nodeType\": \"cm:folder\" }";
+		postCreate.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
 
-	        try {
-	            // Make the GET request to retrieve the file
-	            ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
+		HttpResponse responseCreate = clientCreate.execute(postCreate);
+		String responseStringCreate = EntityUtils.toString(responseCreate.getEntity());
+		clientCreate.close();
 
-	            // Extract Content-Disposition header to get the filename
-	            List<String> contentDispositionList = response.getHeaders().get("Content-Disposition");
-	            String fileName = "archivo.descargado"; // Default value
+		if (responseCreate.getStatusLine().getStatusCode() == 201) {
+			JsonNode responseJsonCreate = objectMapper.readTree(responseStringCreate);
+			return responseJsonCreate.path("entry").path("id").asText();
+		} else {
+			throw new RuntimeException(
+					"Failed to create folder, status code: " + responseCreate.getStatusLine().getStatusCode());
+		}
+	}
 
-	            if (contentDispositionList != null && !contentDispositionList.isEmpty()) {
-	                String contentDisposition = contentDispositionList.get(0);
-	                Pattern pattern = Pattern.compile("filename=\"?([^\";]*)\"?");
-	                Matcher matcher = pattern.matcher(contentDisposition);
-	                if (matcher.find()) {
-	                    fileName = matcher.group(1);
-	                }
-	            } else {
-	                // Determine the filename based on content type if not provided
-	                String contentType = response.getHeaders().getContentType().toString();
-	                fileName = determineFileName(contentType);
-	            }
+	public ResponseEntity<Map<String, String>> downloadFile(String nodeId) {
+		String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId
+				+ "/content";
 
-	            // Encode the file content in Base64
-	            String encodedContent = Base64.getEncoder().encodeToString(response.getBody());
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
 
-	            // Create a response body with filename and content
-	            Map<String, String> responseBody = Map.of(
-	                "filename", fileName,
-	                "content", encodedContent
-	            );
+		HttpEntity<String> entity = new HttpEntity<>(headers);
 
-	            // Set headers
-	            HttpHeaders responseHeaders = new HttpHeaders();
-	            responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		try {
+			// Make the GET request to retrieve the file
+			ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
 
-	            // Return response entity
-	            return new ResponseEntity<>(responseBody, responseHeaders, HttpStatus.OK);
-	        } catch (Exception e) {
-	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
-	        
-	    }
-	    
-	    private String determineFileName(String contentType) {
-	        switch (contentType) {
-	            case "application/pdf":
-	                return "documento.pdf";
-	            case "application/msword":
-	                return "documento.doc";
-	            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-	                return "documento.docx";
-	            case "application/vnd.ms-excel":
-	                return "documento.xls";
-	            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-	                return "documento.xlsx";
-	            // Agrega más casos según sea necesario
-	            default:
-	                return "archivo.bin"; // Valor por defecto si no se reconoce el tipo
-	        }
-	    }
-	    
-	    //borrar archivo
-	    public ResponseEntity<Void> deleteFile(String nodeId) {
-	        String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId;
+			// Extract Content-Disposition header to get the filename
+			List<String> contentDispositionList = response.getHeaders().get("Content-Disposition");
+			String fileName = "archivo.descargado"; // Default value
 
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+			if (contentDispositionList != null && !contentDispositionList.isEmpty()) {
+				String contentDisposition = contentDispositionList.get(0);
+				Pattern pattern = Pattern.compile("filename=\"?([^\";]*)\"?");
+				Matcher matcher = pattern.matcher(contentDisposition);
+				if (matcher.find()) {
+					fileName = matcher.group(1);
+				}
+			} else {
+				// Determine the filename based on content type if not provided
+				String contentType = response.getHeaders().getContentType().toString();
+				fileName = determineFileName(contentType);
+			}
 
-	        try {
-	            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
-	            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	        } catch (Exception e) {
-	            // Log the error or handle it as needed
-	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
-	    }
-	    
-	
-	    
-	    //para generar el sufijo aleatorio para el nombre de los archivos.
-	    public String getFilenameWithUUID(String originalFilename) {//getFilenameWithTimestamp
-	    
-	        
-	        // Obtener la extensión del archivo y obtener nombre del archivo sin la extensión
-	        String filenameWithoutExtension;
-	        String extension = "";
-	        int dotIndex = originalFilename.lastIndexOf('.');
-	        
-	        if (dotIndex != -1 && dotIndex < originalFilename.length() - 1) {
-	            extension = originalFilename.substring(dotIndex);
-	            filenameWithoutExtension = originalFilename.substring(0, dotIndex);
-	        }else {
-	            filenameWithoutExtension = originalFilename; // No hay extensión
-	        }
+			// Encode the file content in Base64
+			String encodedContent = Base64.getEncoder().encodeToString(response.getBody());
 
-	        // Construir el nuevo nombre del archivo
-	        logger.info("uuid generado para el archivo : " +UUID.randomUUID());
-	        return filenameWithoutExtension+"_" + UUID.randomUUID() + extension;
-	    }
-	    
-	  
+			// Create a response body with filename and content
+			Map<String, String> responseBody = Map.of("filename", fileName, "content", encodedContent);
+
+			// Set headers
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+			// Return response entity
+			return new ResponseEntity<>(responseBody, responseHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+
+	private String determineFileName(String contentType) {
+		switch (contentType) {
+		case "application/pdf":
+			return "documento.pdf";
+		case "application/msword":
+			return "documento.doc";
+		case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+			return "documento.docx";
+		case "application/vnd.ms-excel":
+			return "documento.xls";
+		case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+			return "documento.xlsx";
+		// Agrega más casos según sea necesario
+		default:
+			return "archivo.bin"; // Valor por defecto si no se reconoce el tipo
+		}
+	}
+
+	// borrar archivo
+	public ResponseEntity<Void> deleteFile(String nodeId) {
+		String url = alfrescoProperties.getUrl() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + nodeId;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBasicAuth(alfrescoProperties.getUser(), alfrescoProperties.getPassword());
+
+		try {
+			restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} catch (Exception e) {
+			// Log the error or handle it as needed
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// para generar el sufijo aleatorio para el nombre de los archivos.
+	public String getFilenameWithUUID(String originalFilename) {// getFilenameWithTimestamp
+
+		// Obtener la extensión del archivo y obtener nombre del archivo sin la
+		// extensión
+		String filenameWithoutExtension;
+		String extension = "";
+		int dotIndex = originalFilename.lastIndexOf('.');
+
+		if (dotIndex != -1 && dotIndex < originalFilename.length() - 1) {
+			extension = originalFilename.substring(dotIndex);
+			filenameWithoutExtension = originalFilename.substring(0, dotIndex);
+		} else {
+			filenameWithoutExtension = originalFilename; // No hay extensión
+		}
+
+		// Construir el nuevo nombre del archivo
+		logger.info("uuid generado para el archivo : " + UUID.randomUUID());
+		return filenameWithoutExtension + "_" + UUID.randomUUID() + extension;
+	}
+
 }

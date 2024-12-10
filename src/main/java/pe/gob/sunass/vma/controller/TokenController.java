@@ -13,24 +13,25 @@ import pe.gob.sunass.vma.service.UsuarioService;
 @CrossOrigin
 @RequestMapping("/tokens")
 public class TokenController {
-    private final TokenPasswordService tokenService;
-    private final UsuarioService usuarioService;
 
-    @Autowired
-    public TokenController(TokenPasswordService tokenService, UsuarioService usuarioService) {
-        this.tokenService = tokenService;
-        this.usuarioService = usuarioService;
-    }
+	private final TokenPasswordService tokenService;
+	private final UsuarioService usuarioService;
 
-    @GetMapping("/{token}")
-    public TokenPasswordDTO getToken(@PathVariable String token) {
-        TokenPassword tokenDB = tokenService.findTokenByToken(token);
-        return new TokenPasswordDTO(tokenDB.getToken(), tokenDB.isCompletado(), tokenDB.getFechaExpiracion());
-    }
+	@Autowired
+	public TokenController(TokenPasswordService tokenService, UsuarioService usuarioService) {
+		this.tokenService = tokenService;
+		this.usuarioService = usuarioService;
+	}
 
-    @PostMapping("/recuperar-password/{token}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void recuperarPassword(@PathVariable String token, @RequestBody RecuperarPasswordDTO dto) {
-        usuarioService.recuperarPassword(token, dto);
-    }
+	@GetMapping("/{token}")
+	public TokenPasswordDTO getToken(@PathVariable String token) {
+		TokenPassword tokenDB = tokenService.findTokenByToken(token);
+		return new TokenPasswordDTO(tokenDB.getToken(), tokenDB.isCompletado(), tokenDB.getFechaExpiracion());
+	}
+
+	@PostMapping("/recuperar-password/{token}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void recuperarPassword(@PathVariable String token, @RequestBody RecuperarPasswordDTO dto) {
+		usuarioService.recuperarPassword(token, dto);
+	}
 }

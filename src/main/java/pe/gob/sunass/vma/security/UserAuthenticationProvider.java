@@ -25,22 +25,22 @@ import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.service.UsuarioService;
 
 @Component
-public class UserAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider{
-	
+public class UserAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+
 	private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
-	
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
-    private UsuarioService _usuarioService;
-	
+	private UsuarioService _usuarioService;
+
 	private String userNotFoundEncodedPassword;
 
 	@Override
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-		
+
 		if (authentication.getCredentials() == null) {
 			logger.debug("Authentication failed: no credentials provided");
 			throw new BadCredentialsException(
@@ -65,39 +65,37 @@ public class UserAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 	@Override
 	protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException {
-		
+
 		UserAuthenticationToken authentication2 = (UserAuthenticationToken) authentication;
 		String userName = (String) authentication2.getPrincipal();
 		final String password = (String) authentication2.getCredentials();
 		final String domain = authentication2.getDomain();
-		
+
 		Usuario userRs = null;
 		List<GrantedAuthority> authorities = new ArrayList<>();
-		
+
 		try {
-		
-			Optional<Usuario> optUsuario = _usuarioService.findByUserNameLDAP(username, password, passwordEncoder.encode(password));
-			
-			if(optUsuario.isPresent()) {
-				
+
+			Optional<Usuario> optUsuario = _usuarioService.findByUserNameLDAP(username, password,
+					passwordEncoder.encode(password));
+
+			if (optUsuario.isPresent()) {
+
 				userRs = optUsuario.get();
-				
-				
+
 				if (!userRs.isEnabled()) {
 					throw new DisabledException("El usuario está deshabilitado");
 				}
-				
-				if(!passwordEncoder.matches(password, userRs.getPassword())) {
+
+				if (!passwordEncoder.matches(password, userRs.getPassword())) {
 					throw new BadCredentialsException("Usuario y/o contraseña incorrecto");
-				}
-				else {
+				} else {
 					authorities.add(new SimpleGrantedAuthority(userRs.getRole().getAuth()));
 				}
-			}
-			else {
+			} else {
 				throw new BadCredentialsException("Usuario y/o contraseña incorrecto");
 			}
-		
+
 		} catch (UsernameNotFoundException ex) {
 			if (password != null) {
 				String presentedPassword = authentication.getCredentials().toString();
@@ -107,10 +105,12 @@ public class UserAuthenticationProvider extends AbstractUserDetailsAuthenticatio
 		} catch (Exception ex) {
 			throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
 		}
-		
+
 		return new User(userRs.getUserName(), userRs.getPassword(), authorities);
-		
-		//return _usuarioService.findByUserNameLDAP(username, password, passwordEncoder.encode(password)).orElseThrow(() -> new RuntimeException("User not found"));
+
+		// return _usuarioService.findByUserNameLDAP(username, password,
+		// passwordEncoder.encode(password)).orElseThrow(() -> new
+		// RuntimeException("User not found"));
 	}
-	
+
 }

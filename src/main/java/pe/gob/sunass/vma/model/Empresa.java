@@ -20,133 +20,131 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.NoArgsConstructor;
 
-
 @NoArgsConstructor
 @Entity
-@Table(schema="vma", name="empresa")
+@Table(schema = "vma", name = "empresa")
 public class Empresa implements Serializable {
-	
-		private static final long serialVersionUID = -8301257302917630690L;
 
-		@Id
-		@GeneratedValue(strategy=GenerationType.IDENTITY)
-		@Column(name="id_empresa")
-		private Integer idEmpresa;
+	private static final long serialVersionUID = -8301257302917630690L;
 
-		@Column(name="nombre", length=200, nullable=false)
-		private String nombre;
-		
-		@Column(name="regimen", length=50, nullable=false)
-		private String regimen;
-		
-		@Column(name="tipo", length=50, nullable=false)
-		private String tipo;
-		
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_empresa")
+	private Integer idEmpresa;
+
+	@Column(name = "nombre", length = 200, nullable = false)
+	private String nombre;
+
+	@Column(name = "regimen", length = 50, nullable = false)
+	private String regimen;
+
+	@Column(name = "tipo", length = 50, nullable = false)
+	private String tipo;
+
 //		@ManyToOne(fetch=FetchType.EAGER, optional=false)
 //		@JoinColumn(name="id_tipo_empresa", referencedColumnName="id_tipo_empresa", nullable=false)
 //		private TipoEmpresa tipoEmpresa;
 
-		@Temporal(TemporalType.TIMESTAMP)
-		@Column(name="created_at", nullable=false)
-		private Date createdAt;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created_at", nullable = false)
+	private Date createdAt;
 
-		@Temporal(TemporalType.TIMESTAMP)
-		@Column(name="updated_at", nullable=true)
-		private Date updatedAt;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "updated_at", nullable = true)
+	private Date updatedAt;
 
-		@Column(name="id_usuario_registro", nullable=true)
-		private Integer idUsuarioRegistro;
-		
-		@Column(name="id_usuario_actualizacion", nullable=true)
-		private Integer idUsuarioActualizacion;
-		
-		@Column(name="estado")
-		private Boolean estado;
-		
-		@OneToMany(mappedBy = "empresa")
-		@JsonIgnore 
-		private List<RegistroVMA> registrosVMA;
+	@Column(name = "id_usuario_registro", nullable = true)
+	private Integer idUsuarioRegistro;
 
-		public String getRegimen() {
-			return regimen;
-		}
+	@Column(name = "id_usuario_actualizacion", nullable = true)
+	private Integer idUsuarioActualizacion;
 
-		public void setRegimen(String regimen) {
-			this.regimen = regimen;
-		}
+	@Column(name = "estado")
+	private Boolean estado;
 
-		public String getTipo() {
-			return tipo;
-		}
+	@OneToMany(mappedBy = "empresa")
+	@JsonIgnore
+	private List<RegistroVMA> registrosVMA;
 
-		public void setTipo(String tipo) {
-			this.tipo = tipo;
-		}
+	public String getRegimen() {
+		return regimen;
+	}
 
-		public Date getCreatedAt() {
-			return createdAt;
-		}
+	public void setRegimen(String regimen) {
+		this.regimen = regimen;
+	}
 
-		public void setCreatedAt(Date createdAt) {
-			this.createdAt = createdAt;
-		}
+	public String getTipo() {
+		return tipo;
+	}
 
-		public Date getUpdatedAt() {
-			return updatedAt;
-		}
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
 
-		public void setUpdatedAt(Date updatedAt) {
-			this.updatedAt = updatedAt;
-		}
+	public Date getCreatedAt() {
+		return createdAt;
+	}
 
-		public String getNombre() {
-			return nombre;
-		}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
 
-		public void setNombre(String nombre) {
-			this.nombre = nombre;
-		}
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
 
-		
-		public Integer getIdEmpresa() {
-			return idEmpresa;
-		}
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-		public void setIdEmpresa(Integer idEmpresa) {
-			this.idEmpresa = idEmpresa;
-		}
+	public String getNombre() {
+		return nombre;
+	}
 
-		public Boolean getEstado() {
-			return estado;
-		}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-		public void setEstado(Boolean estado) {
-			this.estado = estado;
-		}
+	public Integer getIdEmpresa() {
+		return idEmpresa;
+	}
 
-		public Integer getIdUsuarioRegistro() {
-			return idUsuarioRegistro;
-		}
+	public void setIdEmpresa(Integer idEmpresa) {
+		this.idEmpresa = idEmpresa;
+	}
 
-		public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
-			this.idUsuarioRegistro = idUsuarioRegistro;
-		}
+	public Boolean getEstado() {
+		return estado;
+	}
 
-		public Integer getIdUsuarioActualizacion() {
-			return idUsuarioActualizacion;
-		}
+	public void setEstado(Boolean estado) {
+		this.estado = estado;
+	}
 
-		public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
-			this.idUsuarioActualizacion = idUsuarioActualizacion;
-		}
+	public Integer getIdUsuarioRegistro() {
+		return idUsuarioRegistro;
+	}
 
-		public List<RegistroVMA> getRegistrosVMA() {
-			return registrosVMA;
-		}
+	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
+		this.idUsuarioRegistro = idUsuarioRegistro;
+	}
 
-		public void setRegistrosVMA(List<RegistroVMA> registrosVMA) {
-			this.registrosVMA = registrosVMA;
-		}
+	public Integer getIdUsuarioActualizacion() {
+		return idUsuarioActualizacion;
+	}
+
+	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
+		this.idUsuarioActualizacion = idUsuarioActualizacion;
+	}
+
+	public List<RegistroVMA> getRegistrosVMA() {
+		return registrosVMA;
+	}
+
+	public void setRegistrosVMA(List<RegistroVMA> registrosVMA) {
+		this.registrosVMA = registrosVMA;
+	}
 
 //		public TipoEmpresa getTipoEmpresa() {
 //			return tipoEmpresa;
@@ -155,6 +153,5 @@ public class Empresa implements Serializable {
 //		public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
 //			this.tipoEmpresa = tipoEmpresa;
 //		}
-		
-	
+
 }

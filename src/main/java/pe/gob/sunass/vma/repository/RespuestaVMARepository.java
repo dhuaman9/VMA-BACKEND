@@ -22,10 +22,7 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.idRegistroVma = :registroVmaId")
 	RespuestaVMA findRespuestasByIdPreguntaAndRegistroVma(Integer preguntaId, Integer registroVmaId);
 
-//	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
-//	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
-	
-	
+
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
 	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
 
@@ -34,7 +31,6 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	
 	//para anexos
 	
-	//@Query(value = "SELECT SUM(CAST(r.respuesta AS INTEGER)) FROM vma.respuesta_vma r WHERE r.id_alternativa = :alternativaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	@Query("FROM RespuestaVMA r WHERE r.idAlternativa = :alternativaId and r.registroVMA.idRegistroVma = :registroId")
 	RespuestaVMA findRespuestaAlternativaPorRegistros(Integer alternativaId, Integer registroId);
 
@@ -42,7 +38,6 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 			"FROM RespuestaVMA r WHERE r.idPregunta = :idPregunta AND r.registroVMA.idRegistroVma = :idRegistroVMA")
 	boolean isRespuestaArchivoInformacionCompleto(Integer idPregunta, Integer idRegistroVMA);
 
-	// @Query("SELECT SUM(CAST(r.respuesta AS integer)) FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId AND r.idRegistroVma IN :registroVMAIds")
 	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumaTrabajadoresDesdicadosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
@@ -54,7 +49,6 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	Integer getSumatotalUNDInscritosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
 	
-	//generico
 	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalRespuestaPorRegistros(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 	

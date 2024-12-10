@@ -160,7 +160,7 @@ public class UsuarioService {
 		} else if (dto.getTipo().equals(Constants.EMPRESA_EPS)) {
 
 			Optional<Empresa> optEmpresa2 = this.empresaRepository.findByIdEmpresa(dto.getEmpresa().getIdEmpresa());
-			
+
 			usuario.setTipo(dto.getTipo());
 			usuario.setRole(optRole.get());
 			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
@@ -181,10 +181,10 @@ public class UsuarioService {
 
 		usuario = this.usuarioRepository.save(usuario);
 
-		//Se genera token y se envía correo para cambiar contraseña
-	
-		if(usuario.getTipo().equals("EPS")) {
-		//	String token = tokenPasswordService.crearToken(usuario);
+		// Se genera token y se envía correo para cambiar contraseña
+
+		if (usuario.getTipo().equals("EPS")) {
+			// String token = tokenPasswordService.crearToken(usuario);
 			tokenPasswordService.crearToken(usuario);
 //			emailService.sendEmail(dto, token);  // pendiente, no se necesita enviar correo, pero si crear token, para q tenga 5 dias habiles en cambiar su clave.
 		}
@@ -204,8 +204,6 @@ public class UsuarioService {
 
 		if (optUser.isPresent()) {
 			usuario = optUser.get();
-			
-
 
 			if (dto.getUserName() != null && !dto.getUserName().isEmpty()) {
 				if (!dto.getUserName().equals(usuario.getUserName())) {
@@ -219,32 +217,32 @@ public class UsuarioService {
 					usuario.setUserName(dto.getUserName().toLowerCase());
 				}
 			}
-			// si se necesita enviar   correos, usar esto : 
-			/*if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-				
-				// si se necesita enviar   correos, usar esto :  
-				if(usuario.getTipo().equals("EPS")) {
-					String token = tokenPasswordService.crearToken(usuario);
-					emailService.sendEmail(dto, token);
-				}
-				//.....
-				
-			}*/
-			
+			// si se necesita enviar correos, usar esto :
+			/*
+			 * if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+			 * 
+			 * // si se necesita enviar correos, usar esto :
+			 * if(usuario.getTipo().equals("EPS")) { String token =
+			 * tokenPasswordService.crearToken(usuario); emailService.sendEmail(dto, token);
+			 * } //.....
+			 * 
+			 * }
+			 */
+
 			if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
 				if (!dto.getTipo().equals(usuario.getTipo())) {
 					usuario.setTipo(dto.getTipo());
 				}
 			}
-			if (dto.getEmpresa() != null && dto.getEmpresa().getIdEmpresa()!= null) {
-				
+			if (dto.getEmpresa() != null && dto.getEmpresa().getIdEmpresa() != null) {
+
 				Optional<Empresa> optEmpresa = this.empresaRepository.findById(dto.getEmpresa().getIdEmpresa());
 
 				if (!optEmpresa.isPresent()) {
 					throw new Exception(" la empresa no existe");
 				}
 				usuario.setEmpresa(optEmpresa.get());
-				
+
 			}
 			if (dto.getNombres() != null && !dto.getNombres().isEmpty()) {
 				if (!dto.getNombres().equals(usuario.getNombres())) {
@@ -366,7 +364,8 @@ public class UsuarioService {
 			List<UsuarioDTO> listaUsuario = new ArrayList<>();
 			DirContext ldapContext = conectarLDAP();
 			SearchControls searchCtls = new SearchControls();
-			String returnedAtts[] = { Constants.AD.APELLIDOS, Constants.AD.NOMBRES, Constants.AD.CORREO, Constants.AD.AREA, Constants.AD.USERNAME };
+			String returnedAtts[] = { Constants.AD.APELLIDOS, Constants.AD.NOMBRES, Constants.AD.CORREO,
+					Constants.AD.AREA, Constants.AD.USERNAME };
 			searchCtls.setReturningAttributes(returnedAtts);
 			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			String searchFilter = "(&(objectClass=user))";
@@ -382,15 +381,16 @@ public class UsuarioService {
 				SearchResult sr = (SearchResult) answerLima.next();
 				Attributes attrs = sr.getAttributes();
 				UsuarioDTO userLdap = new UsuarioDTO();
-				userLdap.setCorreo((String) (attrs.get(Constants.AD.CORREO) == null ? "" : attrs.get(Constants.AD.CORREO).get()));
-				userLdap.setNombres(((String) (attrs.get(Constants.AD.NOMBRES) == null ? "" : attrs.get(Constants.AD.NOMBRES).get()))
-						.toUpperCase().trim());
-				userLdap.setApellidos(
-						((String) (attrs.get(Constants.AD.APELLIDOS) == null ? "" : attrs.get(Constants.AD.APELLIDOS).get())).toUpperCase().trim());
-				userLdap.setUnidadOrganica((String) (attrs.get(Constants.AD.AREA) == null ? ""
-						: attrs.get(Constants.AD.AREA).get()));
-				userLdap.setUserName(
-						(String) (attrs.get(Constants.AD.USERNAME) == null ? "" : attrs.get(Constants.AD.USERNAME).get()));
+				userLdap.setCorreo(
+						(String) (attrs.get(Constants.AD.CORREO) == null ? "" : attrs.get(Constants.AD.CORREO).get()));
+				userLdap.setNombres(((String) (attrs.get(Constants.AD.NOMBRES) == null ? ""
+						: attrs.get(Constants.AD.NOMBRES).get())).toUpperCase().trim());
+				userLdap.setApellidos(((String) (attrs.get(Constants.AD.APELLIDOS) == null ? ""
+						: attrs.get(Constants.AD.APELLIDOS).get())).toUpperCase().trim());
+				userLdap.setUnidadOrganica(
+						(String) (attrs.get(Constants.AD.AREA) == null ? "" : attrs.get(Constants.AD.AREA).get()));
+				userLdap.setUserName((String) (attrs.get(Constants.AD.USERNAME) == null ? ""
+						: attrs.get(Constants.AD.USERNAME).get()));
 
 				listaUsuario.add(userLdap);
 			}
@@ -436,41 +436,38 @@ public class UsuarioService {
 
 		return dirContext;
 	}
-	
-	//metodo para cambiar de contraseña, para usuarios tipo EPS, indistinto del rol que tengan.
+
+	// metodo para cambiar de contraseña, para usuarios tipo EPS, indistinto del rol
+	// que tengan.
 	public void cambiarPassword(String username, CambioPasswordDTO cambioPasswordDTO) {
-		
-        Usuario usuario = usuarioRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Verificar la contraseña actual
-        if (!passwordEncoder.matches(cambioPasswordDTO.getPasswordActual(), usuario.getPassword())) {
-            throw new FailledValidationException("La contraseña actual es incorrecta");
-        }
+		Usuario usuario = usuarioRepository.findByUserName(username)
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Verificar que la nueva contraseña y la confirmación coincidan
-        if (!cambioPasswordDTO.getNuevaPassword().equals(cambioPasswordDTO.getConfirmarPassword())) {
-            throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
-        }
+		// Verificar la contraseña actual
+		if (!passwordEncoder.matches(cambioPasswordDTO.getPasswordActual(), usuario.getPassword())) {
+			throw new FailledValidationException("La contraseña actual es incorrecta");
+		}
 
-        // Cambiar la contraseña
-        usuario.setPassword(passwordEncoder.encode(cambioPasswordDTO.getNuevaPassword()));
-        usuarioRepository.save(usuario);
-    }
+		// Verificar que la nueva contraseña y la confirmación coincidan
+		if (!cambioPasswordDTO.getNuevaPassword().equals(cambioPasswordDTO.getConfirmarPassword())) {
+			throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
+		}
+
+		// Cambiar la contraseña
+		usuario.setPassword(passwordEncoder.encode(cambioPasswordDTO.getNuevaPassword()));
+		usuarioRepository.save(usuario);
+	}
 
 	public void cambiarPasswordUsuario(CambiarPasswordUsuarioDTO dto) throws Exception {
 		Usuario usuario = usuarioRepository.findByUserName(dto.getUsername())
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-		/*if (!dto.getNuevaPassword().equals(dto.getRepetirPassword())) {
-			throw new FailledValidationException("La nueva contraseña y la confirmación no coinciden");
-		}*/
-
 		usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
 		usuario.setPasswordCambiado(false);
 		usuarioRepository.save(usuario);
 		tokenPasswordService.actualizarTiempoToken(usuario.getId());
-		//emailService.sendEmail(usuario, dto.getNuevaPassword(), token); // en caso se necesite enviar correos
+		
 	}
 
 	@org.springframework.transaction.annotation.Transactional
@@ -484,20 +481,17 @@ public class UsuarioService {
 		tokenDB.setCompletado(true);
 		tokenPasswordService.save(tokenDB);
 	}
-	
+
 	@org.springframework.transaction.annotation.Transactional
 	public void actualizarTokenPasswordUsuario(Integer userId) throws Exception {
 		Usuario user = usuarioRepository.findById(userId)
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-		
-//		String token = tokenPasswordService.actualizarTiempoToken(user.getId());//antes
-		tokenPasswordService.actualizarTiempoToken(user.getId());//despues
-		
+
+		tokenPasswordService.actualizarTiempoToken(user.getId());
+
 		user.setPasswordCambiado(false);
 		usuarioRepository.save(user);
-//		emailService.enviarMailActualizarToken(user, token);
-		
+
 	}
-	
-	
+
 }

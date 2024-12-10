@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.dto.reportes;
 
 public class BarraDto {
+	
     private String tipo;
     private Integer cantidadRegistradoPorEmpresa;
     private Integer cantidadTotalRegistradoPorEmpresa;

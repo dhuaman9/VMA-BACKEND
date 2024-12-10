@@ -19,38 +19,29 @@ import pe.gob.sunass.vma.security.jwt.JWTAuthenticationFilter;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class HttpSecurityConfig {
-	
-	
-	@Autowired
-    private JWTAuthenticationFilter authenticationFilter;
-    
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-    	http.csrf().disable()
-				.httpBasic().disable()
-				.cors()
-				.and()
-				.authorizeRequests(configurer -> configurer
-						.antMatchers("/error").permitAll()
+	@Autowired
+	private JWTAuthenticationFilter authenticationFilter;
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+		http.csrf().disable().httpBasic().disable().cors().and()
+				.authorizeRequests(configurer -> configurer.antMatchers("/error").permitAll()
 						.antMatchers("http://apps.sunass.gob.pe/").permitAll()
-						.antMatchers("/", "/home/index", "/swagger/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger.json/**").permitAll()
-						.antMatchers(HttpMethod.POST, "/auth/**").permitAll()
-						.antMatchers( "/tokens/**").permitAll()
-						.antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DF", "CONSULTOR")
-						.anyRequest().authenticated()
-						)
+						.antMatchers("/", "/home/index", "/swagger/**", "/swagger-ui/**", "/swagger-resources/**",
+								"/swagger.json/**")
+						.permitAll().antMatchers(HttpMethod.POST, "/auth/**").permitAll().antMatchers("/tokens/**")
+						.permitAll().antMatchers("/anexos/**").hasAnyAuthority("ADMINISTRADOR DF", "CONSULTOR")
+						.anyRequest().authenticated())
 				.exceptionHandling()
-				.authenticationEntryPoint(
-						(request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-								"Unauthorized"))
-				.and()
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.authenticationEntryPoint((request, response, authException) -> response
+						.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.headers().frameOptions().sameOrigin();
 		http.addFilterBefore(authenticationFilter, UserAuthenticationFilter.class);
 		http.exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint());
-		
+
 		return http.build();
-    }
+	}
 }

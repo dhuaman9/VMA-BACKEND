@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.*;
@@ -24,145 +23,139 @@ import java.util.stream.Collectors;
 
 @Service
 public class CuestionarioService {
-	
-	 @Autowired
-    private  CuestionarioRepository cuestionarioRepository;
-	 
-	 @Autowired
-	 private  SeccionRepository seccionRepository;
-	 @Autowired
-     private  RespuestaVMARepository respuestaVMARepository;
-	 @Autowired
-     private  RegistroVMARepository registroVMARepository;
 
-    CuestionarioService(SeccionRepository seccionRepository) {
-        this.seccionRepository = seccionRepository;
-    }
+	@Autowired
+	private CuestionarioRepository cuestionarioRepository;
 
-    public Optional<Cuestionario> findById(Integer idCuestionario) {
-        Optional<Cuestionario> cuestionario = cuestionarioRepository.findById(idCuestionario);
+	@Autowired
+	private SeccionRepository seccionRepository;
+	@Autowired
+	private RespuestaVMARepository respuestaVMARepository;
+	@Autowired
+	private RegistroVMARepository registroVMARepository;
 
-        cuestionario.ifPresent(cuestionarioEncontrado -> {
-            cuestionarioEncontrado.setSecciones(seccionRepository.findAllByCuestionarioId(idCuestionario));
-        });
+	CuestionarioService(SeccionRepository seccionRepository) {
+		this.seccionRepository = seccionRepository;
+	}
 
-        return cuestionario;
-    }
-    
-    //obtiene el cuestionario segun el ultimo ID
-    public Optional<Cuestionario>  getLastCuestionario() {
-    	 Optional<Cuestionario> cuestionario  = cuestionarioRepository.getLastCuestionario();
+	public Optional<Cuestionario> findById(Integer idCuestionario) {
+		Optional<Cuestionario> cuestionario = cuestionarioRepository.findById(idCuestionario);
 
-    	 
-    	 cuestionario.ifPresent(cuestionarioEncontrado -> {
-             cuestionarioEncontrado.setSecciones(seccionRepository.findAllByCuestionarioId(cuestionario.get().getIdCuestionario()));
-         });
+		cuestionario.ifPresent(cuestionarioEncontrado -> {
+			cuestionarioEncontrado.setSecciones(seccionRepository.findAllByCuestionarioId(idCuestionario));
+		});
 
-         return cuestionario;
-    }
+		return cuestionario;
+	}
 
-    public CuestionarioDTO getCuestionarioConRespuestas(Integer idRegistroVma) {
-        Optional<RegistroVMA> registroVMAOpt = registroVMARepository.findById(idRegistroVma);
+	// obtiene el cuestionario segun el ultimo ID
+	public Optional<Cuestionario> getLastCuestionario() {
+		Optional<Cuestionario> cuestionario = cuestionarioRepository.getLastCuestionario();
 
-        if(registroVMAOpt.isEmpty()) {
-            return null;
-        }
+		cuestionario.ifPresent(cuestionarioEncontrado -> {
+			cuestionarioEncontrado
+					.setSecciones(seccionRepository.findAllByCuestionarioId(cuestionario.get().getIdCuestionario()));
+		});
 
-        Optional<Cuestionario> lastCuestionario = getLastCuestionario();
+		return cuestionario;
+	}
 
-        if(lastCuestionario.isEmpty()){
-            return null;
-        }
+	public CuestionarioDTO getCuestionarioConRespuestas(Integer idRegistroVma) {
+		Optional<RegistroVMA> registroVMAOpt = registroVMARepository.findById(idRegistroVma);
 
-        List<RespuestaVMA> respuestas = respuestaVMARepository.findByRegistroVMAId(idRegistroVma);
+		if (registroVMAOpt.isEmpty()) {
+			return null;
+		}
 
-        Cuestionario cuestionario = lastCuestionario.get();
-        DatosUsuarioRegistradorDto datosUsuarioRegistradorDto = null;
-        if(registroVMAOpt.get().getEstado().equals("COMPLETO")) {
-            datosUsuarioRegistradorDto =
-                    new DatosUsuarioRegistradorDto(
-                            registroVMAOpt.get().getNombreCompleto(),
-                            registroVMAOpt.get().getEmail(),
-                            registroVMAOpt.get().getTelefono());
-        }
+		Optional<Cuestionario> lastCuestionario = getLastCuestionario();
 
+		if (lastCuestionario.isEmpty()) {
+			return null;
+		}
 
-        return mapToCuestionarioDTO(cuestionario, respuestas, idRegistroVma, datosUsuarioRegistradorDto);
-    }
+		List<RespuestaVMA> respuestas = respuestaVMARepository.findByRegistroVMAId(idRegistroVma);
 
-    private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas, Integer idRegistroVma, DatosUsuarioRegistradorDto datosUsuarioRegistradorDto){
-        return new CuestionarioDTO(cuestionario.getIdCuestionario(),
-                cuestionario.getNombre(),
-                cuestionario.getSecciones()
-                        .stream()
-                        .map(sec -> mapToSeccionDTO(sec, respuestas, idRegistroVma))
-                        .collect(Collectors.toList()),
-                datosUsuarioRegistradorDto);
-    }
+		Cuestionario cuestionario = lastCuestionario.get();
+		DatosUsuarioRegistradorDto datosUsuarioRegistradorDto = null;
+		if (registroVMAOpt.get().getEstado().equals("COMPLETO")) {
+			datosUsuarioRegistradorDto = new DatosUsuarioRegistradorDto(registroVMAOpt.get().getNombreCompleto(),
+					registroVMAOpt.get().getEmail(), registroVMAOpt.get().getTelefono());
+		}
 
-    private SeccionDTO mapToSeccionDTO(Seccion seccion, List<RespuestaVMA> respuestas, Integer idRegistroVma) {
-        return new SeccionDTO(
-                seccion.getIdSeccion(),
-                seccion.getNombre(),
-                seccion.getOrden(),
-                seccion.getPreguntas()
-                        .stream()
-                        .map(pregunta -> mapToPreguntaDTO(pregunta, respuestasByPreguntaId(respuestas, pregunta.getIdPregunta()), false, idRegistroVma))
-                        .collect(Collectors.toList()));
-    }
+		return mapToCuestionarioDTO(cuestionario, respuestas, idRegistroVma, datosUsuarioRegistradorDto);
+	}
 
-    private List<RespuestaVMA> respuestasByPreguntaId(List<RespuestaVMA> respuestas, Integer idPregunta) {
-        return respuestas
-                .stream()
-                .filter(respuesta -> respuesta.getIdPregunta().equals(idPregunta))
-                .collect(Collectors.toList());
-    }
+	private CuestionarioDTO mapToCuestionarioDTO(Cuestionario cuestionario, List<RespuestaVMA> respuestas,
+			Integer idRegistroVma, DatosUsuarioRegistradorDto datosUsuarioRegistradorDto) {
+		return new CuestionarioDTO(
+				cuestionario.getIdCuestionario(), cuestionario.getNombre(), cuestionario.getSecciones().stream()
+						.map(sec -> mapToSeccionDTO(sec, respuestas, idRegistroVma)).collect(Collectors.toList()),
+				datosUsuarioRegistradorDto);
+	}
 
-    private PreguntaDTO mapToPreguntaDTO(Pregunta pregunta, List<RespuestaVMA> respuestas, boolean esDependiente, Integer idRegistroVma) {
-        RespuestaDTO respuestaDTO = null;
-        if(respuestas.size() == 1 && (pregunta.getAlternativas().isEmpty() || pregunta.getTipoPregunta().equals(TipoPregunta.RADIO)) && !esDependiente) {
-            RespuestaVMA respuesta = respuestas.get(0);
-            respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
-        } else if(esDependiente) {
-        	
-        	RespuestaVMA respuesta = respuestaVMARepository.findRespuestasByIdPreguntaAndRegistroVma(pregunta.getIdPregunta(), idRegistroVma);
-            if(Objects.nonNull(respuesta)) {
-                respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta());
-            }
-        
-        }
+	private SeccionDTO mapToSeccionDTO(Seccion seccion, List<RespuestaVMA> respuestas, Integer idRegistroVma) {
+		return new SeccionDTO(seccion.getIdSeccion(), seccion.getNombre(), seccion.getOrden(),
+				seccion.getPreguntas().stream()
+						.map(pregunta -> mapToPreguntaDTO(pregunta,
+								respuestasByPreguntaId(respuestas, pregunta.getIdPregunta()), false, idRegistroVma))
+						.collect(Collectors.toList()));
+	}
 
-        return new PreguntaDTO(
-                pregunta.getIdPregunta(),
-                pregunta.getDescripcion(),
-                pregunta.getOrden(),
-                pregunta.getTipoPregunta(),
-                pregunta.getAlternativas()
-                        .stream()
-                        .map(alternativa -> mapToAlternativaDTO(alternativa, getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
-                        .collect(Collectors.toList()),
-                respuestaDTO,
-                Objects.nonNull(pregunta.getPreguntaDependiente()) ? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma) : null,
-                Objects.nonNull(pregunta.getMetadato()) ? mapToMetadatoDTO(pregunta.getMetadato()) : null
-                );
-    }
+	private List<RespuestaVMA> respuestasByPreguntaId(List<RespuestaVMA> respuestas, Integer idPregunta) {
+		return respuestas.stream().filter(respuesta -> respuesta.getIdPregunta().equals(idPregunta))
+				.collect(Collectors.toList());
+	}
 
-    private RespuestaVMA getRespuestaAlternativa(Integer idAlternativa, List<RespuestaVMA> respuestas) {
-        return respuestas
-                .stream()
-                .filter(res -> res.getIdAlternativa() != null && res.getIdAlternativa().equals(idAlternativa))
-                .findFirst()
-                .orElse(null);
-    }
+	private PreguntaDTO mapToPreguntaDTO(Pregunta pregunta, List<RespuestaVMA> respuestas, boolean esDependiente,
+			Integer idRegistroVma) {
+		RespuestaDTO respuestaDTO = null;
+		if (respuestas.size() == 1
+				&& (pregunta.getAlternativas().isEmpty() || pregunta.getTipoPregunta().equals(TipoPregunta.RADIO))
+				&& !esDependiente) {
+			RespuestaVMA respuesta = respuestas.get(0);
+			respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(),
+					respuesta.getIdPregunta(), respuesta.getRespuesta());
+		} else if (esDependiente) {
 
-    private AlternativaDTO mapToAlternativaDTO(Alternativa alternativa, RespuestaVMA respuesta) {
-        return new AlternativaDTO(alternativa.getIdAlternativa(),
-                alternativa.getNombreCampo(),
-                alternativa.getRequerido(),
-                respuesta != null ? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(), respuesta.getIdPregunta(), respuesta.getRespuesta()) : null);
-    }
+			RespuestaVMA respuesta = respuestaVMARepository
+					.findRespuestasByIdPreguntaAndRegistroVma(pregunta.getIdPregunta(), idRegistroVma);
+			if (Objects.nonNull(respuesta)) {
+				respuestaDTO = new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(),
+						respuesta.getIdPregunta(), respuesta.getRespuesta());
+			}
 
-    private MetadatoDto mapToMetadatoDTO(Metadato metadato) {
-        return new MetadatoDto(metadato.getTipoArchivosPermitidos(), metadato.getMaxSizeInMB(), metadato.isRequerido(), metadato.getId(), metadato.isDecimal());
-    }
+		}
+
+		return new PreguntaDTO(pregunta.getIdPregunta(), pregunta.getDescripcion(), pregunta.getOrden(),
+				pregunta.getTipoPregunta(),
+				pregunta.getAlternativas().stream()
+						.map(alternativa -> mapToAlternativaDTO(alternativa,
+								getRespuestaAlternativa(alternativa.getIdAlternativa(), respuestas)))
+						.collect(Collectors.toList()),
+				respuestaDTO,
+				Objects.nonNull(pregunta.getPreguntaDependiente())
+						? mapToPreguntaDTO(pregunta.getPreguntaDependiente(), respuestas, true, idRegistroVma)
+						: null,
+				Objects.nonNull(pregunta.getMetadato()) ? mapToMetadatoDTO(pregunta.getMetadato()) : null);
+	}
+
+	private RespuestaVMA getRespuestaAlternativa(Integer idAlternativa, List<RespuestaVMA> respuestas) {
+		return respuestas.stream()
+				.filter(res -> res.getIdAlternativa() != null && res.getIdAlternativa().equals(idAlternativa))
+				.findFirst().orElse(null);
+	}
+
+	private AlternativaDTO mapToAlternativaDTO(Alternativa alternativa, RespuestaVMA respuesta) {
+		return new AlternativaDTO(alternativa.getIdAlternativa(), alternativa.getNombreCampo(),
+				alternativa.getRequerido(),
+				respuesta != null
+						? new RespuestaDTO(respuesta.getIdRespuestaVMA(), respuesta.getIdAlternativa(),
+								respuesta.getIdPregunta(), respuesta.getRespuesta())
+						: null);
+	}
+
+	private MetadatoDto mapToMetadatoDTO(Metadato metadato) {
+		return new MetadatoDto(metadato.getTipoArchivosPermitidos(), metadato.getMaxSizeInMB(), metadato.isRequerido(),
+				metadato.getId(), metadato.isDecimal());
+	}
 }

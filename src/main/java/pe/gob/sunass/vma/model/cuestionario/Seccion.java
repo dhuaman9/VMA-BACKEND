@@ -9,28 +9,27 @@ import java.util.List;
 import javax.persistence.*;
 
 @Entity
-@Table(schema="vma", name="secciones")
-public class Seccion implements Serializable{
-	
-	
+@Table(schema = "vma", name = "secciones")
+public class Seccion implements Serializable {
+
 	private static final long serialVersionUID = -8301257302917630690L;
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id_seccion")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_seccion")
 	private Integer idSeccion;
 
 	@Column(name = "nombre")
-    private String nombre;
-	
+	private String nombre;
+
 	@Column(name = "orden")
-    private Integer orden;
-	
-	@Column(name="estado",  nullable=false)
+	private Integer orden;
+
+	@Column(name = "estado", nullable = false)
 	private Boolean estado;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_creacion", nullable=false)
+	@Column(name = "fecha_creacion", nullable = false)
 	private Date createdAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -83,7 +82,6 @@ public class Seccion implements Serializable{
 		this.createdAt = createdAt;
 	}
 
-	
 	public List<Pregunta> getPreguntas() {
 		return preguntas;
 	}

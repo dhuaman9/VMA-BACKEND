@@ -26,58 +26,56 @@ import pe.gob.sunass.vma.security.jwt.JWTBean;
 public class SecurityBeansInjector {
 
 	@Value("${cors.urls}")
-    private String CORS_URL;
-	
+	private String CORS_URL;
+
 	@Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-	
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
 	@Bean
 	public JWTBean jwtBean(@Qualifier("myAppCredential") AppCredential appCredential) {
 		return new JWTBean(appCredential.getJwtSecretKey());
 	}
-	
+
 	@Bean
 	public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
-		
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
 		CorsConfiguration config = new CorsConfiguration();
-		
+
 		List<String> myAllowedOrigins = new ArrayList<>();
-		
+
 		String urls = CORS_URL;
-		
-		if(urls != null) {
-			for(String url: urls.split(",")) {
-				
-				if(!url.isEmpty()) {
+
+		if (urls != null) {
+			for (String url : urls.split(",")) {
+
+				if (!url.isEmpty()) {
 					myAllowedOrigins.add(url.trim());
 				}
-	        }
+			}
 		}
-		
-		if((!myAllowedOrigins.isEmpty()) && myAllowedOrigins.size()>0) {
+
+		if ((!myAllowedOrigins.isEmpty()) && myAllowedOrigins.size() > 0) {
 			config.setAllowedOrigins(myAllowedOrigins);
-		}
-		else {
-		
+		} else {
+
 			config.setAllowedOriginPatterns(Collections.singletonList("*"));
 			config.setAllowedOrigins(Collections.singletonList("*"));
 		}
-		
-		
+
 		/*
-		config.setAllowedOriginPatterns(Collections.singletonList("*"));
-		config.setAllowedOrigins(Collections.singletonList("*"));
-		*/
-		
+		 * config.setAllowedOriginPatterns(Collections.singletonList("*"));
+		 * config.setAllowedOrigins(Collections.singletonList("*"));
+		 */
+
 		config.setAllowedMethods(Collections.singletonList("*"));
 		config.setAllowedHeaders(Collections.singletonList("*"));
-		
+
 		source.registerCorsConfiguration("/**", config);
-		
+
 		FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
 		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		return bean;

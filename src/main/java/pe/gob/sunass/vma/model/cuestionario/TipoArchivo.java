@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoArchivo {
+	
     XLS("application/vnd.ms-excel"),
     XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     DOC("application/msword"),

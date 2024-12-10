@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,21 +7,19 @@ import pe.gob.sunass.vma.model.TipoEmpresa;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-
 @JsonInclude(Include.NON_EMPTY)
 public class EmpresaDTO {
-	
-	
+
 	private Integer idEmpresa;
 
 	private String nombre;
-	
+
 	private String regimen;
-	
+
 	private String tipo;
-	
-	//private TipoEmpresa tipoEmpresa;
-	
+
+	// private TipoEmpresa tipoEmpresa;
+
 	private Boolean estado;
 
 	@JsonProperty("created_at")
@@ -30,14 +27,13 @@ public class EmpresaDTO {
 
 	@JsonProperty("updated_at")
 	private String updatedAt;
-	
+
 	@JsonProperty("id_usuario_registro")
 	private Integer idUsuarioRegistro;
-	
+
 	@JsonProperty("id_usuario_actualizacion")
 	private Integer idUsuarioActualizacion;
 
-	
 	public String getRegimen() {
 		return regimen;
 	}
@@ -46,7 +42,6 @@ public class EmpresaDTO {
 		this.regimen = regimen;
 	}
 
-	
 	public String getTipo() {
 		return tipo;
 	}
@@ -118,6 +113,5 @@ public class EmpresaDTO {
 	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
 		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
-	
 
 }

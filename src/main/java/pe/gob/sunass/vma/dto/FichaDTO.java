@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.dto;
 
-
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,32 +8,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY)
-public class FichaDTO  {
-	
-	
+public class FichaDTO {
+
 	private Integer idFichaRegistro;
-	
-    private String anio;
-	
-    @JsonFormat(pattern = "dd/MM/yyyy")
+
+	private String anio;
+
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate fechaInicio;
-	
-    @JsonFormat(pattern = "dd/MM/yyyy")
+
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate fechaFin;
-	
+
 	@JsonProperty("created_at")
 	private String createdAt;
 
 	@JsonProperty("updated_at")
 	private String updatedAt;
-	
+
 	@JsonProperty("id_usuario_registro")
 	private Integer idUsuarioRegistro;
-	
+
 	@JsonProperty("id_usuario_actualizacion")
 	private Integer idUsuarioActualizacion;
-
-	
 
 	public Integer getIdFichaRegistro() {
 		return idFichaRegistro;
@@ -99,9 +95,5 @@ public class FichaDTO  {
 	public void setIdUsuarioActualizacion(Integer idUsuarioActualizacion) {
 		this.idUsuarioActualizacion = idUsuarioActualizacion;
 	}
-	
-	
-	
-	
 
 }

@@ -20,50 +20,45 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
-
-
 @Entity
-@Table(schema="vma", name="ficha_registro")
+@Table(schema = "vma", name = "ficha_registro")
 public class FichaRegistro implements Serializable {
-	
+
 	private static final long serialVersionUID = -8301257302917630690L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id_ficha_registro")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_ficha_registro")
 	private Integer idFichaRegistro;
 
 	@Column(name = "anio")
-    private String anio;
-	
-	 @JsonFormat(pattern = "dd/MM/yyyy")
-	@Column(name="fecha_inicio")
+	private String anio;
+
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	@Column(name = "fecha_inicio")
 	private LocalDate fechaInicio;
-	
-	 @JsonFormat(pattern = "dd/MM/yyyy")
-	@Column(name="fecha_fin")
+
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	@Column(name = "fecha_fin")
 	private LocalDate fechaFin;
-	
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="created_at", nullable=false)
+	@Column(name = "created_at", nullable = false)
 	private Date createdAt;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="updated_at", nullable=true)
+	@Column(name = "updated_at", nullable = true)
 	private Date updatedAt;
 
-	@Column(name="id_usuario_registro", nullable=true)
+	@Column(name = "id_usuario_registro", nullable = true)
 	private Integer idUsuarioRegistro;
-	
-	@Column(name="id_usuario_actualizacion", nullable=true)
+
+	@Column(name = "id_usuario_actualizacion", nullable = true)
 	private Integer idUsuarioActualizacion;
-	
+
 	@OneToMany(mappedBy = "fichaRegistro")
-	@JsonIgnore 
+	@JsonIgnore
 	private List<RegistroVMA> registrosVMA;
-	
-	
 
 	public Integer getIdFichaRegistro() {
 		return idFichaRegistro;
@@ -137,5 +132,4 @@ public class FichaRegistro implements Serializable {
 		this.registrosVMA = registrosVMA;
 	}
 
-	
 }

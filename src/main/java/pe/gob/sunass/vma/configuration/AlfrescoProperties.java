@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 @PropertySource("classpath:alfresco.properties")
 public class AlfrescoProperties {
 
-
 	@Value("${alfresco.url}")
     private String url;
     

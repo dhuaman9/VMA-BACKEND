@@ -10,18 +10,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserAuthenticationManager implements AuthenticationManager{
+public class UserAuthenticationManager implements AuthenticationManager {
 
 	@Autowired
-    private UserAuthenticationProvider provider;
-	
+	private UserAuthenticationProvider provider;
+
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		
-		 Authentication result = provider.authenticate(authentication);
-	     if (Objects.nonNull(result)) {
-	    	 return result;
-	     }
-	     throw new ProviderNotFoundException("Authentication failed!");
+
+		Authentication result = provider.authenticate(authentication);
+		if (Objects.nonNull(result)) {
+			return result;
+		}
+		throw new ProviderNotFoundException("Authentication failed!");
 	}
 }

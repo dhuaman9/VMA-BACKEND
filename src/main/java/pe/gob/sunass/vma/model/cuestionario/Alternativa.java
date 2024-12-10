@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.model.cuestionario;
 
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -8,22 +7,19 @@ import java.io.Serializable;
 @Table(schema = "vma", name = "alternativas")
 public class Alternativa implements Serializable {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_alternativa")
-    private Integer idAlternativa;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_alternativa")
+	private Integer idAlternativa;
 
-    @Column(name = "nombre_campo")
-    private String nombreCampo;
+	@Column(name = "nombre_campo")
+	private String nombreCampo;
 
-    @Column(name = "requerido")
+	@Column(name = "requerido")
 	private Boolean requerido;
-    
+
 	public Integer getIdAlternativa() {
 		return idAlternativa;
 	}
@@ -47,8 +43,5 @@ public class Alternativa implements Serializable {
 	public void setRequerido(Boolean requerido) {
 		this.requerido = requerido;
 	}
-    
-    
-    
-    
+
 }

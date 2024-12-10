@@ -15,71 +15,64 @@ import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.util.DateUtil;
 
 public class RegistroVMAAssembler {
-	
-	
-	public RegistroVMAAssembler() {}
 
-	  public static RegistroVMADTO buildDtoModel(RegistroVMA registroVMA) throws Exception {
-		  RegistroVMADTO dto = null;
+	public RegistroVMAAssembler() {
+	}
 
-	    if (registroVMA != null) {
-	      dto = new RegistroVMADTO();
-	      dto.setIdRegistroVma(registroVMA.getIdRegistroVma());
-	      dto.setEmpresa(EmpresaAssembler.buildDtoModel(registroVMA.getEmpresa()));
-	      dto.setEstado(registroVMA.getEstado());
-	      dto.setFichaRegistro(FichaAssembler.buildDtoModel(registroVMA.getFichaRegistro()));
-	      dto.setUsername(registroVMA.getUsername());
-	      dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
-	    		  registroVMA.getCreatedAt()));
-	      dto.setUpdatedAt(registroVMA.getUpdatedAt() == null ? null :
-	                             DateUtil.format(Constants.Format.DateTime.DateTime,
-	                            		 registroVMA.getUpdatedAt()));
-	    }
+	public static RegistroVMADTO buildDtoModel(RegistroVMA registroVMA) throws Exception {
+		RegistroVMADTO dto = null;
 
-	    return dto;
-	  }
+		if (registroVMA != null) {
+			dto = new RegistroVMADTO();
+			dto.setIdRegistroVma(registroVMA.getIdRegistroVma());
+			dto.setEmpresa(EmpresaAssembler.buildDtoModel(registroVMA.getEmpresa()));
+			dto.setEstado(registroVMA.getEstado());
+			dto.setFichaRegistro(FichaAssembler.buildDtoModel(registroVMA.getFichaRegistro()));
+			dto.setUsername(registroVMA.getUsername());
+			dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime, registroVMA.getCreatedAt()));
+			dto.setUpdatedAt(registroVMA.getUpdatedAt() == null ? null
+					: DateUtil.format(Constants.Format.DateTime.DateTime, registroVMA.getUpdatedAt()));
+		}
 
-	  public static List<RegistroVMADTO> buildDtoDomainCollection(List<RegistroVMA> listRegistroVMA) throws Exception {
-	    List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
+		return dto;
+	}
 
-	    if (listRegistroVMA != null) {
-	      for (RegistroVMA model : listRegistroVMA) {
-	        listDTO.add(RegistroVMAAssembler.buildDtoModel(model));
-	      }
-	    }
+	public static List<RegistroVMADTO> buildDtoDomainCollection(List<RegistroVMA> listRegistroVMA) throws Exception {
+		List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
 
-	    return listDTO;
-	  }
+		if (listRegistroVMA != null) {
+			for (RegistroVMA model : listRegistroVMA) {
+				listDTO.add(RegistroVMAAssembler.buildDtoModel(model));
+			}
+		}
 
-	  //paginacion
-	  public static Page<RegistroVMADTO> buildDtoModelCollection(Page<RegistroVMA> pageRegistroVMA) throws Exception {
-		    List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
+		return listDTO;
+	}
 
-		    for (RegistroVMA registroVMA : pageRegistroVMA) {
-		      listDTO.add(RegistroVMAAssembler.buildDtoModel(registroVMA));
-		    }
+	// paginacion
+	public static Page<RegistroVMADTO> buildDtoModelCollection(Page<RegistroVMA> pageRegistroVMA) throws Exception {
+		List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
 
-		    Page<RegistroVMADTO> pageDTO = new PageImpl<RegistroVMADTO>(listDTO,
-		    		pageRegistroVMA.getPageable(),
-		    		pageRegistroVMA.getTotalElements());
+		for (RegistroVMA registroVMA : pageRegistroVMA) {
+			listDTO.add(RegistroVMAAssembler.buildDtoModel(registroVMA));
+		}
 
+		Page<RegistroVMADTO> pageDTO = new PageImpl<RegistroVMADTO>(listDTO, pageRegistroVMA.getPageable(),
+				pageRegistroVMA.getTotalElements());
 
-		    return pageDTO;
-		  }
-	  
-	  public static List<RegistroVMADTO> buildDtoDomainCollection(Set<RegistroVMA> setRegistroVMA) throws Exception {
-	    List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
+		return pageDTO;
+	}
 
-	    if (setRegistroVMA != null) {
-	      for (RegistroVMA registroVMA : setRegistroVMA) {
-	        listDTO.add(RegistroVMAAssembler.buildDtoModel(registroVMA));
-	      }
-	    }
+	public static List<RegistroVMADTO> buildDtoDomainCollection(Set<RegistroVMA> setRegistroVMA) throws Exception {
+		List<RegistroVMADTO> listDTO = new ArrayList<RegistroVMADTO>();
 
-	    return listDTO;
-	  }
+		if (setRegistroVMA != null) {
+			for (RegistroVMA registroVMA : setRegistroVMA) {
+				listDTO.add(RegistroVMAAssembler.buildDtoModel(registroVMA));
+			}
+		}
 
-	 
-	
+		return listDTO;
+	}
 
 }

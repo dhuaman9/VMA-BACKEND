@@ -11,11 +11,12 @@ import org.springframework.stereotype.Repository;
 import pe.gob.sunass.vma.model.Role;
 
 @Repository
-public interface RoleRepository  extends JpaRepository<Role, Integer> {
-	  public List<Role> findAll();
+public interface RoleRepository extends JpaRepository<Role, Integer> {
+	
+	public List<Role> findAll();
 
-	  public Page<Role> findAll(Pageable pageable);
+	public Page<Role> findAll(Pageable pageable);
 
-	  public Optional<Role> findById(Integer id);
-	}
-
+	public Optional<Role> findById(Integer id);
+	
+}

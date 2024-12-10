@@ -16,7 +16,7 @@ public class AnexoController {
 	private RegistroVMAService registroVMAService;
 
 	// anexo1 : Relación de las EP que remitieron información de implementación de
-	// los VMA del año en curso.
+	// registro VMA del año en curso.
 
 	@GetMapping("/registros-vma")
 	public ResponseEntity<?> getAnexos(@RequestParam(name = "anio") String anio) {

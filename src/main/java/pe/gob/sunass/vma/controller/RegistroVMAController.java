@@ -3,8 +3,7 @@ package pe.gob.sunass.vma.controller;
 import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 import java.util.Date;
 import java.util.List;
 
@@ -72,22 +71,6 @@ public class RegistroVMAController {
 																									//// Registrar VMA
 		return new ResponseEntity<>(registroCompletado, HttpStatus.OK);
 	}
-
-	/*@GetMapping(path = "/listar", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getList(@RequestHeader("Authorization") String token) {
-		ResponseEntity<?> response = null;
-
-		try {
-			response = new ResponseEntity<List<RegistroVMADTO>>(
-					this.registroVMAService.findAllOrderById(getUsername(token)), HttpStatus.OK);
-		} catch (Exception ex) {
-			logger.error(ex.getMessage(), ex);
-			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-		return response;
-	}*/
 
 	@GetMapping("/search")
 	public Page<RegistroVMA> searchRegistroVMA(@RequestParam(required = false) Integer empresaId,

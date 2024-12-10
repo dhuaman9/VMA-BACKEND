@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.dto.reportes;
 
 public class RegistroPromedioTrabajadorVMAChartDto {
+	
     private String tipo;
     private Double promedio;
     private Integer cantidadTrabajadoresDecicados;

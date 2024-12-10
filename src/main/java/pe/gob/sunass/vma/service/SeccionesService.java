@@ -19,19 +19,16 @@ public class SeccionesService {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(EmpresaService.class);
-	
+
 	@Autowired
 	private SeccionRepository seccionRepository;
-	 
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public List<SeccionDTO> findAll() throws Exception {
-	    List<Seccion> listaSecciones = this.seccionRepository.findAllByOrderByIdSeccion();
-	    List<SeccionDTO> listaDTO = SeccionAssembler.buildDtoModelCollection(listaSecciones);
+		List<Seccion> listaSecciones = this.seccionRepository.findAllByOrderByIdSeccion();
+		List<SeccionDTO> listaDTO = SeccionAssembler.buildDtoModelCollection(listaSecciones);
 
-	    return listaDTO;
+		return listaDTO;
 	}
 
-	
-	
 }

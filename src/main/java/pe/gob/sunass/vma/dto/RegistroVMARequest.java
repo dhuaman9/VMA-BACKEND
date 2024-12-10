@@ -2,7 +2,8 @@ package pe.gob.sunass.vma.dto;
 
 import java.util.List;
 
-public class RegistroVMARequest {
+public class RegistroVMARequest {  // ¿?  dhr
+	
     private Integer idEmpresa;
     private boolean registroValido;
     private List<RespuestaDTO> respuestas;

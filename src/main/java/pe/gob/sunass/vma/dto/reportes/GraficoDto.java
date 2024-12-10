@@ -3,33 +3,32 @@ package pe.gob.sunass.vma.dto.reportes;
 import java.util.List;
 
 public class GraficoDto {
-	
-    private String titulo;
-    private List<RegistroEmpresaChartDto> datos;
 
-    public GraficoDto(String titulo, List<RegistroEmpresaChartDto> datos) {
-        this.titulo = titulo;
-        this.datos = datos;
-    }
+	private String titulo;
+	private List<RegistroEmpresaChartDto> datos;
 
-    public GraficoDto() {
-    }
+	public GraficoDto(String titulo, List<RegistroEmpresaChartDto> datos) {
+		this.titulo = titulo;
+		this.datos = datos;
+	}
 
-    public String getTitulo() {
-        return titulo;
-    }
+	public GraficoDto() {
+	}
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
+	public String getTitulo() {
+		return titulo;
+	}
 
-    public List<RegistroEmpresaChartDto> getDatos() {
-        return datos;
-    }
+	public void setTitulo(String titulo) {
+		this.titulo = titulo;
+	}
 
-    public void setDatos(List<RegistroEmpresaChartDto> datos) {
-        this.datos = datos;
-    }
-    
-    
+	public List<RegistroEmpresaChartDto> getDatos() {
+		return datos;
+	}
+
+	public void setDatos(List<RegistroEmpresaChartDto> datos) {
+		this.datos = datos;
+	}
+
 }

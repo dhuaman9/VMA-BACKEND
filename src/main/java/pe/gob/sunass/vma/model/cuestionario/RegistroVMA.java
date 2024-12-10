@@ -23,55 +23,53 @@ import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
 
 @Entity
-@Table(schema="vma", name="registro_vma")
+@Table(schema = "vma", name = "registro_vma")
 public class RegistroVMA implements Serializable {
 
-
 	private static final long serialVersionUID = -8301257302917630690L;
-	
-    @Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="id_registro_vma")
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_registro_vma")
 	private Integer idRegistroVma;
-    
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_empresa", referencedColumnName="id_empresa", nullable=false)
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_empresa", referencedColumnName = "id_empresa", nullable = false)
 	private Empresa empresa;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="id_ficha_registro", referencedColumnName="id_ficha_registro", nullable=false)
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_ficha_registro", referencedColumnName = "id_ficha_registro", nullable = false)
 	private FichaRegistro fichaRegistro;
-	
-	@Column(name="estado")
+
+	@Column(name = "estado")
 	private String estado;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_creacion", nullable=false)
+	@Column(name = "fecha_creacion", nullable = false)
 	private Date createdAt;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_actualizacion", nullable=true)
+	@Column(name = "fecha_actualizacion", nullable = true)
 	private Date updatedAt;
 
-	@Column(name="username", nullable=true)
+	@Column(name = "username", nullable = true)
 	private String username;
 
-	@Column(name="id_usuario_registro", nullable=true)
+	@Column(name = "id_usuario_registro", nullable = true)
 	private Integer idUsuarioRegistro;
-	
-	@Column(name="id_usuario_actualizacion", nullable=true)
+
+	@Column(name = "id_usuario_actualizacion", nullable = true)
 	private Integer idUsuarioActualizacion;
-	
-	
-	@Column(name = "nombre_completo")  //pendiente de cambiar por bd y en clases , dtos,etc
+
+	@Column(name = "nombre_responsable") // pendiente de cambiar por bd y en clases , dtos,etc
 	private String nombreCompleto;
 
-	@Column(name = "email")
+	@Column(name = "email_responsable")
 	private String email;
 
-	@Column(name = "telefono")
+	@Column(name = "telefono_responsable")
 	private String telefono;
-	
+
 	public Integer getIdRegistroVma() {
 		return idRegistroVma;
 	}
@@ -168,8 +166,4 @@ public class RegistroVMA implements Serializable {
 		this.telefono = telefono;
 	}
 
-	
-	
-
-	
 }

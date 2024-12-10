@@ -13,72 +13,66 @@ import pe.gob.sunass.vma.dto.RoleDTO;
 import pe.gob.sunass.vma.model.Role;
 import pe.gob.sunass.vma.util.DateUtil;
 
-
-
 public class RoleAssembler {
-  public RoleAssembler() {}
+	
+	public RoleAssembler() {
+	}
 
-  public static RoleDTO buildDtoModel(Role role)  {
-    RoleDTO dto = null;
+	public static RoleDTO buildDtoModel(Role role) {
+		RoleDTO dto = null;
 
-    if (role != null) {
-      dto = new RoleDTO();
-      dto.setIdRole(role.getIdRol());
-      dto.setNombre(role.getNombre());
-      dto.setAuth(role.getAuth());
-      dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime,
-    		  role.getCreatedAt()));
+		if (role != null) {
+			dto = new RoleDTO();
+			dto.setIdRole(role.getIdRol());
+			dto.setNombre(role.getNombre());
+			dto.setAuth(role.getAuth());
+			dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime, role.getCreatedAt()));
 //      dto.setUpdatedAt(role.getUpdatedAt() == null ? null :
 //                             DateUtil.format(Constants.Format.DateTime.DateTime,
 //                            		 role.getUpdatedAt()));
-    }
+		}
 
-    return dto;
-  }
+		return dto;
+	}
 
-  public static List<RoleDTO> buildDtoModelCollection(List<Role> listRole) throws Exception {
-    List<RoleDTO> listDTO = null;
+	public static List<RoleDTO> buildDtoModelCollection(List<Role> listRole) throws Exception {
+		List<RoleDTO> listDTO = null;
 
-    if (listRole != null) {
-      listDTO = new ArrayList<RoleDTO>();
+		if (listRole != null) {
+			listDTO = new ArrayList<RoleDTO>();
 
-      for (Role role : listRole) {
-        listDTO.add(RoleAssembler.buildDtoModel(role));
-      }
-    }
+			for (Role role : listRole) {
+				listDTO.add(RoleAssembler.buildDtoModel(role));
+			}
+		}
 
-    return listDTO;
-  }
+		return listDTO;
+	}
 
-  public static List<RoleDTO> buildDtoModelCollection(Set<Role> setRole) throws Exception {
-    List<RoleDTO> listDTO = null;
+	public static List<RoleDTO> buildDtoModelCollection(Set<Role> setRole) throws Exception {
+		List<RoleDTO> listDTO = null;
 
-    if (setRole != null) {
-      listDTO = new ArrayList<RoleDTO>();
+		if (setRole != null) {
+			listDTO = new ArrayList<RoleDTO>();
 
-      for (Role role : setRole) {
-        listDTO.add(RoleAssembler.buildDtoModel(role));
-      }
-    }
+			for (Role role : setRole) {
+				listDTO.add(RoleAssembler.buildDtoModel(role));
+			}
+		}
 
-    return listDTO;
-  }
+		return listDTO;
+	}
 
-  public static Page<RoleDTO> buildDtoDomainCollection(Page<Role> pageRole) throws Exception {
-    List<RoleDTO> listDTO = new ArrayList<RoleDTO>();
+	public static Page<RoleDTO> buildDtoDomainCollection(Page<Role> pageRole) throws Exception {
+		List<RoleDTO> listDTO = new ArrayList<RoleDTO>();
 
-    for (Role role : pageRole) {
-      listDTO.add(RoleAssembler.buildDtoModel(role));
-    }
+		for (Role role : pageRole) {
+			listDTO.add(RoleAssembler.buildDtoModel(role));
+		}
 
-    Page<RoleDTO> pageDTO = new PageImpl<RoleDTO>(listDTO,
-    		pageRole.getPageable(),
-    		pageRole.getTotalElements());
+		Page<RoleDTO> pageDTO = new PageImpl<RoleDTO>(listDTO, pageRole.getPageable(), pageRole.getTotalElements());
 
+		return pageDTO;
+	}
 
-    return pageDTO;
-  }
-
- 
-  
 }

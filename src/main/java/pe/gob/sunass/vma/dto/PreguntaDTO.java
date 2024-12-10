@@ -5,81 +5,84 @@ import java.util.List;
 import pe.gob.sunass.vma.model.cuestionario.TipoPregunta;
 
 public class PreguntaDTO {
-    private Integer idPregunta;
-    private String descripcion;
-    private Integer orden;
-    private TipoPregunta tipoPregunta;
-    private RespuestaDTO respuestaDTO;
-    private List<AlternativaDTO> alternativas;
-    private PreguntaDTO preguntaDependiente;
-    private MetadatoDto metadato;
 
-    public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta, List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO, PreguntaDTO preguntaDependiente, MetadatoDto metadatoDto) {
-        this.idPregunta = idPregunta;
-        this.descripcion = descripcion;
-        this.orden = orden;
-        this.tipoPregunta = tipoPregunta;
-        this.alternativas = alternativas;
-        this.respuestaDTO = respuestaDTO;
-        this.preguntaDependiente = preguntaDependiente;
-        this.metadato = metadatoDto;
-    }
+	private Integer idPregunta;
+	private String descripcion;
+	private Integer orden;
+	private TipoPregunta tipoPregunta;
+	private RespuestaDTO respuestaDTO;
+	private List<AlternativaDTO> alternativas;
+	private PreguntaDTO preguntaDependiente;
+	private MetadatoDto metadato;
 
-    public Integer getIdPregunta() {
-        return idPregunta;
-    }
+	public PreguntaDTO(Integer idPregunta, String descripcion, Integer orden, TipoPregunta tipoPregunta,
+			List<AlternativaDTO> alternativas, RespuestaDTO respuestaDTO, PreguntaDTO preguntaDependiente,
+			MetadatoDto metadatoDto) {
+		this.idPregunta = idPregunta;
+		this.descripcion = descripcion;
+		this.orden = orden;
+		this.tipoPregunta = tipoPregunta;
+		this.alternativas = alternativas;
+		this.respuestaDTO = respuestaDTO;
+		this.preguntaDependiente = preguntaDependiente;
+		this.metadato = metadatoDto;
+	}
 
-    public void setIdPregunta(Integer idPregunta) {
-        this.idPregunta = idPregunta;
-    }
+	public Integer getIdPregunta() {
+		return idPregunta;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+	public void setIdPregunta(Integer idPregunta) {
+		this.idPregunta = idPregunta;
+	}
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+	public String getDescripcion() {
+		return descripcion;
+	}
 
-    public Integer getOrden() {
-        return orden;
-    }
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 
-    public void setOrden(Integer orden) {
-        this.orden = orden;
-    }
+	public Integer getOrden() {
+		return orden;
+	}
 
-    public TipoPregunta getTipoPregunta() {
-        return tipoPregunta;
-    }
+	public void setOrden(Integer orden) {
+		this.orden = orden;
+	}
 
-    public void setTipoPregunta(TipoPregunta tipoPregunta) {
-        this.tipoPregunta = tipoPregunta;
-    }
+	public TipoPregunta getTipoPregunta() {
+		return tipoPregunta;
+	}
 
-    public PreguntaDTO getPreguntaDependiente() {
-        return preguntaDependiente;
-    }
+	public void setTipoPregunta(TipoPregunta tipoPregunta) {
+		this.tipoPregunta = tipoPregunta;
+	}
 
-    public void setPreguntaDependiente(PreguntaDTO preguntaDependiente) {
-        this.preguntaDependiente = preguntaDependiente;
-    }
+	public PreguntaDTO getPreguntaDependiente() {
+		return preguntaDependiente;
+	}
 
-    public List<AlternativaDTO> getAlternativas() {
-        return alternativas;
-    }
+	public void setPreguntaDependiente(PreguntaDTO preguntaDependiente) {
+		this.preguntaDependiente = preguntaDependiente;
+	}
 
-    public void setAlternativas(List<AlternativaDTO> alternativas) {
-        this.alternativas = alternativas;
-    }
+	public List<AlternativaDTO> getAlternativas() {
+		return alternativas;
+	}
 
-    public RespuestaDTO getRespuestaDTO() {
-        return respuestaDTO;
-    }
+	public void setAlternativas(List<AlternativaDTO> alternativas) {
+		this.alternativas = alternativas;
+	}
 
-    public void setRespuestaDTO(RespuestaDTO respuestaDTO) {
-        this.respuestaDTO = respuestaDTO;
-    }
+	public RespuestaDTO getRespuestaDTO() {
+		return respuestaDTO;
+	}
+
+	public void setRespuestaDTO(RespuestaDTO respuestaDTO) {
+		this.respuestaDTO = respuestaDTO;
+	}
 
 	public MetadatoDto getMetadato() {
 		return metadato;
@@ -89,5 +92,4 @@ public class PreguntaDTO {
 		this.metadato = metadato;
 	}
 
-  
 }

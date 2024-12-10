@@ -6,19 +6,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-
-
 @JsonInclude(Include.NON_EMPTY)
-public class RegistroVMADTO implements Serializable{
-	
+public class RegistroVMADTO implements Serializable {
+
 	private static final long serialVersionUID = -4872705658825231581L;
-	
+
 	private Integer idRegistroVma;
-	    
+
 	private EmpresaDTO empresa;
-		
+
 	private FichaDTO fichaRegistro;
-		
+
 	private String estado;
 
 	@JsonProperty("createdAt")
@@ -27,7 +25,6 @@ public class RegistroVMADTO implements Serializable{
 	@JsonProperty("updatedAt")
 	private String updatedAt;
 
-	
 	private String username;
 
 	public Integer getIdRegistroVma() {
@@ -85,8 +82,5 @@ public class RegistroVMADTO implements Serializable{
 	public void setUpdatedAt(String updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-
-	
-	
 
 }

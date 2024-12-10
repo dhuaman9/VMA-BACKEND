@@ -1,6 +1,7 @@
 package pe.gob.sunass.vma.dto;
 
 public class RespuestaDTO {
+	
     private Integer idRespuesta;
     private Integer idAlternativa;
     private Integer idPregunta;

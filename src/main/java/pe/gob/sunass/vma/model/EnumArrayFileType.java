@@ -13,6 +13,7 @@ import java.sql.Types;
 import java.util.*;
 
 public class EnumArrayFileType implements UserType {
+	
     @Override
     public int[] sqlTypes() {
         return new int[]{Types.VARCHAR};

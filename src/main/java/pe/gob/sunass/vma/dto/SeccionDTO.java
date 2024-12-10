@@ -1,6 +1,5 @@
 package pe.gob.sunass.vma.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -9,15 +8,15 @@ import java.util.List;
 
 @JsonInclude(Include.NON_EMPTY)
 public class SeccionDTO {
-	
+
 	private Integer idSeccion;
 
-    private String nombre;
-	
-    private Integer orden;
-	
+	private String nombre;
+
+	private Integer orden;
+
 	private Boolean estado;
-	
+
 	@JsonProperty("created_at")
 	private String createdAt;
 
@@ -25,7 +24,7 @@ public class SeccionDTO {
 	private String updatedAt;
 
 	private Integer idUsuarioRegistro;
-	
+
 	private Integer idUsuarioActualizacion;
 
 	private List<PreguntaDTO> preguntas;

@@ -15,109 +15,105 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-
 @Entity
-@Table(schema="vma", name="archivos")
-public class Archivo  implements Serializable  {
-	
+@Table(schema = "vma", name = "archivos")
+public class Archivo implements Serializable {
+
 	private static final long serialVersionUID = -8301257302917630690L;
-	
-	 	@Id
-		@GeneratedValue(strategy=GenerationType.IDENTITY)
-	 	@Column(name="id_archivo")
-		private Integer idArchivo;//idArchivo
 
-	    @Column(name="nombre_archivo", nullable=false)
-		private String nombreArchivo;
-	    
-		@Column(name="id_alfresco")
-		private String idAlfresco;
-	
-		@ManyToOne(fetch=FetchType.EAGER, optional=false)
-		//@JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma", nullable=true)
-		@JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma", nullable=false)
-		private RegistroVMA registroVma;
-		
-		@Column(name="username", nullable=false)
-		private String username;
-		
-		@Column(name="id_usuario_registro",  nullable=false)
-		private Integer idUsuarioRegistro;
-		
-	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_archivo")
+	private Integer idArchivo;// idArchivo
 
-		@Temporal(TemporalType.TIMESTAMP)
-		@Column(name="fecha_creacion", nullable=false)
-		private Date createdAt;
+	@Column(name = "nombre_archivo", nullable = false)
+	private String nombreArchivo;
 
-		@Temporal(TemporalType.TIMESTAMP)
-		@Column(name="fecha_actualizacion", nullable=true)
-		private Date updatedAt;
+	@Column(name = "id_alfresco")
+	private String idAlfresco;
 
-		public Integer getIdArchivo() {
-			return idArchivo;
-		}
+	@ManyToOne(fetch = FetchType.EAGER, optional = false)
+	// @JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma",
+	// nullable=true)
+	@JoinColumn(name = "id_registro_vma", referencedColumnName = "id_registro_vma", nullable = false)
+	private RegistroVMA registroVma;
 
-		public void setIdArchivo(Integer idArchivo) {
-			this.idArchivo = idArchivo;
-		}
-		
-		public String getUsername() {
-			return username;
-		}
+	@Column(name = "username", nullable = false)
+	private String username;
 
-		public void setUsername(String username) {
-			this.username = username;
-		}
+	@Column(name = "id_usuario_registro", nullable = false)
+	private Integer idUsuarioRegistro;
 
-		public Date getCreatedAt() {
-			return createdAt;
-		}
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "fecha_creacion", nullable = false)
+	private Date createdAt;
 
-		public void setCreatedAt(Date createdAt) {
-			this.createdAt = createdAt;
-		}
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "fecha_actualizacion", nullable = true)
+	private Date updatedAt;
 
-		public Date getUpdatedAt() {
-			return updatedAt;
-		}
+	public Integer getIdArchivo() {
+		return idArchivo;
+	}
 
-		public void setUpdatedAt(Date updatedAt) {
-			this.updatedAt = updatedAt;
-		}
+	public void setIdArchivo(Integer idArchivo) {
+		this.idArchivo = idArchivo;
+	}
 
-		public RegistroVMA getRegistroVma() {
-			return registroVma;
-		}
+	public String getUsername() {
+		return username;
+	}
 
-		public void setRegistroVma(RegistroVMA registroVma) {
-			this.registroVma = registroVma;
-		}
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-		public String getNombreArchivo() {
-			return nombreArchivo;
-		}
+	public Date getCreatedAt() {
+		return createdAt;
+	}
 
-		public void setNombreArchivo(String nombreArchivo) {
-			this.nombreArchivo = nombreArchivo;
-		}
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
 
-		public String getIdAlfresco() {
-			return idAlfresco;
-		}
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
 
-		public void setIdAlfresco(String idAlfresco) {
-			this.idAlfresco = idAlfresco;
-		}
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-		public Integer getIdUsuarioRegistro() {
-			return idUsuarioRegistro;
-		}
+	public RegistroVMA getRegistroVma() {
+		return registroVma;
+	}
 
-		public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
-			this.idUsuarioRegistro = idUsuarioRegistro;
-		}
-		
-		
+	public void setRegistroVma(RegistroVMA registroVma) {
+		this.registroVma = registroVma;
+	}
+
+	public String getNombreArchivo() {
+		return nombreArchivo;
+	}
+
+	public void setNombreArchivo(String nombreArchivo) {
+		this.nombreArchivo = nombreArchivo;
+	}
+
+	public String getIdAlfresco() {
+		return idAlfresco;
+	}
+
+	public void setIdAlfresco(String idAlfresco) {
+		this.idAlfresco = idAlfresco;
+	}
+
+	public Integer getIdUsuarioRegistro() {
+		return idUsuarioRegistro;
+	}
+
+	public void setIdUsuarioRegistro(Integer idUsuarioRegistro) {
+		this.idUsuarioRegistro = idUsuarioRegistro;
+	}
 
 }

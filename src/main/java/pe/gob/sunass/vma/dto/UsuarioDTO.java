@@ -1,42 +1,38 @@
 package pe.gob.sunass.vma.dto;
 
-
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-
 @JsonInclude(Include.NON_EMPTY)
-public class UsuarioDTO  {
-	
-	
+public class UsuarioDTO {
+
 	private Integer id;
 
 	private String tipo;
-	
+
 	private String nombres;
-	
+
 	private String apellidos;
-	
+
 	@JsonProperty("username")
 	private String userName;
 
 	private String password;
-	
+
 	private RoleDTO role;
-	
+
 	private String unidadOrganica;
-	
+
 	private String correo;
-	
+
 	private EmpresaDTO empresa;
-	
+
 	private String telefono;
-	
+
 	private Boolean estado;
-	
-	//private String passwordPlain;
+
+	// private String passwordPlain;
 
 	@JsonProperty("created_at")
 	private String createdAt;
@@ -76,7 +72,6 @@ public class UsuarioDTO  {
 		this.apellidos = apellidos;
 	}
 
-	
 	public String getUserName() {
 		return userName;
 	}
@@ -100,7 +95,7 @@ public class UsuarioDTO  {
 	public void setRole(RoleDTO role) {
 		this.role = role;
 	}
-	
+
 	public EmpresaDTO getEmpresa() {
 		return empresa;
 	}
@@ -149,8 +144,6 @@ public class UsuarioDTO  {
 		this.updatedAt = updatedAt;
 	}
 
-	
-
 	public Boolean getEstado() {
 		return estado;
 	}
@@ -166,7 +159,5 @@ public class UsuarioDTO  {
 //	public void setPasswordPlain(String passwordPlain) {
 //		this.passwordPlain = passwordPlain;
 //	}
-
-	
 
 }

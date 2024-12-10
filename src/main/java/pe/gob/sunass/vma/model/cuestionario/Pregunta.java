@@ -7,21 +7,21 @@ import java.util.List;
 import javax.persistence.*;
 
 @Entity
-@Table(schema="vma", name="preguntas")
-public class Pregunta  implements Serializable{
-	
+@Table(schema = "vma", name = "preguntas")
+public class Pregunta implements Serializable {
+
 	private static final long serialVersionUID = -8301257302917630690L;
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id_pregunta")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_pregunta")
 	private Integer idPregunta;
 
 	@Column(name = "descripcion")
-    private String descripcion;
-	
+	private String descripcion;
+
 	@Column(name = "orden")
-    private Integer orden;
+	private Integer orden;
 
 	@Column(name = "requerido")
 	private Boolean requerido;
@@ -30,7 +30,7 @@ public class Pregunta  implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private TipoPregunta tipoPregunta;
 
-	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "id_metadata", nullable = true)
 	private Metadato metadato;
 
@@ -38,19 +38,17 @@ public class Pregunta  implements Serializable{
 	@JoinColumn(name = "id_pregunta", nullable = true)
 	@OrderBy("idAlternativa ASC")
 	private List<Alternativa> alternativas;
-	
-	@Column(name="estado",  nullable=false)
+
+	@Column(name = "estado", nullable = false)
 	private Boolean estado;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="fecha_registro", nullable=false)
+	@Column(name = "fecha_registro", nullable = false)
 	private Date createdAt;
 
 //	@Temporal(TemporalType.TIMESTAMP)
 //	@Column(name="fecha_actualizacion", nullable=true)
 //	private Date updatedAt;
-
-	
 
 	@OneToOne
 	@JoinColumn(name = "pregunta_dependiente_id")
@@ -95,8 +93,6 @@ public class Pregunta  implements Serializable{
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
-
-	
 
 	public Boolean getRequerido() {
 		return requerido;
