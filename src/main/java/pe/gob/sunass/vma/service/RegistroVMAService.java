@@ -869,7 +869,7 @@ public class RegistroVMAService {
 
 		RegistroVMADTO dto = null;
 		Optional<RegistroVMA> opt = this.registroVMARepository
-				.findEmpresaSinCompletarRegistro(userUtil.getCurrentUserId());
+				.findEmpresasCompletaronRegistro(userUtil.getCurrentUserId());
 
 		if (opt.isPresent()) {
 			RegistroVMA registrovma = opt.get();

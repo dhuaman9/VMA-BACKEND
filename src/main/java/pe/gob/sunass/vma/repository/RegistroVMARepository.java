@@ -58,10 +58,10 @@ public interface RegistroVMARepository extends JpaRepository<RegistroVMA, Intege
 
 	@Query("SELECT r FROM RegistroVMA r "
 			+ "WHERE r.empresa.idEmpresa = (SELECT u.empresa.idEmpresa FROM Usuario u WHERE u.id = :id) "
-			+ "AND r.estado = 'INCOMPLETO' " + "AND r.fichaRegistro.idFichaRegistro IN ("
+			+ "AND r.estado = 'COMPLETO' " + " AND r.fichaRegistro.idFichaRegistro IN ("
 			+ "SELECT f.idFichaRegistro FROM FichaRegistro f "
 			+ "WHERE CURRENT_DATE >= f.fechaInicio AND CURRENT_DATE <= f.fechaFin)")
-	public Optional<RegistroVMA> findEmpresaSinCompletarRegistro(@Param("id") Integer userId);
+	public Optional<RegistroVMA> findEmpresasCompletaronRegistro(@Param("id") Integer userId);
 
 	@Query("FROM RegistroVMA r WHERE r.idRegistroVma in :ids order by r.idRegistroVma desc")
 	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids); // se usa cuando se descarga excel, segun los ids
