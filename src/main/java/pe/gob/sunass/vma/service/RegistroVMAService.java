@@ -3,11 +3,14 @@ package pe.gob.sunass.vma.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -100,7 +103,7 @@ public class RegistroVMAService {
 
 	@Autowired
 	private UserUtil userUtil;
-
+	
 	@Autowired
 	private PreguntasAlternativasProperties preguntasAlternativasVMA;
 
@@ -129,13 +132,7 @@ public class RegistroVMAService {
 		Usuario usuario = usuarioRepository.findByUserName(userUtil.getCurrentUsername()).orElseThrow();
 		Optional<RegistroVMA> opt = null;
 		if (usuario.getRole().getIdRol() == 2
-				|| (usuario.getRole().getIdRol() == 4 && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) { // rol2
-																												// es
-																												// admin
-																												// DF y
-																												// rol 4
-																												// es
-																												// consultor
+				|| (usuario.getRole().getIdRol() == 4 && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) { // rol2  es  admin  DF y  rol 4  es  consultor
 			opt = this.registroVMARepository.findById(id);
 		} else {
 			opt = this.registroVMARepository.findByIdItem(id, userUtil.getCurrentUserIdEmpresa());
@@ -252,6 +249,8 @@ public class RegistroVMAService {
 	 * @param pageSize
 	 * @param search
 	 * @return
+	 * 
+	 * en el futuro, si DF solicita el campo estado en Empresas, considerarlo en el listado de registrosVMA, para excluir a EPS inactivas y con estado vma = SIN REGISTRO
 	 */
 	public Page<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
 			String year, String username, int page, int pageSize, String search) {
@@ -325,109 +324,63 @@ public class RegistroVMAService {
 			return new PageImpl<>(resultList, pageable, total);
 		} else if ((usuario.getRole().getIdRol() == 3 || usuario.getRole().getIdRol() == 4)
 				&& usuario.getTipo().equals(Constants.EMPRESA_EPS)) {
+			
 			List<Predicate> predicates = new ArrayList<>();
-
-			// Condición para `search`
-			if (search != null && !search.trim().isEmpty()) {
-				predicates.add(cb.like(cb.lower(fichaRegistro.get("anio")), "%" + search.toLowerCase() + "%"));
-			}
-
+			 predicates = getPredicatesSearch(cb, empresaRoot, fichaRegistro, registroVMA, empresaId,
+					estado, startDate, endDate, year, username, search);
+			
 			// Filtro por idEmpresa del usuario
 			predicates.add(cb.equal(empresaRoot.get("idEmpresa"), usuario.getEmpresa().getIdEmpresa()));
+				
+			 query.where(predicates.toArray(new Predicate[0]));
+				query.orderBy(cb.desc(cb.coalesce(registroVMA.get("idRegistroVma"), 0)), cb.asc(empresaRoot.get("nombre")),
+						cb.desc(fichaRegistro.get("anio")));
 
-			// Filtro para `fechaInicio` (si está definido)
-			if (startDate != null) {
-				predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("fechaInicio"), startDate));
-			}
+				TypedQuery<Object[]> typedQuery = entityManager.createQuery(query);
 
-			// Filtro para `fechaFin` (si está definido)
-			if (endDate != null) {
-				predicates.add(cb.lessThanOrEqualTo(registroVMA.get("fechaFin"), endDate));
-			}
+				// Calcular paginacion
+				int firstResult = pageable.getPageNumber() * pageable.getPageSize();
+				typedQuery.setFirstResult(firstResult);
+				typedQuery.setMaxResults(pageable.getPageSize());
 
-			// Aplicar los predicados a la consulta principal
-			query.where(predicates.toArray(new Predicate[0]));
+				List<RegistroVMA> resultList = typedQuery.getResultList().stream().map(objeto -> {
+					Empresa emp = new Empresa();
+					emp.setIdEmpresa((Integer) objeto[0]);
+					emp.setNombre((String) objeto[1]);
+					emp.setRegimen((String) objeto[2]);
+					emp.setTipo((String) objeto[3]);
+					FichaRegistro fReg = new FichaRegistro();
+					fReg.setAnio((String) objeto[7]);
+					RegistroVMA rVMA = new RegistroVMA();
+					rVMA.setIdRegistroVma((Integer) objeto[4]);
+					rVMA.setEstado((String) objeto[5]);
+					rVMA.setCreatedAt((Date) objeto[6]);
+					rVMA.setEmpresa(emp);
+					rVMA.setFichaRegistro(fReg);
+					return rVMA;
+				}).collect(Collectors.toList());
 
-			query.orderBy(cb.desc(cb.coalesce(registroVMA.get("idRegistroVma"), 0)), cb.asc(empresaRoot.get("nombre")),
-					cb.desc(fichaRegistro.get("anio")));
+				// Count query
+				cb = entityManager.getCriteriaBuilder();
+				CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+				Root<Empresa> empresaCountRoot = countQuery.from(Empresa.class);
+				Root<FichaRegistro> fichaRegistroCountRoot = countQuery.from(FichaRegistro.class);
 
-			// Selección de campos necesarios
-			query.multiselect(empresaRoot.get("idEmpresa"), empresaRoot.get("nombre"), empresaRoot.get("regimen"),
-					empresaRoot.get("tipo"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
-					registroVMA.get("createdAt"), fichaRegistro.get("anio"), fichaRegistro.get("fechaInicio"), // Agregar
-																												// fechaInicio
-					fichaRegistro.get("fechaFin") // Agregar fechaFin
-			);
+				Join<Empresa, RegistroVMA> registroVMACountRoot = empresaCountRoot.join("registrosVMA", JoinType.LEFT);
+				registroVMACountRoot.on(cb.equal(registroVMACountRoot.get("fichaRegistro").get("idFichaRegistro"),
+						fichaRegistroCountRoot.get("idFichaRegistro")));
 
-			TypedQuery<Object[]> typedQuery = entityManager.createQuery(query);
+				List<Predicate> predicatesCount = getPredicatesSearch(cb, empresaCountRoot, fichaRegistroCountRoot,
+						registroVMACountRoot, empresaId, estado, startDate, endDate, year, username, search);
 
-			// Calcular paginación
-			int firstResult = pageable.getPageNumber() * pageable.getPageSize();
-			typedQuery.setFirstResult(firstResult);
-			typedQuery.setMaxResults(pageable.getPageSize());
+				countQuery.select(cb.count(empresaCountRoot));
+				countQuery.where(predicatesCount.toArray(new Predicate[0]));
+				Long total = entityManager.createQuery(countQuery).getSingleResult();
 
-			// Transformación de resultados
-			List<RegistroVMA> resultList = typedQuery.getResultList().stream().map(objeto -> {
-				Empresa emp = new Empresa();
-				emp.setIdEmpresa((Integer) objeto[0]);
-				emp.setNombre((String) objeto[1]);
-				emp.setRegimen((String) objeto[2]);
-				emp.setTipo((String) objeto[3]);
-
-				FichaRegistro fReg = new FichaRegistro();
-				fReg.setAnio((String) objeto[7]);
-				fReg.setFechaInicio((LocalDate) objeto[8]); // Asignar fechaInicio
-				fReg.setFechaFin((LocalDate) objeto[9]); // Asignar fechaFin
-
-				RegistroVMA rVMA = new RegistroVMA();
-				rVMA.setIdRegistroVma((Integer) objeto[4]);
-				rVMA.setEstado((String) objeto[5]);
-				rVMA.setCreatedAt((Date) objeto[6]);
-				rVMA.setEmpresa(emp);
-				rVMA.setFichaRegistro(fReg); // Asignar FichaRegistro completo
-
-				return rVMA;
-			}).collect(Collectors.toList());
-
-			// Consulta de conteo
-			CriteriaBuilder cbCount = entityManager.getCriteriaBuilder();
-			CriteriaQuery<Long> countQuery = cbCount.createQuery(Long.class);
-			Root<Empresa> empresaCountRoot = countQuery.from(Empresa.class);
-			Root<FichaRegistro> fichaRegistroCountRoot = countQuery.from(FichaRegistro.class);
-
-			Join<Empresa, RegistroVMA> registroVMACountRoot = empresaCountRoot.join("registrosVMA", JoinType.LEFT);
-			registroVMACountRoot.on(cb.equal(registroVMACountRoot.get("fichaRegistro").get("idFichaRegistro"),
-					fichaRegistroCountRoot.get("idFichaRegistro")));
-
-			// Predicados para la consulta de conteo
-			List<Predicate> predicatesCount = new ArrayList<>();
-			if (search != null && !search.trim().isEmpty()) {
-				predicatesCount
-						.add(cb.like(cb.lower(fichaRegistroCountRoot.get("anio")), "%" + search.toLowerCase() + "%"));
-			}
-
-			// Filtro por idEmpresa
-			predicatesCount.add(cb.equal(empresaCountRoot.get("idEmpresa"), usuario.getEmpresa().getIdEmpresa()));
-
-			// Filtro para fechaInicio
-			if (startDate != null) {
-				predicatesCount.add(cb.greaterThanOrEqualTo(registroVMACountRoot.get("fechaInicio"), startDate));
-			}
-
-			// Filtro para fechaFin
-			if (endDate != null) {
-				predicatesCount.add(cb.lessThanOrEqualTo(registroVMACountRoot.get("fechaFin"), endDate));
-			}
-
-			countQuery.select(cb.count(empresaCountRoot));
-			countQuery.where(predicatesCount.toArray(new Predicate[0]));
-			Long total = entityManager.createQuery(countQuery).getSingleResult();
-
-			return new PageImpl<>(resultList, pageable, total);
+				return new PageImpl<>(resultList, pageable, total);
 		}
 
-		// En caso de no cumplir ninguna de las condiciones anteriores (rol 3 o 4), se
-		// devuelve los registros para otros usuarios.
+		// En caso de no cumplir ninguna de las condiciones anteriores para el rol 3 , se devuelve los registros para otros usuarios.
 		return this.registroVMARepository.registrosPorIdEmpresa(usuario.getEmpresa().getIdEmpresa(), pageable);
 
 	}
@@ -455,7 +408,6 @@ public class RegistroVMAService {
 			} else {
 				predicates.add(cb.equal(registroVMA.get("estado"), estado));
 			}
-
 		}
 		if (startDate != null) {
 			predicates.add(cb.greaterThanOrEqualTo(registroVMA.get("createdAt"), startDate));
@@ -473,7 +425,15 @@ public class RegistroVMAService {
 					"%" + search.toLowerCase() + "%");
 			Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")), "%" + search.toLowerCase() + "%");
 			Predicate anioPredicate = cb.like(cb.lower(fichaRegistro.get("anio")), "%" + search.toLowerCase() + "%");
-			predicates.add(cb.or(namePredicate, typePredicate, regimenPredicate, estadoPredicate, anioPredicate));
+			//Predicate fechaRegistroPredicate = cb.like(cb.lower(registroVMA.get("createdAt")), "%" + search.toLowerCase() + "%");
+			
+			//para la busqueda de la fecha de registro vma, segun el campo Buscar:
+			
+			Predicate fechaRegistroPredicate = filtrarPorFechaRegistro(search,cb,registroVMA,startDate); //CriteriaBuilder cb,Join registroVMA, Date startDate
+			// metodo predicate filtrarPorFechaRegistro
+
+			
+			predicates.add(cb.or(namePredicate, typePredicate, regimenPredicate, estadoPredicate, anioPredicate, fechaRegistroPredicate));
 		}
 
 		return predicates;
@@ -530,23 +490,23 @@ public class RegistroVMAService {
 		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipo()))
 				.sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo de empresa
 				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
-				.collect(Collectors.toList()); // Colectar en una lista
+				.collect(Collectors.toList());
 	}
 
 	private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
 		RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
 		boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio)
 				&& registroVmaPorAnhio.getEstado().equals(Constants.ESTADO_COMPLETO);
-		boolean remitioInforme = false;
+		boolean remitioAnexoComplementario = false;
 		if (Objects.nonNull(registroVmaPorAnhio)) {
-			remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
-					preguntasAlternativasVMA.getId_pregunta_remitio_informe_tecnico(),
+			remitioAnexoComplementario = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
+					preguntasAlternativasVMA.getId_pregunta_remitio_anexo_norma_complementaria(),  //se refiere si se adjunto el Anexo 2.2 de la Norma complementaria VMA.
 					registroVmaPorAnhio.getIdRegistroVma());
 		}
 
 		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipo(),
 				empresa.getRegimen().equals(Constants.Regimen.RAT), registroCompleto,
-				registroCompleto && remitioInforme);
+				registroCompleto && remitioAnexoComplementario);
 	}
 
 	// anexo 2
@@ -879,6 +839,46 @@ public class RegistroVMAService {
 			return null;
 		}
 
+	}
+	
+	private Predicate filtrarPorFechaRegistro(String search , CriteriaBuilder cb,Join registroVMA, Date startDate) {
+		
+		Predicate fechaRegistroPredicate;
+		//para la busqueda de la fecha de registro vma, segun el campo Buscar:
+		SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try {
+		    if (search.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+		        // Fecha completa con hora, minuto, segundo
+		        Date date = fullDateFormat.parse(search);
+		        fechaRegistroPredicate = cb.equal(registroVMA.get("createdAt"), date);
+		    } else if (search.matches("\\d{4}-\\d{2}-\\d{2}")) {
+		        // Solo fecha sin hora
+		        Date startDate1 = dateFormat.parse(search);
+		        Date endDate1 = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 - 1); // Fin del día
+		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
+		    } else if (search.matches("\\d{4}-\\d{2}")) {
+		        // Año y mes
+		        Date startDate1 = dateFormat.parse(search + "-01");
+		        Date endDate1 = dateFormat.parse(search + "-31"); // Fin del mes aproximado
+		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
+		    } else if (search.matches("\\d{4}")) {
+		        // Solo año
+		        Date startDate1 = dateFormat.parse(search + "-01-01");
+		        Date endDate1 = dateFormat.parse(search + "-12-31");
+		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
+		    } else {
+		        // Búsqueda genérica
+		        fechaRegistroPredicate = cb.like(
+		            cb.lower(registroVMA.get("createdAt").as(String.class)),
+		            "%" + search.toLowerCase() + "%"
+		        );
+		    }
+		} catch (ParseException e) {
+		    throw new IllegalArgumentException("Formato de fecha inválido: " + search, e);
+		}
+		return fechaRegistroPredicate;
 	}
 
 }

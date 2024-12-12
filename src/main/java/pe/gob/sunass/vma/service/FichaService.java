@@ -60,11 +60,11 @@ public class FichaService {
 		if (dto == null) {
 			throw new FailledValidationException("Los datos son obligatorios");
 		} else if (dto.getAnio() == null || dto.getAnio().isEmpty()) {
-			throw new FailledValidationException("el [anio] es obligatorio");
+			throw new FailledValidationException("el anio es obligatorio");
 		} else if (dto.getFechaInicio() == null) {
-			throw new FailledValidationException("La [FechaInicio] es obligatorio");
+			throw new FailledValidationException("La Fecha de Inicio es obligatorio");
 		} else if (dto.getFechaFin() == null) {
-			throw new FailledValidationException("La [FechaFin] es obligatorio");
+			throw new FailledValidationException("La Fecha Fin es obligatorio");
 		}
 
 		else if (dto.getAnio().equals(this.fichaRepository.findAnioFichaRegistro(dto.getAnio()))) {
@@ -75,9 +75,10 @@ public class FichaService {
 			throw new FailledValidationException("La Fecha de Inicio no debe ser mayor o igual a la Fecha Fin");
 		}
 
-		else if (Integer.parseInt(dto.getAnio()) > (dto.getFechaInicio().getYear())) { // pendiente de validar con el
+		else if ((Integer.parseInt(dto.getAnio()) > dto.getFechaInicio().getYear()) 
+					&& (Integer.parseInt(dto.getAnio()) > dto.getFechaFin().getYear()) ) { // pendiente de validar con el
 																						// usuario DF
-			throw new FailledValidationException("El año no puede ser mayor que el año de la fecha de inicio.");
+			throw new FailledValidationException("El año ingresado no puede ser mayor que el año de la fecha de inicio o fin");
 		}
 
 		else if (!validarFechas(dto.getFechaInicio(), dto.getFechaFin())) { // Validar que el rango de fechas no
@@ -93,7 +94,7 @@ public class FichaService {
 		if (listaFichas != null && !listaFichas.isEmpty()) {
 
 		} else {
-			logger.info("No hay fichas en la base de datos.");
+			logger.info("No hay fechas registradas en la base de datos.");
 		}
 
 		FichaRegistro fichaRegistro = new FichaRegistro();
@@ -113,7 +114,7 @@ public class FichaService {
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public FichaDTO update(FichaDTO dto) throws Exception {
 		if (dto == null) {
-			throw new Exception("datos son obligatorios");
+			throw new Exception("Todos los datos son obligatorios");
 		}
 
 		FichaRegistro fichaRegistro = null;
@@ -156,16 +157,10 @@ public class FichaService {
 
 			if (this.fichaRepository.nroRegistroPorAnioUpdate(dto.getAnio(), dto.getFechaInicio(),
 					dto.getIdFichaRegistro()) > 0) {
-				throw new FailledValidationException("Ya existe otro periodo registrado en este año."); // pendiente por
-																										// validar
+				throw new FailledValidationException("Ya existe otro periodo registrado en este año."); //
 			}
 
-			List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc(); // lista de
-																												// Periodos
-																												// ordenados
-																												// desc
-																												// por
-																												// ID .
+			List<FichaRegistro> listPeriodoVMA = this.fichaRepository.findAllByOrderByIdFichaRegistroDesc(); // lista de  Periodos  ordenados en desc, segun el ID .
 			if (listPeriodoVMA != null && !listPeriodoVMA.isEmpty()) {
 
 				logger.info("fecha inicio " + dto.getFechaInicio());
@@ -181,18 +176,7 @@ public class FichaService {
 							"Error: El año  no puede ser mayor que el año de la fecha de inicio.");
 				}
 
-				if (validarFechasForUpdate(dto.getIdFichaRegistro(), dto.getFechaInicio(), dto.getFechaFin())) { // Validar
-																													// que
-																													// el
-																													// rango
-																													// de
-																													// fechas
-																													// no
-																													// interfiera
-																													// con
-																													// ningún
-																													// rango
-																													// existente.
+				if (validarFechasForUpdate(dto.getIdFichaRegistro(), dto.getFechaInicio(), dto.getFechaFin())) { // Validar  que  el rango  de  fechas  no interfiera  con  ningún rango  existente.
 
 					logger.info("El rango de fechas es correcto, no se cruza con ningun rango.");
 
@@ -290,9 +274,10 @@ public class FichaService {
 	}
 
 	/**
-	 * expresiones cron 1.- 0 0 0 26 12 * A las 12:00 del 26 de diciembre de cada año en produccion
-	 *  3.- 0 * * * * * cada minuto  , para pruebas en dev o local
-	 *  4.- 0 * /2 * * * * cada 2 minutos   , para pruebas en dev o local
+	 * expresiones cron :
+	 *  1.- 0 0 0 26 12 * A las 12:00 del 26 de diciembre de cada año , para produccion
+	 *  2.- 0 * * * * * cada minuto  , para pruebas en dev o local
+	 *  3.- 0 * /2 * * * * cada 2 minutos   , para pruebas en dev o local
 	 */
 	@Scheduled(cron = " 0 0 0 26 12 * ")
 	public void registrarFichaRegistroProximoAnio() { // para registrar el proximo trimestre del proximo año : del 01 de enero al 31 de marzo.

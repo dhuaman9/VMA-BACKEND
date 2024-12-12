@@ -34,7 +34,7 @@ public class EmpresaService {
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public List<EmpresaDTO> findAll() throws Exception {
-		List<Empresa> listEmpresa = this.empresaRepository.findByEstadoTrueExcludingSunassOrderByIdEmpresa();
+		List<Empresa> listEmpresa = this.empresaRepository.findByExcludingSunassOrderByIdEmpresa();
 		List<EmpresaDTO> listDTO = EmpresaAssembler.buildDtoModelCollection(listEmpresa);
 
 		return listDTO;
@@ -84,7 +84,7 @@ public class EmpresaService {
 		empresa.setNombre(dto.getNombre().toUpperCase());
 		empresa.setRegimen(dto.getRegimen());
 		empresa.setTipo(dto.getTipo());
-		empresa.setEstado(true);
+		//empresa.setEstado(true);
 		empresa.setCreatedAt(new Date());
 		empresa.setUpdatedAt(null);
 		empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
@@ -130,11 +130,11 @@ public class EmpresaService {
 				}
 			}
 
-			if (dto.getEstado() != null) {
-				if (!dto.getEstado().equals(empresa.getEstado())) {
-					empresa.setEstado(dto.getEstado());
-				}
-			}
+//			if (dto.getEstado() != null) {   // segun DF, no se usara por el momeno.
+//				if (!dto.getEstado().equals(empresa.getEstado())) {
+//					empresa.setEstado(dto.getEstado());
+//				}
+//			}
 
 			empresa.setUpdatedAt(new Date());
 			empresa.setIdUsuarioActualizacion(userUtil.getCurrentUserId());

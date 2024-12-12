@@ -14,9 +14,11 @@ import pe.gob.sunass.vma.model.Empresa;
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
+	//en los metodos, se excluye al campo estado, por mencion de DF.
+	
 	// Método que excluye a la empresa sunass
-	@Query("SELECT e FROM Empresa e WHERE e.estado = true AND e.idEmpresa <> 1  ORDER BY e.idEmpresa")
-	public List<Empresa> findByEstadoTrueExcludingSunassOrderByIdEmpresa();
+	@Query("SELECT e FROM Empresa e WHERE  e.idEmpresa <> 1  ORDER BY e.idEmpresa")
+	public List<Empresa> findByExcludingSunassOrderByIdEmpresa();
 
 	@Query("SELECT e  FROM Empresa e  WHERE e.nombre <> 'SUNASS'  order by idEmpresa")
 	public Page<Empresa> findAllEmpresa(Pageable pageable);

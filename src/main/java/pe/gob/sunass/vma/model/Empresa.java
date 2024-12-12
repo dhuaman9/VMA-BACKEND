@@ -59,8 +59,8 @@ public class Empresa implements Serializable {
 	@Column(name = "id_usuario_actualizacion", nullable = true)
 	private Integer idUsuarioActualizacion;
 
-	@Column(name = "estado")
-	private Boolean estado;
+//	@Column(name = "estado")
+//	private Boolean estado;  //por el momento no se usara, segun DF: dificilmente se de de baja a una EPS en Peru.
 
 	@OneToMany(mappedBy = "empresa")
 	@JsonIgnore
@@ -114,13 +114,13 @@ public class Empresa implements Serializable {
 		this.idEmpresa = idEmpresa;
 	}
 
-	public Boolean getEstado() {
-		return estado;
-	}
-
-	public void setEstado(Boolean estado) {
-		this.estado = estado;
-	}
+//	public Boolean getEstado() {
+//		return estado;
+//	}
+//
+//	public void setEstado(Boolean estado) {
+//		this.estado = estado;
+//	}
 
 	public Integer getIdUsuarioRegistro() {
 		return idUsuarioRegistro;

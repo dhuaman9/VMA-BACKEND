@@ -46,9 +46,6 @@ public class Pregunta implements Serializable {
 	@Column(name = "fecha_registro", nullable = false)
 	private Date createdAt;
 
-//	@Temporal(TemporalType.TIMESTAMP)
-//	@Column(name="fecha_actualizacion", nullable=true)
-//	private Date updatedAt;
 
 	@OneToOne
 	@JoinColumn(name = "pregunta_dependiente_id")

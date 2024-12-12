@@ -74,8 +74,8 @@ public class PreguntasAlternativasProperties {
 	@Value("${cuestionario.id_pregunta_ingresos_facturados_vma}")
 	private int id_pregunta_ingresos_facturados;
 	
-	@Value("${cuestionario.id_pregunta_remitio_informe_tecnico}")
-	private int id_pregunta_remitio_informe_tecnico;
+	@Value("${cuestionario.id_pregunta_remitio_anexo_norma_complementaria}")
+	private int id_pregunta_remitio_anexo_norma_complementaria;
 
 	public int getId_pregunta_si_no() {
 		return id_pregunta_si_no;
@@ -253,14 +253,15 @@ public class PreguntasAlternativasProperties {
 		this.id_pregunta_ingresos_facturados = id_pregunta_ingresos_facturados;
 	}
 
-	public int getId_pregunta_remitio_informe_tecnico() {
-		return id_pregunta_remitio_informe_tecnico;
+	public int getId_pregunta_remitio_anexo_norma_complementaria() {
+		return id_pregunta_remitio_anexo_norma_complementaria;
 	}
 
-	public void setId_pregunta_remitio_informe_tecnico(int id_pregunta_remitio_informe_tecnico) {
-		this.id_pregunta_remitio_informe_tecnico = id_pregunta_remitio_informe_tecnico;
+	public void setId_pregunta_remitio_anexo_norma_complementaria(int id_pregunta_remitio_anexo_norma_complementaria) {
+		this.id_pregunta_remitio_anexo_norma_complementaria = id_pregunta_remitio_anexo_norma_complementaria;
 	}
 
+	
 	
 	
 

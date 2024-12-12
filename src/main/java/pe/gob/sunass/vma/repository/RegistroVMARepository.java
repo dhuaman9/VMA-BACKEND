@@ -67,16 +67,22 @@ public interface RegistroVMARepository extends JpaRepository<RegistroVMA, Intege
 	List<RegistroVMA> findRegistrosVmasPorIds(List<Integer> ids); // se usa cuando se descarga excel, segun los ids
 																	// seleccionados en la tabla.
 
-	@Query(value = "SELECT CASE " + "   WHEN EXISTS (" + "       SELECT 1 " + "       FROM vma.empresa e "
-			+ "       WHERE e.id_empresa = :idEmpresa " + "         AND e.estado = false" + "   ) THEN true "
-			+ "   WHEN NOT EXISTS (" + "       SELECT 1 " + "       FROM vma.ficha_registro fr "
-			+ "       WHERE CURRENT_DATE >= fr.fecha_inicio " + "         AND CURRENT_DATE <= fr.fecha_fin" + "   ) "
-			+ "   OR EXISTS (" + "       SELECT 1 " + "       FROM vma.registro_vma rv "
-			+ "       INNER JOIN vma.ficha_registro fr " + "           ON rv.id_ficha_registro = fr.id_ficha_registro "
-			+ "       WHERE rv.id_empresa = :idEmpresa "
-			+ "         AND rv.fecha_creacion BETWEEN fr.fecha_inicio AND fr.fecha_fin" + "   ) THEN true "
-			+ "   ELSE false " + "END AS resultado", nativeQuery = true)
-	public boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa); // para deshabilitar o habilitar el
-																				// boton de Registrar para VMA
+	@Query(value = "SELECT CASE " +
+            "WHEN NOT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM vma.ficha_registro fr " +
+            "    WHERE CURRENT_DATE >= fr.fecha_inicio AND CURRENT_DATE <= fr.fecha_fin " +
+            ") " +
+            "OR EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM vma.registro_vma rv " +
+            "    INNER JOIN vma.ficha_registro fr ON rv.id_ficha_registro = fr.id_ficha_registro " +
+            "    WHERE rv.id_empresa = :idEmpresa " +
+            "    AND rv.fecha_creacion BETWEEN fr.fecha_inicio AND fr.fecha_fin " +
+            ") " +
+            "THEN true " +
+            "ELSE false " +
+            "END AS resultado",  nativeQuery = true)
+	public boolean isRegistroCompletado(@Param("idEmpresa") Integer idEmpresa); // para deshabilitar o habilitar el boton de Registrar  VMA
 
 }

@@ -27,7 +27,7 @@ public class EmpresaAssembler {
 			dto.setRegimen(empresa.getRegimen());
 			dto.setTipo(empresa.getTipo());
 			// dto.setTipoEmpresa(empresa.getTipoEmpresa());
-			dto.setEstado(empresa.getEstado());
+			//dto.setEstado(empresa.getEstado());  //no se usara, salvo DF lo solicite
 			dto.setIdUsuarioRegistro(empresa.getIdUsuarioRegistro());
 			dto.setIdUsuarioActualizacion(empresa.getIdUsuarioActualizacion());
 			dto.setCreatedAt(DateUtil.format(Constants.Format.DateTime.DateTime, empresa.getCreatedAt()));
