@@ -118,12 +118,10 @@ public class ReporteService {
 
 	// grafico 6
 
-	/*
-	 * formula porcentaje = Sumatoria de UND inspeccionadas de las EPS por
-	 * tamaño/Sumatoria UND identificadas de las EPS por tamaño. promedio =
-	 * Sumatoria de UND inspeccionadas de todas las EPS / Sumatoria UND
-	 * identificadas de todas las EPS.
-	 */
+	/*  formula porcentaje = Sumatoria de UND inspeccionadas de las EPS por
+	 	tamaño/Sumatoria UND identificadas de las EPS por tamaño.
+	 	promedio = Sumatoria de UND inspeccionadas de todas las EPS / Sumatoria UND
+	 	identificadas de todas las EPS. */
 
 	public List<BarChartBasicoDto> reporteNumeroTotalUNDInspeccionados(String anio) {
 
@@ -166,12 +164,13 @@ public class ReporteService {
 
 	}
 
-	/*
-	 * GRAFICO 7 formula = Sumatoria de UND a los que se le ha solicitado la
-	 * presentación del diagrama ...DE EPS por tamaño/Sumatoria UND inspeccionadas
-	 * de las EPS por tamaño promedio = Sumatoria de UND a los que se le ha
-	 * solicitado la presentación ...de todas las EPS /Sumatoria UND inspeccionadas
-	 * de todas las EPS
+
+	/* GRAFICO 7
+	 * formula = Sumatoria de UND a los que se le ha solicitado la presentación del
+	 * diagrama ...DE EPS por tamaño/Sumatoria UND inspeccionadas de las EPS por
+	 * tamaño promedio = Sumatoria de UND a los que se le ha solicitado la
+	 * presentación ...de todas las EPS /Sumatoria UND inspeccionadas de todas las
+	 * EPS
 	 */
 
 	public List<BarChartBasicoDto> reporteDiagramaFlujoYBalance(String anio) {
@@ -227,6 +226,8 @@ public class ReporteService {
 	private List<Integer> mapToIdsRegistrosVma(List<RegistroVMA> registrosVma) {
 		return registrosVma.stream().map(RegistroVMA::getIdRegistroVma).collect(Collectors.toList());
 	}
+
+
 
 	// grafico 8
 	public List<BarChartBasicoDto> reporteDiagramaFlujoYBalancePresentados(String anio) {

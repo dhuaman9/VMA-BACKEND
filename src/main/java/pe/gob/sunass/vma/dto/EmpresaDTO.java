@@ -3,7 +3,7 @@ package pe.gob.sunass.vma.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pe.gob.sunass.vma.model.TipoEmpresa;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -18,7 +18,7 @@ public class EmpresaDTO {
 
 	private String tipo;
 
-	// private TipoEmpresa tipoEmpresa;
+//	private TipoEmpresa tipoEmpresa;
 
 	private Boolean estado;
 

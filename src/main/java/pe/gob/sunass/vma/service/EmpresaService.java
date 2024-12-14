@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
+import pe.gob.sunass.vma.model.Role;
+import pe.gob.sunass.vma.model.TipoEmpresa;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.util.UserUtil;
 import pe.gob.sunass.vma.assembler.EmpresaAssembler;
@@ -39,6 +41,13 @@ public class EmpresaService {
 
 		return listDTO;
 	}
+	
+//	@Transactional(Transactional.TxType.REQUIRES_NEW)
+//	public List<TipoEmpresa> findAllTipoEmpresas() throws Exception {
+//		List<TipoEmpresa> listEmpresa = this.empresaRepository.findTipoEmpresaById();
+//		
+//		return listEmpresa;
+//	}
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public Page<EmpresaDTO> findByFilter(String filter, Pageable pageable) throws Exception {
@@ -79,12 +88,16 @@ public class EmpresaService {
 			throw new FailledValidationException("La empresa " + dto.getNombre() + " ya existe, registre uno nuevo.");
 
 		}
-
+		
+		//Optional<TipoEmpresa> optTipoEmpresa = this.empresaRepository.findByTipoEmpresaId(dto.getTipoEmpresa().getIdTipoEmpresa());
+		
 		Empresa empresa = new Empresa();
 		empresa.setNombre(dto.getNombre().toUpperCase());
 		empresa.setRegimen(dto.getRegimen());
 		empresa.setTipo(dto.getTipo());
-		//empresa.setEstado(true);
+//		empresa.setTipoEmpresa(optTipoEmpresa.get()); //reemplaza al enterior.
+		
+		
 		empresa.setCreatedAt(new Date());
 		empresa.setUpdatedAt(null);
 		empresa.setIdUsuarioRegistro(userUtil.getCurrentUserId());
@@ -124,12 +137,26 @@ public class EmpresaService {
 				}
 			}
 
+//			if (dto.getTipoEmpresa() != null && dto.getTipoEmpresa().getIdTipoEmpresa()!= null) { 
+////				if (!dto.getTipo().equals(empresa.getTipo())) {
+////					empresa.setTipo(dto.getTipo());
+////				}
+//				
+//				Optional<TipoEmpresa> optTipoEmpresa = this.empresaRepository.findByTipoEmpresaId(dto.getTipoEmpresa().getIdTipoEmpresa());
+//
+//				if (!optTipoEmpresa.isPresent()) {
+//					throw new Exception(" el  tipo de empresa no existe");
+//				}
+//				
+//				empresa.setTipoEmpresa(optTipoEmpresa.get());
+//			}
+
 			if (dto.getTipo() != null && !dto.getTipo().isEmpty()) {
 				if (!dto.getTipo().equals(empresa.getTipo())) {
 					empresa.setTipo(dto.getTipo());
 				}
 			}
-
+			
 //			if (dto.getEstado() != null) {   // segun DF, no se usara por el momeno.
 //				if (!dto.getEstado().equals(empresa.getEstado())) {
 //					empresa.setEstado(dto.getEstado());

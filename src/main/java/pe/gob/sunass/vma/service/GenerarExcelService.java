@@ -46,6 +46,7 @@ import pe.gob.sunass.vma.dto.RespuestaDTO;
 import pe.gob.sunass.vma.dto.SeccionDTO;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
+import pe.gob.sunass.vma.model.TipoEmpresa;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.repository.RegistroVMARepository;
@@ -105,7 +106,8 @@ public class GenerarExcelService {
 				Row row = sheet.createRow(rowIdx++);
 				agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx - 1));
 				agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
-				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo());
+				//agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre()); //dhr c
+				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo()); //original
 				agregarCelda(3, row, centeredStyle,
 						registro.getEstado() == null ? "SIN REGISTRO" : registro.getEstado());
 				agregarCelda(4, row, centeredStyle,
@@ -267,6 +269,7 @@ public class GenerarExcelService {
 				emp.setNombre((String) objeto[1]);
 				emp.setRegimen((String) objeto[2]);
 				emp.setTipo((String) objeto[3]);
+				//emp.setTipoEmpresa((TipoEmpresa) objeto[3]);
 				FichaRegistro fReg = new FichaRegistro();
 				fReg.setAnio((String) objeto[7]);
 				RegistroVMA rVMA = new RegistroVMA();

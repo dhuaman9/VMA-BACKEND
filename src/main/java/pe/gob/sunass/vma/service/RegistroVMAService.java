@@ -59,6 +59,7 @@ import pe.gob.sunass.vma.exception.ForbiddenException;
 import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
+//import pe.gob.sunass.vma.model.TipoEmpresa;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
@@ -264,6 +265,9 @@ public class RegistroVMAService {
 		registroVMA.on(cb.equal(registroVMA.get("fichaRegistro").get("idFichaRegistro"),
 				fichaRegistro.get("idFichaRegistro")));
 
+		// Realizar un join con la entidad TipoEmpresa
+//		Join<Empresa, TipoEmpresa> tipoEmpresaJoin = empresaRoot.join("tipoEmpresa", JoinType.LEFT);
+		
 		query.multiselect(empresaRoot.get("idEmpresa"), empresaRoot.get("nombre"), empresaRoot.get("regimen"),
 				empresaRoot.get("tipo"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
 				registroVMA.get("createdAt"), fichaRegistro.get("anio"));
@@ -286,6 +290,12 @@ public class RegistroVMAService {
 			int firstResult = pageable.getPageNumber() * pageable.getPageSize();
 			typedQuery.setFirstResult(firstResult);
 			typedQuery.setMaxResults(pageable.getPageSize());
+			
+			//String nombreTipo = (String) objeto[3];
+			// Suponiendo que tienes un servicio para buscar TipoEmpresa por nombre
+//			TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
+//			emp.setTipoEmpresa(tipoEmpresa);
+			
 
 			List<RegistroVMA> resultList = typedQuery.getResultList().stream().map(objeto -> {
 				Empresa emp = new Empresa();
@@ -293,6 +303,11 @@ public class RegistroVMAService {
 				emp.setNombre((String) objeto[1]);
 				emp.setRegimen((String) objeto[2]);
 				emp.setTipo((String) objeto[3]);
+				
+//				String nombreTipo = (String) objeto[3];
+//				TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
+//				emp.setTipoEmpresa(tipoEmpresa);
+				
 				FichaRegistro fReg = new FichaRegistro();
 				fReg.setAnio((String) objeto[7]);
 				RegistroVMA rVMA = new RegistroVMA();
@@ -349,6 +364,7 @@ public class RegistroVMAService {
 					emp.setNombre((String) objeto[1]);
 					emp.setRegimen((String) objeto[2]);
 					emp.setTipo((String) objeto[3]);
+					//emp.setTipoEmpresa((TipoEmpresa) objeto[3]); 
 					FichaRegistro fReg = new FichaRegistro();
 					fReg.setAnio((String) objeto[7]);
 					RegistroVMA rVMA = new RegistroVMA();
@@ -483,6 +499,7 @@ public class RegistroVMAService {
 
 	/* En adelante se listan los Anexos : */
 
+
 	// anexo 1
 	public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		List<Empresa> empresasDB = empresaRepository.findAll();
@@ -490,23 +507,23 @@ public class RegistroVMAService {
 		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipo()))
 				.sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo de empresa
 				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
-				.collect(Collectors.toList());
+				.collect(Collectors.toList()); // Colectar en una lista
 	}
 
 	private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
 		RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
 		boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio)
 				&& registroVmaPorAnhio.getEstado().equals(Constants.ESTADO_COMPLETO);
-		boolean remitioAnexoComplementario = false;
+		boolean remitioInforme = false;
 		if (Objects.nonNull(registroVmaPorAnhio)) {
-			remitioAnexoComplementario = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
-					preguntasAlternativasVMA.getId_pregunta_remitio_anexo_norma_complementaria(),  //se refiere si se adjunto el Anexo 2.2 de la Norma complementaria VMA.
+			remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
+					preguntasAlternativasVMA.getId_pregunta_remitio_anexo_norma_complementaria(),
 					registroVmaPorAnhio.getIdRegistroVma());
 		}
 
 		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipo(),
 				empresa.getRegimen().equals(Constants.Regimen.RAT), registroCompleto,
-				registroCompleto && remitioAnexoComplementario);
+				registroCompleto && remitioInforme);
 	}
 
 	// anexo 2
@@ -811,6 +828,7 @@ public class RegistroVMAService {
 		return anexos;
 	}
 
+
 	public void actualizarEstadoIncompleto(Integer id) {
 		Optional<RegistroVMA> registro = registroVMARepository.findById(id);
 
@@ -845,28 +863,46 @@ public class RegistroVMAService {
 		
 		Predicate fechaRegistroPredicate;
 		//para la busqueda de la fecha de registro vma, segun el campo Buscar:
-		SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		
+		// Formatos para fechas
+		SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		Date date;
+		Date startDate1;
+		Date endDate1;
+
 		try {
-		    if (search.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+		    if (search.matches("\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
 		        // Fecha completa con hora, minuto, segundo
-		        Date date = fullDateFormat.parse(search);
+		        date = fullDateFormat.parse(search);
 		        fechaRegistroPredicate = cb.equal(registroVMA.get("createdAt"), date);
-		    } else if (search.matches("\\d{4}-\\d{2}-\\d{2}")) {
+		    } else if (search.matches("\\d{2}-\\d{2}-\\d{4}")) {
 		        // Solo fecha sin hora
-		        Date startDate1 = dateFormat.parse(search);
-		        Date endDate1 = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 - 1); // Fin del día
+		        startDate1 = dateFormat.parse(search);
+		        endDate1 = new Date(startDate1.getTime() + 24 * 60 * 60 * 1000 - 1); // Fin del día
 		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
-		    } else if (search.matches("\\d{4}-\\d{2}")) {
-		        // Año y mes
-		        Date startDate1 = dateFormat.parse(search + "-01");
-		        Date endDate1 = dateFormat.parse(search + "-31"); // Fin del mes aproximado
+		    } else if (search.matches("\\d{2}-\\d{2}")) {
+		        // Día y mes sin importar el año
+		        String[] parts = search.split("-");
+		        int day = Integer.parseInt(parts[0]);
+		        int month = Integer.parseInt(parts[1]);
+
+		        fechaRegistroPredicate = cb.and(
+		            cb.equal(cb.function("day", Integer.class, registroVMA.get("createdAt")), day),
+		            cb.equal(cb.function("month", Integer.class, registroVMA.get("createdAt")), month)
+		        );
+		    }else if (search.matches("\\d{2}-\\d{4}")) {
+		        // Mes y año (se asume el primer día del mes)
+		        dateFormat = new SimpleDateFormat("MM-yyyy");
+		        startDate1 = dateFormat.parse(search);
+		        Calendar cal = Calendar.getInstance();
+		        cal.setTime(startDate1);
+		        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH)); // Último día del mes
+		        endDate1 = cal.getTime();
 		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
 		    } else if (search.matches("\\d{4}")) {
 		        // Solo año
-		        Date startDate1 = dateFormat.parse(search + "-01-01");
-		        Date endDate1 = dateFormat.parse(search + "-12-31");
+		        startDate1 = dateFormat.parse("01-01-" + search);
+		        endDate1 = dateFormat.parse("31-12-" + search);
 		        fechaRegistroPredicate = cb.between(registroVMA.get("createdAt"), startDate1, endDate1);
 		    } else {
 		        // Búsqueda genérica
@@ -878,6 +914,7 @@ public class RegistroVMAService {
 		} catch (ParseException e) {
 		    throw new IllegalArgumentException("Formato de fecha inválido: " + search, e);
 		}
+
 		return fechaRegistroPredicate;
 	}
 

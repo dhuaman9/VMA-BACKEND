@@ -35,6 +35,12 @@ public class TipoEmpresa implements Serializable  {
 	@Column(name="fecha_creacion", nullable=false)
 	private Date createdAt;
 
+	
+
+	public TipoEmpresa() {
+		super();
+	}
+
 
 	public Integer getIdTipoEmpresa() {
 		return idTipoEmpresa;
