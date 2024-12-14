@@ -16,9 +16,9 @@ public class EmpresaDTO {
 
 	private String regimen;
 
-	private String tipo;
+//	private String tipo;
 
-	// private TipoEmpresa tipoEmpresa;
+	private TipoEmpresa tipoEmpresa;
 
 	private Boolean estado;
 
@@ -42,21 +42,21 @@ public class EmpresaDTO {
 		this.regimen = regimen;
 	}
 
-	public String getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
-
-//	public TipoEmpresa getTipoEmpresa() {
-//		return tipoEmpresa;
+//	public String getTipo() {
+//		return tipo;
 //	}
 //
-//	public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
-//		this.tipoEmpresa = tipoEmpresa;
+//	public void setTipo(String tipo) {
+//		this.tipo = tipo;
 //	}
+
+	public TipoEmpresa getTipoEmpresa() {
+		return tipoEmpresa;
+	}
+
+	public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
+		this.tipoEmpresa = tipoEmpresa;
+	}
 
 	public String getCreatedAt() {
 		return createdAt;

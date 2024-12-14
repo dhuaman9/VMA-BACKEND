@@ -23,7 +23,7 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	RespuestaVMA findRespuestasByIdPreguntaAndRegistroVma(Integer preguntaId, Integer registroVmaId);
 
 
-	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
+	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipoEmpresa.nombre = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
 	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
 
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.idRegistroVma = :registroId")

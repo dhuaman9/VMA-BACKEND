@@ -132,7 +132,7 @@ public class UsuarioService {
 			throw new FailledValidationException("El Usuario ya esta registrado.");
 
 		}
-
+		
 		Optional<Role> optRole = this.roleRepository.findById(dto.getRole().getIdRole());
 
 		Usuario usuario = new Usuario();

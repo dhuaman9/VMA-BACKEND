@@ -74,7 +74,7 @@ public class PreguntasAlternativasProperties {
 	@Value("${cuestionario.id_pregunta_ingresos_facturados_vma}")
 	private int id_pregunta_ingresos_facturados;
 	
-	@Value("${cuestionario.id_pregunta_remitio_anexo_norma_complementaria}")
+	@Value("${cuestionario.id_pregunta_anexo_2_2_norma_complementaria}")
 	private int id_pregunta_remitio_anexo_norma_complementaria;
 
 	public int getId_pregunta_si_no() {

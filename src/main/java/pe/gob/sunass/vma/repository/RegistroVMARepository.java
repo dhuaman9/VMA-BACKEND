@@ -26,7 +26,7 @@ public interface RegistroVMARepository extends JpaRepository<RegistroVMA, Intege
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = :idEmpresa")
 	public List<RegistroVMA> registrosPorIdEmpresa(Integer idEmpresa);
 
-	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipo = :tipoEmpresa AND r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
+	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE r.empresa.tipoEmpresa.nombre = :tipoEmpresa AND r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
 	long registrosCompletadosPorTipoEmpresa(String tipoEmpresa, String anio);
 
 	@Query("SELECT COUNT(r) FROM RegistroVMA r WHERE  r.fichaRegistro.anio = :anio AND r.estado='COMPLETO'")
@@ -50,7 +50,7 @@ public interface RegistroVMARepository extends JpaRepository<RegistroVMA, Intege
 	@Query("SELECT r FROM RegistroVMA r WHERE r.empresa.idEmpresa = ( SELECT e.idEmpresa FROM Empresa e WHERE e.nombre = :nombre)")
 	public List<RegistroVMA> findAllByOrderByIdRegistroVmaAndEPS(@Param("nombre") String nombre);
 
-	@Query("SELECT r FROM RegistroVMA r WHERE r.estado= 'COMPLETO' AND r.fichaRegistro.anio = :anio")
+	@Query("SELECT r FROM RegistroVMA r WHERE r.estado = 'COMPLETO' AND r.fichaRegistro.anio = :anio")
 	public List<RegistroVMA> findRegistrosCompletos(@Param("anio") String anio);
 
 	@Query("SELECT r FROM RegistroVMA r WHERE r.fichaRegistro.anio = :anio")

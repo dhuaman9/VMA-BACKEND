@@ -6,9 +6,12 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
@@ -38,12 +41,12 @@ public class Empresa implements Serializable {
 	@Column(name = "regimen", length = 50, nullable = false)
 	private String regimen;
 
-	@Column(name = "tipo", length = 50, nullable = false)
-	private String tipo;
+//	@Column(name = "tipo", length = 50, nullable = false)
+//	private String tipo;
 
-//		@ManyToOne(fetch=FetchType.EAGER, optional=false)
-//		@JoinColumn(name="id_tipo_empresa", referencedColumnName="id_tipo_empresa", nullable=false)
-//		private TipoEmpresa tipoEmpresa;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="id_tipo_empresa", referencedColumnName="id_tipo_empresa", nullable=false)
+	private TipoEmpresa tipoEmpresa;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "fecha_registro", nullable = false)
@@ -74,13 +77,13 @@ public class Empresa implements Serializable {
 		this.regimen = regimen;
 	}
 
-	public String getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
+//	public String getTipo() {
+//		return tipo;
+//	}
+//
+//	public void setTipo(String tipo) {
+//		this.tipo = tipo;
+//	}
 
 	public Date getCreatedAt() {
 		return createdAt;
@@ -146,12 +149,12 @@ public class Empresa implements Serializable {
 		this.registrosVMA = registrosVMA;
 	}
 
-//		public TipoEmpresa getTipoEmpresa() {
-//			return tipoEmpresa;
-//		}
-//
-//		public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
-//			this.tipoEmpresa = tipoEmpresa;
-//		}
+	public TipoEmpresa getTipoEmpresa() {
+		return tipoEmpresa;
+	}
+
+	public void setTipoEmpresa(TipoEmpresa tipoEmpresa) {
+		this.tipoEmpresa = tipoEmpresa;
+	}
 
 }
