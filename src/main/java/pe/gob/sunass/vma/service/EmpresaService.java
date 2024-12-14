@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import pe.gob.sunass.vma.dto.EmpresaDTO;
 import pe.gob.sunass.vma.exception.FailledValidationException;
 import pe.gob.sunass.vma.model.Empresa;
-import pe.gob.sunass.vma.model.Role;
 import pe.gob.sunass.vma.model.TipoEmpresa;
 import pe.gob.sunass.vma.repository.EmpresaRepository;
 import pe.gob.sunass.vma.util.UserUtil;
@@ -30,6 +29,9 @@ public class EmpresaService {
 
 	@Autowired
 	private EmpresaRepository empresaRepository;
+
+	@Autowired
+	private TipoEmpresaService tipoEmpresaService;
 
 	@Autowired
 	private UserUtil userUtil;
@@ -84,12 +86,12 @@ public class EmpresaService {
 
 		List<Empresa> list = this.empresaRepository.findByEps(dto.getNombre().toUpperCase());
 
-		if (list != null && list.size() > 0) {
+		if (list != null && !list.isEmpty()) {
 			throw new FailledValidationException("La empresa " + dto.getNombre() + " ya existe, registre uno nuevo.");
 
 		}
 		
-		Optional<TipoEmpresa> optTipoEmpresa = this.empresaRepository.findByTipoEmpresaId(dto.getTipoEmpresa().getIdTipoEmpresa());
+		Optional<TipoEmpresa> optTipoEmpresa = this.tipoEmpresaService.getTipoEmpresaById(dto.getTipoEmpresa().getIdTipoEmpresa());
 		
 		Empresa empresa = new Empresa();
 		empresa.setNombre(dto.getNombre().toUpperCase());
@@ -142,9 +144,9 @@ public class EmpresaService {
 //					empresa.setTipo(dto.getTipo());
 //				}
 				
-				Optional<TipoEmpresa> optTipoEmpresa = this.empresaRepository.findByTipoEmpresaId(dto.getTipoEmpresa().getIdTipoEmpresa());
+				Optional<TipoEmpresa> optTipoEmpresa = tipoEmpresaService.getTipoEmpresaById(dto.getTipoEmpresa().getIdTipoEmpresa());
 
-				if (!optTipoEmpresa.isPresent()) {
+				if (optTipoEmpresa.isEmpty()) {
 					throw new Exception(" el  tipo de empresa no existe");
 				}
 				
