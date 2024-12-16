@@ -49,12 +49,13 @@ public class ReporteService {
 																		// constantes de preguntas y alternativas
 
 	public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
+		
 		List<Empresa> empresas = empresaRepository.findAll();
 
 		Map<String, List<Empresa>> empresasPorTipo = empresas.stream()
-				.filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipo())) // ignora a sunass, es de
-																								// tipo NINGUNO
-				.collect(Collectors.groupingBy(Empresa::getTipo));
+				.filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipoEmpresa().getNombre())) // ignora a sunass, es de  tipo NINGUNO
+				.collect(Collectors.groupingBy(empresa -> 
+		        empresa.getTipoEmpresa() != null ? empresa.getTipoEmpresa().getNombre() : "Sin Tipo"));  //dhr cambio
 
 		List<RegistroEmpresaChartDto> dataList = new ArrayList<>();
 		empresasPorTipo.forEach((tipo, lista) -> {
@@ -63,6 +64,7 @@ public class ReporteService {
 		});
 
 		return dataList;
+		
 	}
 
 	public List<RegistroEmpresaChartDto> reporteSiNo(String anio) {
@@ -70,7 +72,7 @@ public class ReporteService {
 		List<RegistroEmpresaChartDto> dataList = new ArrayList<>();
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //DHR CAMBIO
 
 		registrosPorTipo.forEach((tipo, lista) -> {
 			List<RespuestaVMA> respuestas = respuestaVMARepository.findRespuestasByIdPreguntaAndTipoEmpresa(
@@ -86,7 +88,7 @@ public class ReporteService {
 	public List<RegistroPromedioTrabajadorVMAChartDto> reporteNumeroPromedioDeTrabajadoresDedicadosVMA(String anio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr cambio
 
 		List<RegistroPromedioTrabajadorVMAChartDto> registrosPromedio = new ArrayList<>();
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -99,7 +101,7 @@ public class ReporteService {
 	public List<PieChartBasicoDto> reporteNumeroTotalUND(String anio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr cambio
 
 		List<PieChartBasicoDto> listaNumeroTotalUND = new ArrayList<>();
 		Integer sumaTotalEmpresasUNDIngresadas = respuestaVMARepository.getSumaTotalRespuestaAlternativaPorRegistros(
@@ -118,10 +120,12 @@ public class ReporteService {
 
 	// grafico 6
 
-	/*  formula porcentaje = Sumatoria de UND inspeccionadas de las EPS por
-	 	tamaño/Sumatoria UND identificadas de las EPS por tamaño.
-	 	promedio = Sumatoria de UND inspeccionadas de todas las EPS / Sumatoria UND
-	 	identificadas de todas las EPS. */
+	/*
+	 * formula porcentaje = Sumatoria de UND inspeccionadas de las EPS por
+	 * tamaño/Sumatoria UND identificadas de las EPS por tamaño. promedio =
+	 * Sumatoria de UND inspeccionadas de todas las EPS / Sumatoria UND
+	 * identificadas de todas las EPS.
+	 */
 
 	public List<BarChartBasicoDto> reporteNumeroTotalUNDInspeccionados(String anio) {
 
@@ -132,7 +136,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -164,13 +168,12 @@ public class ReporteService {
 
 	}
 
-
-	/* GRAFICO 7
-	 * formula = Sumatoria de UND a los que se le ha solicitado la presentación del
-	 * diagrama ...DE EPS por tamaño/Sumatoria UND inspeccionadas de las EPS por
-	 * tamaño promedio = Sumatoria de UND a los que se le ha solicitado la
-	 * presentación ...de todas las EPS /Sumatoria UND inspeccionadas de todas las
-	 * EPS
+	/*
+	 * GRAFICO 7 formula = Sumatoria de UND a los que se le ha solicitado la
+	 * presentación del diagrama ...DE EPS por tamaño/Sumatoria UND inspeccionadas
+	 * de las EPS por tamaño promedio = Sumatoria de UND a los que se le ha
+	 * solicitado la presentación ...de todas las EPS /Sumatoria UND inspeccionadas
+	 * de todas las EPS
 	 */
 
 	public List<BarChartBasicoDto> reporteDiagramaFlujoYBalance(String anio) {
@@ -181,7 +184,7 @@ public class ReporteService {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -227,8 +230,6 @@ public class ReporteService {
 		return registrosVma.stream().map(RegistroVMA::getIdRegistroVma).collect(Collectors.toList());
 	}
 
-
-
 	// grafico 8
 	public List<BarChartBasicoDto> reporteDiagramaFlujoYBalancePresentados(String anio) {
 
@@ -238,7 +239,7 @@ public class ReporteService {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -278,7 +279,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));  //dhr cambio
 		List<GraficoComparativoDTO> listaTablaComparativa = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -315,7 +316,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -350,7 +351,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -384,7 +385,7 @@ public class ReporteService {
 	public List<PieChartBasicoDto> reporteNumeroTotalTomasMuestraInopinadas(String anio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 
 		List<PieChartBasicoDto> listaTotalTomasMuestraInopinadas = new ArrayList<>();
 		Integer sumaTotalTomasMuestraInopinadas = respuestaVMARepository.getSumatotalRespuestaPorRegistros(
@@ -413,7 +414,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -452,7 +453,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); ///dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -500,7 +501,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -549,7 +550,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -602,7 +603,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -642,7 +643,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -685,7 +686,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -720,7 +721,7 @@ public class ReporteService {
 
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr c
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {
@@ -753,7 +754,7 @@ public class ReporteService {
 	public CostoAnualIncurridoCompletoDTO reporteCostoTotalIncurrido(String anio) {
 		List<RegistroVMA> registros = registroVMARepository.findRegistros(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registros.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr
 
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
@@ -821,7 +822,7 @@ public class ReporteService {
 	public CostoAnualIncurridoCompletoDTO reporteCostoTotalIncurridoMuestrasInopinadas(String anio) {
 		List<RegistroVMA> registros = registroVMARepository.findRegistros(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registros.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre()));//dhr
 
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
@@ -889,7 +890,7 @@ public class ReporteService {
 	public List<BarChartBasicoDto> reporteCostoAnualPorOtrosGastos(String anio) {
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
-				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipo()));
+				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); //dhr
 		List<BarChartBasicoDto> listaChart = new ArrayList<>();
 
 		registrosPorTipo.forEach((tipo, lista) -> {

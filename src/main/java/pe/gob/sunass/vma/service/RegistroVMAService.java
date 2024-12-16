@@ -59,7 +59,7 @@ import pe.gob.sunass.vma.exception.ForbiddenException;
 import pe.gob.sunass.vma.exception.ResourceNotFoundException;
 import pe.gob.sunass.vma.model.Empresa;
 import pe.gob.sunass.vma.model.FichaRegistro;
-//import pe.gob.sunass.vma.model.TipoEmpresa;
+import pe.gob.sunass.vma.model.TipoEmpresa;
 import pe.gob.sunass.vma.model.Usuario;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
@@ -266,10 +266,10 @@ public class RegistroVMAService {
 				fichaRegistro.get("idFichaRegistro")));
 
 		// Realizar un join con la entidad TipoEmpresa
-//		Join<Empresa, TipoEmpresa> tipoEmpresaJoin = empresaRoot.join("tipoEmpresa", JoinType.LEFT);
+		Join<Empresa, TipoEmpresa> tipoEmpresaJoin = empresaRoot.join("tipoEmpresa", JoinType.LEFT);
 		
 		query.multiselect(empresaRoot.get("idEmpresa"), empresaRoot.get("nombre"), empresaRoot.get("regimen"),
-				empresaRoot.get("tipo"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
+				tipoEmpresaJoin.get("nombre"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
 				registroVMA.get("createdAt"), fichaRegistro.get("anio"));
 
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
@@ -302,11 +302,11 @@ public class RegistroVMAService {
 				emp.setIdEmpresa((Integer) objeto[0]);
 				emp.setNombre((String) objeto[1]);
 				emp.setRegimen((String) objeto[2]);
-				emp.setTipo((String) objeto[3]);
-				
-//				String nombreTipo = (String) objeto[3];
-//				TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
-//				emp.setTipoEmpresa(tipoEmpresa);
+				//emp.setTipo((String) objeto[3]);
+				//emp.setTipoEmpresa((TipoEmpresa) objeto[3]); 
+				String nombreTipo = (String) objeto[3];
+				TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
+				emp.setTipoEmpresa(tipoEmpresa);
 				
 				FichaRegistro fReg = new FichaRegistro();
 				fReg.setAnio((String) objeto[7]);
@@ -363,8 +363,12 @@ public class RegistroVMAService {
 					emp.setIdEmpresa((Integer) objeto[0]);
 					emp.setNombre((String) objeto[1]);
 					emp.setRegimen((String) objeto[2]);
-					emp.setTipo((String) objeto[3]);
+					//emp.setTipo((String) objeto[3]);
 					//emp.setTipoEmpresa((TipoEmpresa) objeto[3]); 
+					String nombreTipo = (String) objeto[3];
+					TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
+					emp.setTipoEmpresa(tipoEmpresa);
+					
 					FichaRegistro fReg = new FichaRegistro();
 					fReg.setAnio((String) objeto[7]);
 					RegistroVMA rVMA = new RegistroVMA();
@@ -436,7 +440,13 @@ public class RegistroVMAService {
 		}
 		if (search != null) {
 			Predicate namePredicate = cb.like(cb.lower(empresaRoot.get("nombre")), "%" + search.toLowerCase() + "%");
-			Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")), "%" + search.toLowerCase() + "%");
+			Join<Empresa, TipoEmpresa> tipoEmpresaJoin = empresaRoot.join("tipoEmpresa");
+			Predicate typePredicate = cb.like(
+			    cb.lower(tipoEmpresaJoin.get("nombre")),
+			    "%" + search.toLowerCase() + "%"
+			);
+			
+			//Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")), "%" + search.toLowerCase() + "%");
 			Predicate regimenPredicate = cb.like(cb.lower(empresaRoot.get("regimen")),
 					"%" + search.toLowerCase() + "%");
 			Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")), "%" + search.toLowerCase() + "%");
@@ -499,37 +509,43 @@ public class RegistroVMAService {
 
 	/* En adelante se listan los Anexos : */
 
-
 	// anexo 1
 	public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		List<Empresa> empresasDB = empresaRepository.findAll();
 
-		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipo()))
-				.sorted(Comparator.comparing(Empresa::getTipo)) // Ordenar por tipo de empresa
+		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipoEmpresa().getNombre()))  //dhr cambios
+				.sorted(Comparator.comparing(empresa -> 
+		        empresa.getTipoEmpresa() != null ? empresa.getTipoEmpresa().getNombre() : "")) // Ordenar por tipo de empresa
 				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
-				.collect(Collectors.toList()); // Colectar en una lista
+				.collect(Collectors.toList());
 	}
 
 	private AnexoRegistroVmaDTO mapToAnexoRegistroVmaDTO(Empresa empresa, String anio) {
 		RegistroVMA registroVmaPorAnhio = registroVMARepository.findRegistroVmaPorAnhio(empresa.getIdEmpresa(), anio);
 		boolean registroCompleto = Objects.nonNull(registroVmaPorAnhio)
 				&& registroVmaPorAnhio.getEstado().equals(Constants.ESTADO_COMPLETO);
-		boolean remitioInforme = false;
+		boolean remitioAnexoComplementario = false;
 		if (Objects.nonNull(registroVmaPorAnhio)) {
-			remitioInforme = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
-					preguntasAlternativasVMA.getId_pregunta_remitio_anexo_norma_complementaria(),
+			remitioAnexoComplementario = respuestaVMARepository.isRespuestaArchivoInformacionCompleto(
+					preguntasAlternativasVMA.getId_pregunta_remitio_anexo_norma_complementaria(),  //se refiere si se adjunto el Anexo 2.2 de la Norma complementaria VMA.
 					registroVmaPorAnhio.getIdRegistroVma());
 		}
 
-		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipo(),
+		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipoEmpresa().getNombre(),  //dhr cambio
 				empresa.getRegimen().equals(Constants.Regimen.RAT), registroCompleto,
-				registroCompleto && remitioInforme);
+				registroCompleto && remitioAnexoComplementario);
 	}
 
 	// anexo 2
 	public List<AnexoRespuestaSiDTO> listaDeAnexosRegistroMarcaronSi(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+//		
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoRespuestaSiDTO> anexos = new ArrayList<>();
 
@@ -539,8 +555,8 @@ public class RegistroVMAService {
 			RespuestaVMA respuestaNroTrabajadores = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					preguntasAlternativasVMA.getId_pregunta_nro_trabajadores_eps(), registroVMA.getIdRegistroVma());
 
-			anexos.add(new AnexoRespuestaSiDTO(registroVMA.getEmpresa().getNombre(), registroVMA.getEmpresa().getTipo(),
-					respuesta.getRespuesta(), Integer.parseInt(respuestaNroTrabajadores.getRespuesta())));
+			anexos.add(new AnexoRespuestaSiDTO(registroVMA.getEmpresa().getNombre(), registroVMA.getEmpresa().getTipoEmpresa().getNombre(),
+					respuesta.getRespuesta(), Integer.parseInt(respuestaNroTrabajadores.getRespuesta()))); //dhr cambio
 		});
 
 		return anexos;
@@ -552,8 +568,13 @@ public class RegistroVMAService {
 	 */
 
 	public List<AnexoTresListadoEPDTO> listaDeAnexosRelacionEPInspeccionados(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoTresListadoEPDTO> anexos = new ArrayList<>();
 
@@ -571,7 +592,7 @@ public class RegistroVMAService {
 					preguntasAlternativasVMA.getId_alternativa_und_inscritos(), registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoTresListadoEPDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Integer.parseInt(UNDidentificados.getRespuesta()),
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), Integer.parseInt(UNDidentificados.getRespuesta()),
 					Integer.parseInt(UNDinspeccionados.getRespuesta()), Integer.parseInt(UNDinscritos.getRespuesta())));
 		});
 
@@ -581,8 +602,12 @@ public class RegistroVMAService {
 	/* anexo 4 - Detalle de porcentaje de toma de muestra inopinada de las EP */
 
 	public List<AnexoPorcentajeMuestraInopinadaDTO> listaDeAnexosTomaDeMuestrasInopinadas(String anhio) {
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoPorcentajeMuestraInopinadaDTO> anexos = new ArrayList<>();
 
@@ -603,8 +628,8 @@ public class RegistroVMAService {
 			double porcentajeRedondeado = Math.round(porcentaje * 10.0) / 10.0;
 
 			anexos.add(new AnexoPorcentajeMuestraInopinadaDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), UNDinscritosvalor, muestrasInopinadasvalor,
-					porcentajeRedondeado));
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), UNDinscritosvalor, muestrasInopinadasvalor,
+					porcentajeRedondeado));//dhr cambio
 		});
 
 		return anexos;
@@ -616,8 +641,12 @@ public class RegistroVMAService {
 	 */
 
 	public List<AnexoEvaluacionVmaAnexo1DTO> listaDeAnexosEPevaluaronVMAAnexo1(String anhio) {
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+//		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoEvaluacionVmaAnexo1DTO> anexos = new ArrayList<>();
 
@@ -641,10 +670,10 @@ public class RegistroVMAService {
 					registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoEvaluacionVmaAnexo1DTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
 					Integer.parseInt(UNDSobrepasanParametroAnexo1.getRespuesta()),
 					Integer.parseInt(UNDFacturadosPagoAdicional.getRespuesta()),
-					Integer.parseInt(UNDRealizaronPagoAdicional.getRespuesta())));
+					Integer.parseInt(UNDRealizaronPagoAdicional.getRespuesta()))); //dhr cambio
 		});
 
 		return anexos;
@@ -656,8 +685,13 @@ public class RegistroVMAService {
 	 */
 
 	public List<AnexoEvaluacionVmaAnexo2DTO> listaDeAnexosEPevaluaronVMAAnexo2(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+//		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoEvaluacionVmaAnexo2DTO> anexos = new ArrayList<>();
 
@@ -680,10 +714,10 @@ public class RegistroVMAService {
 					registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoEvaluacionVmaAnexo2DTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
 					Integer.parseInt(UNDSobrepasanParametroAnexo2.getRespuesta()),
 					Integer.parseInt(UNDConPlazoAdicional.getRespuesta()),
-					Integer.parseInt(UNDSuscritoAcuerdo.getRespuesta())));
+					Integer.parseInt(UNDSuscritoAcuerdo.getRespuesta())));  //dhr cambio a tipo y nombre ep
 		});
 
 		return anexos;
@@ -693,8 +727,13 @@ public class RegistroVMAService {
 	// referidos a VMA
 
 	public List<AnexoReclamosVMADTO> listaDeAnexosEPSAtendieronReclamos(String anhio) {
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+//		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
+		
 
 		List<AnexoReclamosVMADTO> anexos = new ArrayList<>();
 
@@ -709,7 +748,7 @@ public class RegistroVMAService {
 			RespuestaVMA reclamosFundadosVMA = respuestaVMARepository.findRespuestaByPreguntaIdAndRegistro(
 					preguntasAlternativasVMA.getId_pregunta_nro_reclamos_fundados(), registroVMA.getIdRegistroVma());
 
-			anexos.add(new AnexoReclamosVMADTO(registroVMA.getEmpresa().getNombre(), registroVMA.getEmpresa().getTipo(),
+			anexos.add(new AnexoReclamosVMADTO(registroVMA.getEmpresa().getNombre(), registroVMA.getEmpresa().getTipoEmpresa().getNombre(),
 					Integer.parseInt(UNDinscritos.getRespuesta()),
 					Integer.parseInt(reclamosRecibidosVMA.getRespuesta()),
 					Integer.parseInt(reclamosFundadosVMA.getRespuesta())));
@@ -722,8 +761,12 @@ public class RegistroVMAService {
 	// los UND
 
 	public List<AnexoCostoTotalUNDDTO> anexoDetalleCostosUND(String anhio) {
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
 
 		List<AnexoCostoTotalUNDDTO> anexos = new ArrayList<>();
 
@@ -740,8 +783,8 @@ public class RegistroVMAService {
 					.divide(new BigDecimal(UNDidentificados.getRespuesta()), 1, RoundingMode.HALF_UP);
 
 			anexos.add(new AnexoCostoTotalUNDDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
-					Integer.parseInt(UNDidentificados.getRespuesta()), costoAnual));
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
+					Integer.parseInt(UNDidentificados.getRespuesta()), costoAnual));  //dhr cambio a tipo y nombre empresa
 		});
 
 		return anexos;
@@ -750,8 +793,13 @@ public class RegistroVMAService {
 	// anexo 9 - Detalle de los costos totales por toma de muestras inopinadas
 
 	public List<AnexoCostoTotalMuestrasInopinadasDTO> listaAnexosCostosMuestrasInopinadas(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());  //dhr cambio a tipo
 
 		List<AnexoCostoTotalMuestrasInopinadasDTO> anexos = new ArrayList<>();
 
@@ -769,8 +817,8 @@ public class RegistroVMAService {
 					.divide(new BigDecimal(UNDMuestraInopinada.getRespuesta()), 2, RoundingMode.HALF_UP);
 
 			anexos.add(new AnexoCostoTotalMuestrasInopinadasDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualMuestras.getRespuesta()),
-					Integer.parseInt(UNDMuestraInopinada.getRespuesta()), costoAnual));
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualMuestras.getRespuesta()),
+					Integer.parseInt(UNDMuestraInopinada.getRespuesta()), costoAnual));  //dhr cambio
 		});
 
 		return anexos;
@@ -780,9 +828,14 @@ public class RegistroVMAService {
 	// Prestadoras
 
 	public List<AnexoCostoTotalesIncurridosDTO> listaAnexosCostosTotalesIncurridos(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
+		
 		List<AnexoCostoTotalesIncurridosDTO> anexos = new ArrayList<>();
 
 		registrosCompletos.forEach(registroVMA -> {
@@ -800,9 +853,9 @@ public class RegistroVMAService {
 					registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoCostoTotalesIncurridosDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
 					new BigDecimal(costoTotalAnualMuestrasInopinadas.getRespuesta()),
-					new BigDecimal(costoOtrosGastosImplementacion.getRespuesta())));
+					new BigDecimal(costoOtrosGastosImplementacion.getRespuesta())));  //dhr cambio
 		});
 
 		return anexos;
@@ -812,9 +865,14 @@ public class RegistroVMAService {
 	// conceptos de VMA
 
 	public List<AnexoIngresosImplVmaDTO> listaDeAnexosIngresosVMA(String anhio) {
+		
+//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
+//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-
+			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
+			    .collect(Collectors.toList());
+		
 		List<AnexoIngresosImplVmaDTO> anexos = new ArrayList<>();
 
 		registrosCompletos.forEach(registroVMA -> {
@@ -822,12 +880,11 @@ public class RegistroVMAService {
 					preguntasAlternativasVMA.getId_pregunta_ingresos_facturados(), registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoIngresosImplVmaDTO(registroVMA.getEmpresa().getNombre(),
-					registroVMA.getEmpresa().getTipo(), new BigDecimal(respuestaIngresos.getRespuesta())));
+					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(respuestaIngresos.getRespuesta())));
 		});
 
 		return anexos;
 	}
-
 
 	public void actualizarEstadoIncompleto(Integer id) {
 		Optional<RegistroVMA> registro = registroVMARepository.findById(id);

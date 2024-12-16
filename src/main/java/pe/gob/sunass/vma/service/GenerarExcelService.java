@@ -106,8 +106,7 @@ public class GenerarExcelService {
 				Row row = sheet.createRow(rowIdx++);
 				agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx - 1));
 				agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
-				//agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre()); //dhr c
-				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipo()); //original
+				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre()); //dhr c
 				agregarCelda(3, row, centeredStyle,
 						registro.getEstado() == null ? "SIN REGISTRO" : registro.getEstado());
 				agregarCelda(4, row, centeredStyle,
@@ -212,8 +211,9 @@ public class GenerarExcelService {
 			registroVMA.on(cb.equal(registroVMA.get("fichaRegistro").get("idFichaRegistro"),
 					fichaRegistro.get("idFichaRegistro")));
 
+		
 			query.multiselect(empresaRoot.get("idEmpresa"), empresaRoot.get("nombre"), empresaRoot.get("regimen"),
-					empresaRoot.get("tipo"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
+					empresaRoot.get("tipoEmpresa").get("nombre"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
 					registroVMA.get("createdAt"), fichaRegistro.get("anio"));
 
 			List<Predicate> predicates = new ArrayList<>();
@@ -247,7 +247,14 @@ public class GenerarExcelService {
 			if (search != null) {
 				Predicate namePredicate = cb.like(cb.lower(empresaRoot.get("nombre")),
 						"%" + search.toLowerCase() + "%");
-				Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")), "%" + search.toLowerCase() + "%");
+				Join<Empresa, TipoEmpresa> tipoEmpresaJoin = empresaRoot.join("tipoEmpresa");
+				Predicate typePredicate = cb.like(
+				    cb.lower(tipoEmpresaJoin.get("nombre")),
+				    "%" + search.toLowerCase() + "%"
+				);
+				
+//				Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")), "%" + search.toLowerCase() + "%");
+				
 				Predicate regimenPredicate = cb.like(cb.lower(empresaRoot.get("regimen")),
 						"%" + search.toLowerCase() + "%");
 				Predicate estadoPredicate = cb.like(cb.lower(registroVMA.get("estado")),
@@ -268,8 +275,13 @@ public class GenerarExcelService {
 				emp.setIdEmpresa((Integer) objeto[0]);
 				emp.setNombre((String) objeto[1]);
 				emp.setRegimen((String) objeto[2]);
-				emp.setTipo((String) objeto[3]);
+				//emp.setTipo((String) objeto[3]);
+				
+				String nombreTipo = (String) objeto[3];
+				TipoEmpresa tipoEmpresa = empresaRepository.findTipoEmpresaByNombre(nombreTipo);
+				emp.setTipoEmpresa(tipoEmpresa);
 				//emp.setTipoEmpresa((TipoEmpresa) objeto[3]);
+				
 				FichaRegistro fReg = new FichaRegistro();
 				fReg.setAnio((String) objeto[7]);
 				RegistroVMA rVMA = new RegistroVMA();

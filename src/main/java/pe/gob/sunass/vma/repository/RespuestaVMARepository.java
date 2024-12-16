@@ -23,7 +23,7 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	RespuestaVMA findRespuestasByIdPreguntaAndRegistroVma(Integer preguntaId, Integer registroVmaId);
 
 
-	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipo = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
+	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.estado = 'COMPLETO' and r.registroVMA.empresa.tipoEmpresa.nombre = :tipoEmpresa AND r.registroVMA.fichaRegistro.anio = :anio")
 	List<RespuestaVMA> findRespuestasByIdPreguntaAndTipoEmpresa(Integer preguntaId, String tipoEmpresa, String anio);
 
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.idRegistroVma = :registroId")
@@ -48,7 +48,6 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalUNDInscritosRegistroVMA(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 
-	
 	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalRespuestaPorRegistros(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 	

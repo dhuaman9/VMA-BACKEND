@@ -10,10 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pe.gob.sunass.vma.model.Empresa;
+import pe.gob.sunass.vma.model.TipoEmpresa;
 //import pe.gob.sunass.vma.model.TipoEmpresa;
 
 @Repository
 public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
+
 
 	//en los metodos, se excluye al campo estado, por mencion de DF.
 	
@@ -21,16 +23,13 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 	@Query("SELECT e FROM Empresa e WHERE  e.idEmpresa <> 1  ORDER BY e.idEmpresa")
 	public List<Empresa> findByExcludingSunassOrderByIdEmpresa();
 	
-//	@Query("SELECT e FROM TipoEmpresa e ORDER BY e.idTipoEmpresa")
-//	public List<TipoEmpresa> findTipoEmpresaById();
+	@Query("SELECT t FROM TipoEmpresa t WHERE t.nombre <> 'NINGUNO'  ORDER BY t.idTipoEmpresa")
+	public List<TipoEmpresa> findTipoEmpresaById();
 
 	@Query("SELECT e  FROM Empresa e  WHERE e.nombre <> 'SUNASS'  order by idEmpresa")
 	public Page<Empresa> findAllEmpresa(Pageable pageable);
 
 	public Optional<Empresa> findByIdEmpresa(Integer id);
-	
-//	@Query("SELECT t FROM TipoEmpresa t  WHERE t.idTipoEmpresa = :id ")
-//	public Optional<TipoEmpresa> findByTipoEmpresaId(Integer id);
 
 	@Query("SELECT e FROM Empresa e WHERE e.nombre = :nombre")
 	public List<Empresa> findByEps(@Param("nombre") String nombre);
@@ -40,14 +39,14 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
 	@Query("SELECT e FROM Empresa e WHERE " + "LOWER(e.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) OR "
 			+ "LOWER(e.regimen) LIKE LOWER(CONCAT('%', :filter, '%')) OR "
-			+ "LOWER(e.tipo) LIKE LOWER(CONCAT('%', :filter, '%')) " + "AND e.nombre <> 'SUNASS'  ")
+			+ "LOWER(e.tipoEmpresa.nombre) LIKE LOWER(CONCAT('%', :filter, '%')) " + "AND e.nombre <> 'SUNASS'  ")
 	Page<Empresa> findByFilter(@Param("filter") String filter, Pageable pageable);
 
 	@Query("SELECT e " + "FROM Empresa e " + "WHERE e.idEmpresa NOT IN ( " + "    SELECT r.empresa.idEmpresa "
 			+ "    FROM RegistroVMA r " + ") " + "AND e.nombre <> 'SUNASS' ")
 	public List<Empresa> findByRegistroVmaIsNull();
 	
-//	@Query("SELECT t FROM TipoEmpresa t  WHERE t.nombre = :nombre ")
-//	public TipoEmpresa findTipoEmpresaByNombre(@Param("nombre") String nombre);
+	@Query("SELECT t FROM TipoEmpresa t  WHERE t.nombre = :nombre ")
+	public TipoEmpresa findTipoEmpresaByNombre(@Param("nombre") String nombre);
 
 }
