@@ -270,7 +270,7 @@ public class RegistroVMAService {
 		
 		query.multiselect(empresaRoot.get("idEmpresa"), empresaRoot.get("nombre"), empresaRoot.get("regimen"),
 				tipoEmpresaJoin.get("nombre"), registroVMA.get("idRegistroVma"), registroVMA.get("estado"),
-				registroVMA.get("createdAt"), fichaRegistro.get("anio"));
+				registroVMA.get("createdAt"), fichaRegistro.get("anio"), fichaRegistro.get("fechaInicio"), fichaRegistro.get("fechaFin"));
 
 		Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 		Pageable pageable = PageRequest.of(page, pageSize);
@@ -371,6 +371,8 @@ public class RegistroVMAService {
 					
 					FichaRegistro fReg = new FichaRegistro();
 					fReg.setAnio((String) objeto[7]);
+					fReg.setFechaInicio((LocalDate) objeto[8]);
+					fReg.setFechaFin((LocalDate) objeto[9]);
 					RegistroVMA rVMA = new RegistroVMA();
 					rVMA.setIdRegistroVma((Integer) objeto[4]);
 					rVMA.setEstado((String) objeto[5]);
