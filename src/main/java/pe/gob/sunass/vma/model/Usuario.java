@@ -29,9 +29,6 @@ import lombok.NoArgsConstructor;
 public class Usuario implements UserDetails{
 	
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -84,8 +81,7 @@ public class Usuario implements UserDetails{
 	@Column(name = "password_cambiado")
 	private Boolean passwordCambiado;  // para usar en usuarios eps, para cambiar contraseña.
 	
-//	@Column(name = "password_plain")
-//	private String passwordPlain;
+
 
 	public Integer getId() {
 		return id;
@@ -252,15 +248,6 @@ public class Usuario implements UserDetails{
 		this.passwordCambiado = passwordCambiado;
 	}
 
-//	public String getPasswordPlain() {
-//		return passwordPlain;
-//	}
-//
-//	public void setPasswordPlain(String passwordPlain) {
-//		this.passwordPlain = passwordPlain;
-//	}
 
-	
-	
 	
 }

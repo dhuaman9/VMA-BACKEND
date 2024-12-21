@@ -166,8 +166,7 @@ public class UsuarioService {
 			usuario.setNombres(Objects.nonNull(dto.getNombres()) ? dto.getNombres().toUpperCase() : null);
 			usuario.setApellidos(Objects.nonNull(dto.getApellidos()) ? dto.getApellidos().toUpperCase() : null);
 			usuario.setUserName(dto.getUserName().toLowerCase());
-			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el
-																			// BCryptPasswordEncoder
+			usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // el password se encriptara con el BCryptPasswordEncoder
 			usuario.setUnidadOrganica("");
 			usuario.setCorreo(dto.getCorreo());
 			usuario.setEmpresa(optEmpresa2.get());
@@ -211,8 +210,7 @@ public class UsuarioService {
 							dto.getUserName().toLowerCase(), dto.getId(), new Boolean(true));
 
 					if (list != null && list.size() > 0) {
-						throw new FailledValidationException("El usuario ya esta registrado."); // para validar en el
-																								// front
+						throw new FailledValidationException("El usuario ya esta registrado."); // para validar y mostrarlo  en el  front
 					}
 					usuario.setUserName(dto.getUserName().toLowerCase());
 				}
@@ -437,8 +435,7 @@ public class UsuarioService {
 		return dirContext;
 	}
 
-	// metodo para cambiar de contraseña, para usuarios tipo EPS, indistinto del rol
-	// que tengan.
+	// metodo para cambiar de contraseña, para usuarios tipo EPS, indistinto del rol  que tengan.
 	public void cambiarPassword(String username, CambioPasswordDTO cambioPasswordDTO) {
 
 		Usuario usuario = usuarioRepository.findByUserName(username)

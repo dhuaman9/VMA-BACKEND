@@ -41,8 +41,6 @@ public class Empresa implements Serializable {
 	@Column(name = "regimen", length = 50, nullable = false)
 	private String regimen;
 
-//	@Column(name = "tipo", length = 50, nullable = false)
-//	private String tipo;
 
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="id_tipo_empresa", referencedColumnName="id_tipo_empresa", nullable=false)
@@ -77,13 +75,7 @@ public class Empresa implements Serializable {
 		this.regimen = regimen;
 	}
 
-//	public String getTipo() {
-//		return tipo;
-//	}
-//
-//	public void setTipo(String tipo) {
-//		this.tipo = tipo;
-//	}
+
 
 	public Date getCreatedAt() {
 		return createdAt;
@@ -117,13 +109,7 @@ public class Empresa implements Serializable {
 		this.idEmpresa = idEmpresa;
 	}
 
-//	public Boolean getEstado() {
-//		return estado;
-//	}
-//
-//	public void setEstado(Boolean estado) {
-//		this.estado = estado;
-//	}
+
 
 	public Integer getIdUsuarioRegistro() {
 		return idUsuarioRegistro;

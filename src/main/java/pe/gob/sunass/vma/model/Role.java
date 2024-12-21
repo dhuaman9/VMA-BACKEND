@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
 
 import lombok.NoArgsConstructor;
 
-//@Data
+
 @NoArgsConstructor
 @Entity
 @Table(schema="vma", name="roles")

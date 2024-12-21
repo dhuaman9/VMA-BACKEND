@@ -45,10 +45,10 @@ public class ArchivosController {
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (FailledValidationException ex) { // BadRequestException ex
-
+			logger.info("error FailledValidationException : " + ex.getMessage());
 			throw ex;
 		} catch (Exception ex) {
-			logger.error(ex.getMessage(), ex);
+			logger.info("error inesperado, Exception ex : " + ex.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

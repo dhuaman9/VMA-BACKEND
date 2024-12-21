@@ -106,7 +106,7 @@ public class GenerarExcelService {
 				Row row = sheet.createRow(rowIdx++);
 				agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx - 1));
 				agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
-				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre()); //dhr c
+				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre());
 				agregarCelda(3, row, centeredStyle,
 						registro.getEstado() == null ? "SIN REGISTRO" : registro.getEstado());
 				agregarCelda(4, row, centeredStyle,

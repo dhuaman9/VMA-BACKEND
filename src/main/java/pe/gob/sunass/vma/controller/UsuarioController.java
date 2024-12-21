@@ -61,11 +61,14 @@ public class UsuarioController {
 		try {
 			List<UsuarioDTO> list = this.usuarioService.findAll();
 
-			if (list.size() == 0) {
-				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-			} else {
-				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
-			}
+//			if (list.size() == 0) {
+//				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+//			} else {
+//				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
+//			}
+//			
+			response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
+			
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -84,12 +87,15 @@ public class UsuarioController {
 
 			// pendiente usar el otro metodo
 			// logger.info("obtener count lista ldap2, metodo 2 :
-			// "+usuarioService.obtenerUsuariosLdap2().size());
-			if (list.size() == 0) {
-				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-			} else {
-				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
-			}
+			// "usuarioService.obtenerUsuariosLdap2().size());
+			
+//			if (list.size() == 0) {
+//				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+//			} else {
+//				response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
+//			}
+	
+			response = new ResponseEntity<List<UsuarioDTO>>(list, HttpStatus.OK);
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -33,8 +33,7 @@ public class Archivo implements Serializable {
 	private String idAlfresco;
 
 	@ManyToOne(fetch = FetchType.EAGER, optional = false)
-	// @JoinColumn(name="id_registro_vma", referencedColumnName="id_registro_vma",
-	// nullable=true)
+
 	@JoinColumn(name = "id_registro_vma", referencedColumnName = "id_registro_vma", nullable = false)
 	private RegistroVMA registroVma;
 

@@ -26,8 +26,8 @@ public class TokenPasswordService {
     public String crearToken(Usuario usuario) {
         TokenPassword tokenPassword = new TokenPassword();
         tokenPassword.setToken(generarToken());
-        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion)); //para dev o prod
-        //tokenPassword.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion));//para probar en  local
+        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion)); //para dev, uat o prod
+//        tokenPassword.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion));//para probar en  local
         tokenPassword.setUsuario(usuario);
         tokenPassword.setCompletado(false);
         tokenPasswordRepository.save(tokenPassword);
@@ -39,7 +39,7 @@ public class TokenPasswordService {
         
         token.setCompletado(false);
         token.setFechaExpiracion(LocalDateTime.now().plusDays(dias_expiracion));
-        //token.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion)); //en local
+//        token.setFechaExpiracion(LocalDateTime.now().plusMinutes(dias_expiracion)); //en local
         return tokenPasswordRepository.save(token).getToken();
     }
 

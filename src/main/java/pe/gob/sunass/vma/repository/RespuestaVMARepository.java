@@ -29,7 +29,6 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	@Query("FROM RespuestaVMA r WHERE r.idPregunta = :preguntaId and r.registroVMA.idRegistroVma = :registroId")
 	RespuestaVMA findRespuestaByPreguntaIdAndRegistro(Integer preguntaId, Integer registroId);
 	
-	//para anexos
 	
 	@Query("FROM RespuestaVMA r WHERE r.idAlternativa = :alternativaId and r.registroVMA.idRegistroVma = :registroId")
 	RespuestaVMA findRespuestaAlternativaPorRegistros(Integer alternativaId, Integer registroId);
