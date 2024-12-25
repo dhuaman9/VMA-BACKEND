@@ -45,11 +45,14 @@ public class FichasController {
 		try {
 			List<FichaDTO> list = this.fichaService.findAll();
 
-			if (list.size() == 0) {
-				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-			} else {
-				response = new ResponseEntity<List<FichaDTO>>(list, HttpStatus.OK);
-			}
+//			if (list.size() == 0) {
+//				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+//			} else {
+//				response = new ResponseEntity<List<FichaDTO>>(list, HttpStatus.OK);
+//			}
+			
+			response = new ResponseEntity<List<FichaDTO>>(list, HttpStatus.OK);
+			
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",

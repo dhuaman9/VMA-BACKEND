@@ -208,7 +208,7 @@ public class RegistroVMAService {
 			if (respuestaOpt.isPresent()) {
 				RespuestaVMA respuestaVMA = respuestaOpt.get();
 
-				alfrescoService.deleteFile(respuestaVMA.getRespuesta()); // pendiente x cambiar dhr
+				alfrescoService.deleteFile(respuestaVMA.getRespuesta());
 
 				respuestaVMA.setRespuesta(archivoDTO.getNombreArchivo());
 				respuestaVMA.setIdUsuarioActualizacion(currentUserId);
@@ -515,10 +515,10 @@ public class RegistroVMAService {
 	public List<AnexoRegistroVmaDTO> listaDeAnexosRegistrosVmaDTO(String anhio) {
 		List<Empresa> empresasDB = empresaRepository.findAll();
 
-		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipoEmpresa().getNombre()))  //dhr cambios
+		return empresasDB.stream().filter(empresa -> !Constants.TIPO_EMPRESA_NINGUNO.equals(empresa.getTipoEmpresa().getNombre()))
 				.sorted(Comparator.comparing(empresa -> 
 		        empresa.getTipoEmpresa() != null ? empresa.getTipoEmpresa().getNombre() : "")) // Ordenar por tipo de empresa
-				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio)) // Mapear a DTO
+				.map(empresa -> mapToAnexoRegistroVmaDTO(empresa, anhio))
 				.collect(Collectors.toList());
 	}
 
@@ -533,7 +533,7 @@ public class RegistroVMAService {
 					registroVmaPorAnhio.getIdRegistroVma());
 		}
 
-		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipoEmpresa().getNombre(),  //dhr cambio
+		return new AnexoRegistroVmaDTO(empresa.getNombre(), empresa.getTipoEmpresa().getNombre(),
 				empresa.getRegimen().equals(Constants.Regimen.RAT), registroCompleto,
 				registroCompleto && remitioAnexoComplementario);
 	}
@@ -558,7 +558,7 @@ public class RegistroVMAService {
 					preguntasAlternativasVMA.getId_pregunta_nro_trabajadores_eps(), registroVMA.getIdRegistroVma());
 
 			anexos.add(new AnexoRespuestaSiDTO(registroVMA.getEmpresa().getNombre(), registroVMA.getEmpresa().getTipoEmpresa().getNombre(),
-					respuesta.getRespuesta(), Integer.parseInt(respuestaNroTrabajadores.getRespuesta()))); //dhr cambio
+					respuesta.getRespuesta(), Integer.parseInt(respuestaNroTrabajadores.getRespuesta())));
 		});
 
 		return anexos;
@@ -631,7 +631,7 @@ public class RegistroVMAService {
 
 			anexos.add(new AnexoPorcentajeMuestraInopinadaDTO(registroVMA.getEmpresa().getNombre(),
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), UNDinscritosvalor, muestrasInopinadasvalor,
-					porcentajeRedondeado));//dhr cambio
+					porcentajeRedondeado));
 		});
 
 		return anexos;
@@ -675,7 +675,7 @@ public class RegistroVMAService {
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
 					Integer.parseInt(UNDSobrepasanParametroAnexo1.getRespuesta()),
 					Integer.parseInt(UNDFacturadosPagoAdicional.getRespuesta()),
-					Integer.parseInt(UNDRealizaronPagoAdicional.getRespuesta()))); //dhr cambio
+					Integer.parseInt(UNDRealizaronPagoAdicional.getRespuesta())));
 		});
 
 		return anexos;
@@ -719,7 +719,7 @@ public class RegistroVMAService {
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), Integer.parseInt(muestrasInopinadas.getRespuesta()),
 					Integer.parseInt(UNDSobrepasanParametroAnexo2.getRespuesta()),
 					Integer.parseInt(UNDConPlazoAdicional.getRespuesta()),
-					Integer.parseInt(UNDSuscritoAcuerdo.getRespuesta())));  //dhr cambio a tipo y nombre ep
+					Integer.parseInt(UNDSuscritoAcuerdo.getRespuesta())));
 		});
 
 		return anexos;
@@ -786,7 +786,7 @@ public class RegistroVMAService {
 
 			anexos.add(new AnexoCostoTotalUNDDTO(registroVMA.getEmpresa().getNombre(),
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
-					Integer.parseInt(UNDidentificados.getRespuesta()), costoAnual));  //dhr cambio a tipo y nombre empresa
+					Integer.parseInt(UNDidentificados.getRespuesta()), costoAnual));
 		});
 
 		return anexos;
@@ -801,7 +801,7 @@ public class RegistroVMAService {
 		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
-			    .collect(Collectors.toList());  //dhr cambio a tipo
+			    .collect(Collectors.toList());
 
 		List<AnexoCostoTotalMuestrasInopinadasDTO> anexos = new ArrayList<>();
 
@@ -820,7 +820,7 @@ public class RegistroVMAService {
 
 			anexos.add(new AnexoCostoTotalMuestrasInopinadasDTO(registroVMA.getEmpresa().getNombre(),
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualMuestras.getRespuesta()),
-					Integer.parseInt(UNDMuestraInopinada.getRespuesta()), costoAnual));  //dhr cambio
+					Integer.parseInt(UNDMuestraInopinada.getRespuesta()), costoAnual));
 		});
 
 		return anexos;
@@ -857,7 +857,7 @@ public class RegistroVMAService {
 			anexos.add(new AnexoCostoTotalesIncurridosDTO(registroVMA.getEmpresa().getNombre(),
 					registroVMA.getEmpresa().getTipoEmpresa().getNombre(), new BigDecimal(costoTotalAnualUND.getRespuesta()),
 					new BigDecimal(costoTotalAnualMuestrasInopinadas.getRespuesta()),
-					new BigDecimal(costoOtrosGastosImplementacion.getRespuesta())));  //dhr cambio
+					new BigDecimal(costoOtrosGastosImplementacion.getRespuesta())));
 		});
 
 		return anexos;

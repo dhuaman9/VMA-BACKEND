@@ -46,8 +46,17 @@ myapp:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  #app-front-url: https://appsdev.sunass.gob.pe/vma/#
   dias-expiracion: 5
+
+  alfresco:
+    remote-secret-ops: http://10.10.3.115:3000
+    token: 0311874a-a7c1-4d74-b144-2f597f823359
+    #url: https://alfrescodev.sunass.gob.pe/
+    #user: uvma
+    #password: =okKmqV*7637
+    #carpeta: VMA
+    #spaceStore: 68b878c9-0106-415f-b4e0-3be12bcb2ad8
+
 
 
 cors:
@@ -68,4 +77,9 @@ ldap:
   timeout: 3000
   url: ldap://10.10.3.9:389
   
-  
+alfresco:
+  url: https://alfrescodev.sunass.gob.pe/
+  user: uvma
+  password: =okKmqV*7637
+  carpeta: VMA
+  spaceStore: 68b878c9-0106-415f-b4e0-3be12bcb2ad8

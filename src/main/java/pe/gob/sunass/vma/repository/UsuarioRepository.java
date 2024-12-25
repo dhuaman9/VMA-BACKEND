@@ -20,7 +20,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
 	public Page<Usuario> findAllByOrderById(Pageable pageable);
 
-//	  @Query("SELECT u FROM Usuario u WHERE u.userName <> :username ORDER BY u.id")
+
 	@Query("SELECT u FROM Usuario u WHERE u.id <> :id ORDER BY u.id")
 	public List<Usuario> findAllByOrderByIdExceptCurrent(@Param("id") Integer id);
 

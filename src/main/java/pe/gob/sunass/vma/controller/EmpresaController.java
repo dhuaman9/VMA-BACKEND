@@ -50,11 +50,8 @@ public class EmpresaController {
 		try {
 			List<EmpresaDTO> list = this.empresaService.findAll();
 
-			if (list.size() == 0) {
-				response = new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
-			} else {
-				response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
-			}
+			response = new ResponseEntity<List<EmpresaDTO>>(list, HttpStatus.OK);
+			
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			response = new ResponseEntity<String>("{\"error\" : \"" + ex.getMessage() + "\"}",

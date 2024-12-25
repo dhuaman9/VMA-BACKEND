@@ -17,7 +17,7 @@ import pe.gob.sunass.vma.model.TipoEmpresa;
 public interface EmpresaRepository extends JpaRepository<Empresa, Integer> {
 
 
-	//en los metodos, se excluye al campo estado, por mencion de DF.
+	//en los metodos, se excluye al campo estado, de acuerdo al area  DF.
 	
 	// Método que excluye a la empresa sunass
 	@Query("SELECT e FROM Empresa e WHERE  e.idEmpresa <> 1  ORDER BY e.idEmpresa")

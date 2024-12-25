@@ -105,7 +105,6 @@ public class LdapUtil {
 
     public Attributes obtenerUsuarioLDAP(DirContext dirContext, String userCN) throws Exception {
     	
-    	//dhr
     	String unidadOrganica="";
     	 Attributes attrs = null;
     	 SearchControls constraints = new SearchControls();
@@ -116,7 +115,6 @@ public class LdapUtil {
         if (userLDAP.hasMore()) {
             attrs = ((SearchResult) userLDAP.next()).getAttributes();
            // unidadOrganica=  (String) (attrs.get("physicalDeliveryOfficeName")==null?"":attrs.get("physicalDeliveryOfficeName").get()) ;
-             //dhr
             
         }
         return attrs;
@@ -135,7 +133,7 @@ public class LdapUtil {
                 if (attrs != null && attrs.size() == 3) {
                     UsuarioLdap userLdap=new UsuarioLdap();
                     userLdap.setCuenta( (String) attrs.get("SAMAccountName").get() );
-                    userLdap.setNombres( ((String) attrs.get("givenName").get()).toUpperCase().trim() ); //dhr
+                    userLdap.setNombres( ((String) attrs.get("givenName").get()).toUpperCase().trim() );
                     userLdap.setUsuario( ((String) attrs.get("sn").get()).toUpperCase().trim() );
                    // userLdap.setUnidadOrganica(((String) attrs.get("physicalDeliveryOfficeName").get()).toUpperCase().trim()); //dhr
                     listaUsuario.add(userLdap);

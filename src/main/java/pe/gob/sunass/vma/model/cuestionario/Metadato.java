@@ -17,15 +17,15 @@ public class Metadato {
 	@Column(name = "tipos_archivos_permitidos")
 	@Type(type = "pe.gob.sunass.vma.model.EnumArrayFileType")
 	@Enumerated(EnumType.STRING)
-	private List<TipoArchivo> tipoArchivosPermitidos; // se usa para validar archivos
+	private List<TipoArchivo> tipoArchivosPermitidos; // se usa para validar el tipo de archivo
 
 	@Column(name = "max_size_in_mb")
-	private Long maxSizeInMB; // se usa para validar archivos
+	private Long maxSizeInMB; // se usa para validar el tamanio de archivos
 
 	private boolean requerido;
 
 	@Column(name = "is_decimal")
-	private boolean isDecimal; // para valores monetarios, en los costos del vma
+	private boolean isDecimal; // para valores monetarios, en los campos de  costos   vma
 
 	public Integer getId() {
 		return id;
