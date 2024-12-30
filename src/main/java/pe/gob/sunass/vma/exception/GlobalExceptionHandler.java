@@ -8,8 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -20,13 +21,18 @@ public class GlobalExceptionHandler {
 	}
 
 	// para validar datos y enviar mensaje de error al front.
-	@ExceptionHandler(FailledValidationException.class)
-	public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
-		logger.info("BAD REQUEST : FailledValidationException" + ex.getMessage());
-		ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-
-	}
+//	@ExceptionHandler(FailledValidationException.class)
+//	public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
+//		logger.info("BAD REQUEST : FailledValidationException" + ex.getMessage());
+//		ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST : ", ex.getMessage());
+//		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+//
+//	}
+	
+	 @ExceptionHandler(FailledValidationException.class)
+	 public ResponseEntity<?> handleFailledValidationException(FailledValidationException ex) {
+	   return ResponseEntity.badRequest().body(Map.of("BAD_REQUEST", ex.getMessage()));
+	 }
 
 	// pendiente de usar, ante un error http 409, caso conflicto si se sube 2
 	// archivos con el mismo nombre , casi al mismo tiempo

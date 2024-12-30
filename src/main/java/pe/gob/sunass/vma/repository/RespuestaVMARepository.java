@@ -50,8 +50,8 @@ public interface RespuestaVMARepository extends JpaRepository<RespuestaVMA, Inte
 	@Query(value="SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVMAIds", nativeQuery = true)
 	Integer getSumatotalRespuestaPorRegistros(@Param("registroVMAIds") List<Integer> registroVMAIds, @Param("preguntaId") Integer preguntaId);
 	
-	@Query(value = "SELECT COALESCE(SUM(CAST(r.respuesta AS INTEGER)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVmaIds", nativeQuery = true)
-	BigDecimal getSumaCostoTotalAnualIncurridoVmasCompleto(List<Integer> registroVmaIds, Integer preguntaId);
+	@Query(value = "SELECT COALESCE(SUM(CAST(r.respuesta AS DECIMAL)), 0) FROM vma.respuesta_vma r WHERE r.id_pregunta = :preguntaId AND r.id_registro_vma IN :registroVmaIds", nativeQuery = true)
+	BigDecimal getSumaCostoTotalAnualIncurridoVmasCompleto(List<BigDecimal> registroVmaIds, Integer preguntaId);
 
 	@Query("SELECT r.respuesta FROM RespuestaVMA r WHERE r.registroVMA.idRegistroVma = :registroVmaId AND r.idPregunta = :preguntaId")
 	BigDecimal getCostoAnualIncurridoPorRegistro(Integer registroVmaId, Integer preguntaId);
