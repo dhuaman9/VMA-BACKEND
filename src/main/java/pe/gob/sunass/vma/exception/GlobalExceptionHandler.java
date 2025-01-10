@@ -1,7 +1,11 @@
 package pe.gob.sunass.vma.exception;
 
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.mail.MessagingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,31 +19,27 @@ public class GlobalExceptionHandler {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@ExceptionHandler(BadRequestException.class)
-	public ResponseEntity<?> badRequestExceptionHandler(BadRequestException ex) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El cuerpo del parámetro no puede estar vacío");
-	}
+
 
 	// para validar datos y enviar mensaje de error al front.
 //	@ExceptionHandler(FailledValidationException.class)
 //	public ResponseEntity<?> handleValidationException(FailledValidationException ex) {
 //		logger.info("BAD REQUEST : FailledValidationException" + ex.getMessage());
-//		ErrorResponse errorResponse = new ErrorResponse("BAD_REQUEST : ", ex.getMessage());
+//		ErrorResponse errorResponse = new ErrorResponse("message", ex.getMessage());
 //		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 //
 //	}
 	
 	 @ExceptionHandler(FailledValidationException.class)
 	 public ResponseEntity<?> handleFailledValidationException(FailledValidationException ex) {
-	   return ResponseEntity.badRequest().body(Map.of("BAD_REQUEST", ex.getMessage()));
+	   return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
 	 }
 
-	// pendiente de usar, ante un error http 409, caso conflicto si se sube 2
-	// archivos con el mismo nombre , casi al mismo tiempo
+	// si se desea usar, si sucede un conflicto al subir mas de 1 archivo con el mismo nombre y casi al mismo tiempo en el formulario vma
 	@ExceptionHandler(FileConflictException.class)
 	public ResponseEntity<?> handleFileConflictException(FileConflictException ex) {
 		logger.info("CONFLICT EXCEPTION : FileConflictException" + ex.getMessage());
-		ErrorResponse errorResponse = new ErrorResponse("CONFLICT", ex.getMessage());
+		ErrorResponse errorResponse = new ErrorResponse("message", ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 
 	}
@@ -69,6 +69,21 @@ public class GlobalExceptionHandler {
 		ErrorResponse errorResponse = new ErrorResponse("ACCESO_DENEGADO", ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
+	
+	  @ExceptionHandler(MessagingException.class)
+	    public ResponseEntity<?> handleMessagingException(MessagingException ex) {
+	        // Devuelve un mensaje personalizado
+		  ErrorResponse errorResponse = new ErrorResponse("message", ex.getMessage());
+		  return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
+	      //return ResponseEntity.status(HttpStatus.BAD_GATEWAY) .body("Error al conectar con el servidor SMTP: " + ex.getMessage());
+	    }
+	  
+	 @ExceptionHandler(ConnectException.class)
+	    public ResponseEntity<?> handleConnectException(ConnectException ex) {
+		 ErrorResponse errorResponse = new ErrorResponse("message", ex.getMessage());
+		 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
+	     //return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("No se pudo conectar al servidor SMTP. Verifica la configuración.");
+	 }
 
 // Clase de respuesta de error
 

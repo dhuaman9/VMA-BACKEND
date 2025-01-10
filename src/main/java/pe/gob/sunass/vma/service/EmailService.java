@@ -12,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pe.gob.sunass.vma.configuration.ConfigProperties;
 import pe.gob.sunass.vma.dto.UsuarioDTO;
 import pe.gob.sunass.vma.model.Usuario;
+import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -50,15 +52,17 @@ public class EmailService {
 
     
     //metodo funcional en dev , qa  o producccion
-    /*public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
+    public void sendEmail(RegistroVMA registrovma) throws MessagingException, IOException {
    	
+     logger.info("entrando al metodo  sendEmail");
    	InputStream inputStream = null;
   
        try {
            String servidorSmtp = propiedadesMail.getSmtphost();
            String emisionCorreo = propiedadesMail.getRemitente();
-
-          
+           String correoCc = propiedadesMail.getConCopia(); // Leer el correo CC del properties
+           
+           
         // Cargar y personalizar la plantilla HTML desde el classpath
            inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template.html");
            if (inputStream == null) {
@@ -66,18 +70,21 @@ public class EmailService {
            }
            
            String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-           String changePasswordLink = String.format("%s/restablecer-password/%s", appUrl, token);
            
-           htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
-                   .replace("[[${password}]]", password)
-                   .replace("[[${username}]]", usuario.getUserName())
-                   .replace("[[${changePasswordLink}]]", changePasswordLink);
+           SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+           
+           htmlContent = htmlContent.replace("[[${fullname}]]", registrovma.getNombreCompleto())
+                   .replace("[[${eps}]]", registrovma.getEmpresa().getNombre())
+                   .replace("[[${fecha_hora}]]", 
+                	        registrovma.getUpdatedAt() != null 
+                	            ? formatter.format(registrovma.getUpdatedAt()) 
+                	            : formatter.format(registrovma.getCreatedAt()));
 
            // Configuración de propiedades para SMTP
            Properties props = new Properties();
            props.put("mail.smtp.host", servidorSmtp);
-           props.put("mail.smtp.connectiontimeout", "50000"); //tiempo máximo, en milisegundos, que el cliente de correo  debe esperar para tener  una conexión con el servidor SMTP.
-           props.put("mail.smtp.timeout", "50000");  // el tiempo máximo en milisegundos que JavaMail esperará por una respuesta del servidor SMTP 
+           props.put("mail.smtp.connectiontimeout", "40000"); //tiempo máximo, en milisegundos, que el cliente de correo  debe esperar para tener  una conexión con el servidor SMTP.
+           props.put("mail.smtp.timeout", "40000");  // el tiempo máximo en milisegundos que JavaMail esperará por una respuesta del servidor SMTP 
 
            // Crear la sesión SMTP
            Session session = Session.getInstance(props, null);
@@ -85,15 +92,23 @@ public class EmailService {
            // Construir el mensaje de correo en formato HTML
            MimeMessage msg = new MimeMessage(session);
            msg.setFrom(new InternetAddress(emisionCorreo));
-           msg.setSubject("Credenciales de acceso al sistema VMA", "UTF-8");
+           msg.setSubject("Confirmación de Registro Completo del Informe Anual de VMA", "UTF-8");
            
            // Establecer el contenido HTML
            msg.setContent(htmlContent, "text/html; charset=UTF-8");
            msg.setSentDate(new Date());
-           msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(usuario.getCorreo(), false));
+
+           // Configurar los destinatarios principales
+           msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(registrovma.getEmail(), false));
+
+           // Configurar los destinatarios en copia (CC)
+           if (correoCc != null && !correoCc.isEmpty()) {
+               msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(correoCc, false));
+           }
 
            // Enviar el mensaje
            Transport.send(msg);
+           logger.info("Correo enviado correctamente a " + registrovma.getEmail() + " con copia a " + correoCc);
 
        } catch (SendFailedException se) {
            logger.error("Error al enviar correo: fallo por relay: " + se.getMessage());
@@ -109,118 +124,7 @@ public class EmailService {
                }
            }
        }
-   } */
+   }
     
-    
-    
-    // metodo para probar en local
-     /*public void sendEmail(Usuario usuario, String password, String token) throws MessagingException, IOException {
-        
-        InputStream inputStream = null;
-     // Construir la URL completa con el contexto y el token
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-        //String htmlContent = new String(Files.readAllBytes(Paths.get("src/main/resources/email/mail-template.html")));
-        
-        inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template.html");
-            if (inputStream == null) {
-                throw new IOException("No se pudo encontrar la plantilla HTML en el classpath: email/mail-template.html");
-            }
-        String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        String changePasswordLink = String.format("%s/recuperar-password/%s", appUrl, token);
-
-     // Construir la URL completa con el contexto y el token
-       
-        htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
-                .replace("[[${password}]]", password)
-                .replace("[[${username}]]", usuario.getUserName())
-                .replace("[[${changePasswordLink}]]", changePasswordLink);
-        
-        helper.setTo(usuario.getCorreo());
-        helper.setSubject("Credenciales VMA");
-        helper.setText(htmlContent, true);
-        mailSender.send(mimeMessage);
-    }*/
-
-    //en local
-    /*public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
-        InputStream inputStream = null;
-
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-
-        inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template-actualizar-token.html");
-        if (inputStream == null) {
-            throw new IOException("No se pudo encontrar la plantilla HTML en el classpath: email/mail-template-actualizar-token.html");
-        }
-
-        String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        String changePasswordLink = String.format("%s/recuperar-password/%s", appUrl, token);
-
-        // Construir la URL completa con el contexto y el token
-        htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
-                .replace("[[${changePasswordLink}]]", changePasswordLink);
-
-        helper.setTo(usuario.getCorreo());
-        helper.setSubject("Cambiar contraseña VMA");
-        helper.setText(htmlContent, true);
-        mailSender.send(mimeMessage);
-    }*/
-    
-    //probar en dev
-    //en caso de actualizar clave y enviarlo nuevamente por correo
-    /*public void enviarMailActualizarToken(Usuario usuario, String token) throws MessagingException, IOException {
-        InputStream inputStream = null;
-
-        String servidorSmtp = propiedadesMail.getSmtphost();
-        String emisionCorreo = propiedadesMail.getRemitente();
-
-        // Cargar y personalizar la plantilla HTML
-       // String htmlContent = new String(Files.readAllBytes(Paths.get("src/main/resources/email/mail-template.html")));
-        
-     // Cargar y personalizar la plantilla HTML desde el classpath
-        inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template.html");
-        if (inputStream == null) {
-            throw new IOException("No se pudo encontrar la plantilla HTML en el classpath: email/mail-template.html");
-        }
-        
-        String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        String changePasswordLink = String.format("%s/restablecer-password/%s", appUrl, token);
-
-        //String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        
-
-        // Construir la URL completa con el contexto y el token
-        htmlContent = htmlContent.replace("[[${fullname}]]", String.format("%s %s", usuario.getNombres(), usuario.getApellidos()))
-                .replace("[[${changePasswordLink}]]", changePasswordLink);
-
-        // Configuración de propiedades para SMTP
-        Properties props = new Properties();
-        props.put("mail.smtp.host", servidorSmtp);
-        props.put("mail.smtp.connectiontimeout", "50000"); //tiempo máximo, en milisegundos, que el cliente de correo  debe esperar para tener  una conexión con el servidor SMTP.
-        props.put("mail.smtp.timeout", "50000");  // el tiempo máximo en milisegundos que JavaMail esperará por una respuesta del servidor SMTP 
-
-        // Crear la sesión SMTP
-        Session session = Session.getInstance(props, null);
-
-        // Construir el mensaje de correo en formato HTML
-        MimeMessage msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(emisionCorreo));
-        msg.setSubject("VMA - Cambio de contraseña.", "UTF-8");
-        
-        // Establecer el contenido HTML
-        msg.setContent(htmlContent, "text/html; charset=UTF-8");
-        msg.setSentDate(new Date());
-        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(usuario.getCorreo(), false));
-
-        // Enviar el mensaje
-        Transport.send(msg);
-    }*/
-    
-   
-    
-    
-    
+ 
 }

@@ -49,6 +49,8 @@ public class ReporteService {
 
 	public List<RegistroEmpresaChartDto> reporteBarraRegistros(String anio) {
 		
+		logger.info("entrando al metodo reporteBarraRegistros , para el grafico 1 y 2");
+		
 		List<Empresa> empresas = empresaRepository.findAll();
 
 		Map<String, List<Empresa>> empresasPorTipo = empresas.stream()
@@ -67,6 +69,7 @@ public class ReporteService {
 	}
 
 	public List<RegistroEmpresaChartDto> reporteSiNo(String anio) {
+		logger.info("-> metodo reporteSiNo , para el grafico 3");
 
 		List<RegistroEmpresaChartDto> dataList = new ArrayList<>();
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
@@ -85,6 +88,9 @@ public class ReporteService {
 	}
 
 	public List<RegistroPromedioTrabajadorVMAChartDto> reporteNumeroPromedioDeTrabajadoresDedicadosVMA(String anio) {
+		
+		logger.info("-> grafico 4, mediante el metodo: reporteNumeroPromedioDeTrabajadoresDedicadosVMA.");
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
 				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); 
@@ -98,6 +104,9 @@ public class ReporteService {
 
 	// grafico 5
 	public List<PieChartBasicoDto> reporteNumeroTotalUND(String anio) {
+		
+		logger.info("-> grafico 5, mediante el metodo: reporteNumeroTotalUND.");
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anio);
 		Map<String, List<RegistroVMA>> registrosPorTipo = registrosCompletos.stream()
 				.collect(Collectors.groupingBy(reg -> reg.getEmpresa().getTipoEmpresa().getNombre())); 

@@ -1,11 +1,14 @@
 package pe.gob.sunass.vma.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
 import java.util.List;
+
+import javax.mail.MessagingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,14 +54,14 @@ public class RegistroVMAController {
 
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@RequestBody RegistroVMARequest request,
-			@RequestHeader("Authorization") String token) {
+			@RequestHeader("Authorization") String token) throws MessagingException, IOException {
 		Integer registroVMAId = registroVMAService.saveRegistroVMA(null, request, getUsername(token));
 		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}
 
 	@PutMapping(path = "/{idRegistroVMA}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@PathVariable Integer idRegistroVMA,
-			@RequestBody RegistroVMARequest request) {
+			@RequestBody RegistroVMARequest request) throws MessagingException, IOException {
 		Integer registroVMAId = registroVMAService.saveRegistroVMA(idRegistroVMA, request, null);
 		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}

@@ -22,6 +22,9 @@ public class ConfigProperties {
 	@Value("${mail.autor}")
 	private String autor;
 	
+	@Value("${mail.cc}")
+	private String conCopia;
+	
 	
 	public String getRemitente() {
 		return remitente;
@@ -50,6 +53,12 @@ public class ConfigProperties {
 	}
 	
 	
+	public String getConCopia() {
+		return conCopia;
+	}
+	public void setConCopia(String conCopia) {
+		this.conCopia = conCopia;
+	}
 	@Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
         return new PropertySourcesPlaceholderConfigurer();

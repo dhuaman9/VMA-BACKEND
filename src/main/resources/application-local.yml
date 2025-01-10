@@ -60,7 +60,7 @@ myapp:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   #app-front-url: http://localhost:4200/#
-  dias-expiracion: 5
+  dias-expiracion: 7
   alfresco:
     #remote-secret-ops: http://10.10.3.115:3000
     #token: 0311874a-a7c1-4d74-b144-2f597f823359

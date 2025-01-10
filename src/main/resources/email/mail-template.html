@@ -1,25 +1,58 @@
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>Credenciales Generadas</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Confirmación de Registro Completo del Informe Anual de VMA</title>
+        <style>
+            body {
+                background: #f6fbff;
+                color: #353e4a;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                border-radius: 8px;
+                line-height: 1.6;
+            }
+            h1 {
+                text-align: center;
+                color: #066ec8;
+                font-weight: 600;
+            }
+            p {
+                margin: 10px 0;
+            }
+            .italic {
+                font-style: italic;
+            }
+        </style>
     </head>
-    <body style="background: #f6fbff;
-            color: #353e4a;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px; border-radius: 8px;">
-        <h1 style="text-align: center; color: #066ec8; font-weight: 600;">Superintendencia Nacional de Servicios de Saneamiento - SUNASS</h1>
-        <h1 style="font-size: 20px;">Estimado(a) [[${fullname}]],</h1>
-        <p>Le informamos que se han generado sus credenciales de acceso para el sistema VMA.</p>
-        <p>Su usuario es: <strong>[[${username}]]</strong></p>
-        <p>Su clave es: <strong>[[${password}]]</strong></p>
+    <body>
+        <h1>Superintendencia Nacional de Servicios de Saneamiento - SUNASS</h1>
+        <h2 style="font-size: 20px;">Estimado(a) [[${fullname}]],</h2>
         <p>
-        	Por motivos de seguridad, usted debe cambiar su contraseña antes de iniciar sesion en el sistema VMA. 
-        	Puede realizarlo  de forma rápida y segura dando click a este <a href="[[${changePasswordLink}]]" style="color: #007BFF;">enlace</a>, donde encontrará un formulario para actualizar su contraseña.
-         </p>
-        
-        <p style="font-style: italic;">Si tiene alguna consulta o necesita asistencia, no dude en ponerse en contacto con nuestro equipo de soporte técnico.</p>
+            Por la presente confirmamos que el registro y envío de la información correspondiente al Informe Anual de los VMA de la Empresa: [[${eps}]] ha sido completado satisfactoriamente en el sistema con fecha y hora : [[${fecha_hora}]]
+        </p>
+        <p> Estado del registro: <strong>Completo </strong> </p>
+        <p>
+            Para consultar y verificar su registro, puede acceder al sistema mediante el siguiente enlace: <a href="https://apps.sunass.gob.pe/vma/#/login">https://apps.sunass.gob.pe/vma/#/login</a>
+        </p>
+        <p>
+            Tenga en cuenta que posteriormente podrá acceder a su registro en modo de lectura. Esto significa que no será posible editar los datos ya registrados.
+        </p>
+        <br>
+        <p class="italic">
+            Si tiene alguna consulta o necesita asistencia técnica, no dude en ponerse en contacto a este correo: <a 
+            href="mailto:dfVMA@sunass.gob.pe">dfVMA@sunass.gob.pe</a>.
+        </p>
+        <br>
+        <!-- Texto agregado -->
+        <p>
+            Atentamente,
+        </p>
+        <p>
+            <strong>SUNASS</strong>
+        </p>
     </body>
 </html>
- 

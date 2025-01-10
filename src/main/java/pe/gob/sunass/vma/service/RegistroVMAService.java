@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -107,6 +108,9 @@ public class RegistroVMAService {
 	
 	@Autowired
 	private PreguntasAlternativasProperties preguntasAlternativasVMA;
+	
+	@Autowired
+	private EmailService emailService;
 
 	/*
 	 * @Transactional(Transactional.TxType.REQUIRES_NEW) public List<RegistroVMADTO>
@@ -151,7 +155,7 @@ public class RegistroVMAService {
 	}
 
 	@Transactional
-	public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) {
+	public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) throws MessagingException, IOException {
 		RegistroVMA registroVMA;
 		Integer currentUserId = userUtil.getCurrentUserId();
 
@@ -164,6 +168,7 @@ public class RegistroVMAService {
 			registroVMA.setIdUsuarioActualizacion(currentUserId);
 			registroVMA.setUpdatedAt(new Date());
 			agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
+			emailService.sendEmail(registroVMA); //se envia correo
 			return registroVMA.getIdRegistroVma();
 		} else {
 			Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
@@ -180,6 +185,7 @@ public class RegistroVMAService {
 			agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
+			emailService.sendEmail(nuevoRegistro); //se envia correo
 			return registroDB.getIdRegistroVma();
 		}
 	}

@@ -47,7 +47,7 @@ myapp:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   #app-front-url: https://appsdev.sunass.gob.pe/vma/#
-  dias-expiracion: 5
+  dias-expiracion: 7
   
   alfresco:
     remote-secret-ops: http://10.10.3.115:3000

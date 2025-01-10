@@ -34,7 +34,6 @@ import pe.gob.sunass.vma.model.cuestionario.Archivo;
 import pe.gob.sunass.vma.model.cuestionario.RegistroVMA;
 import pe.gob.sunass.vma.model.cuestionario.RespuestaVMA;
 import pe.gob.sunass.vma.repository.ArchivoRepository;
-import pe.gob.sunass.vma.constants.Constants;
 
 import java.util.*;
 import java.util.regex.Pattern;

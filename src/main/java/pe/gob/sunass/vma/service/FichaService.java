@@ -68,6 +68,7 @@ public class FichaService {
 		} else if (dto.getAnio()!= null  &&  dto.getAnio().equals(this.fichaRepository.findAnioFichaRegistro(dto.getAnio()))) {
 			logger.info(": año seleccionado ya esta registrado");
 			throw new FailledValidationException("El año ya esta registrado, debe elegir otro  año.");
+			
 		} else if (dto.getFechaInicio().isAfter(dto.getFechaFin()) || dto.getFechaInicio().isEqual(dto.getFechaFin())) {
 			logger.info(":  La fecha de inicio es mayor o igual que la fecha fin.");
 			throw new FailledValidationException("La Fecha de Inicio no debe ser mayor o igual a la Fecha Fin");

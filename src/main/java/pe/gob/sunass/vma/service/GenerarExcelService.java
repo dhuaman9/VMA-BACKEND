@@ -71,6 +71,8 @@ public class GenerarExcelService {
 	public ByteArrayInputStream generarExcelCuestionario(List<Integer> registrosIds, Integer eps, String estado,
 			String anio, Date fechaDesde, Date fechaHasta, String busquedaGlobal) {
 
+		logger.info("entrando al metodo generarExcelCuestionario..... ");
+		
 		List<RegistroVMA> registros = new ArrayList<RegistroVMA>();
 
 		if (registrosIds == null || registrosIds.size() == 0) {
@@ -106,7 +108,7 @@ public class GenerarExcelService {
 				Row row = sheet.createRow(rowIdx++);
 				agregarCelda(0, row, centeredStyle, String.valueOf(rowIdx - 1));
 				agregarCelda(1, row, centeredStyle, registro.getEmpresa().getNombre());
-				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre()); //dhr c
+				agregarCelda(2, row, centeredStyle, registro.getEmpresa().getTipoEmpresa().getNombre());
 				agregarCelda(3, row, centeredStyle,
 						registro.getEstado() == null ? "SIN REGISTRO" : registro.getEstado());
 				agregarCelda(4, row, centeredStyle,
@@ -171,6 +173,8 @@ public class GenerarExcelService {
 			workbook.write(out);
 			return new ByteArrayInputStream(out.toByteArray());
 		} catch (IOException e) {
+			e.printStackTrace();
+			logger.info("Error al generar el excel ->  "+ e.getMessage());
 			throw new RuntimeException("Error al generar el excel" + e.getMessage());
 		}
 	}
@@ -252,8 +256,6 @@ public class GenerarExcelService {
 				    cb.lower(tipoEmpresaJoin.get("nombre")),
 				    "%" + search.toLowerCase() + "%"
 				);
-				
-//				Predicate typePredicate = cb.like(cb.lower(empresaRoot.get("tipo")), "%" + search.toLowerCase() + "%");
 				
 				Predicate regimenPredicate = cb.like(cb.lower(empresaRoot.get("regimen")),
 						"%" + search.toLowerCase() + "%");

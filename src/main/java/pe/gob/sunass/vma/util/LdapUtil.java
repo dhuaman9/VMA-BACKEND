@@ -135,7 +135,7 @@ public class LdapUtil {
                     userLdap.setCuenta( (String) attrs.get("SAMAccountName").get() );
                     userLdap.setNombres( ((String) attrs.get("givenName").get()).toUpperCase().trim() );
                     userLdap.setUsuario( ((String) attrs.get("sn").get()).toUpperCase().trim() );
-                   // userLdap.setUnidadOrganica(((String) attrs.get("physicalDeliveryOfficeName").get()).toUpperCase().trim()); //dhr
+                   // userLdap.setUnidadOrganica(((String) attrs.get("physicalDeliveryOfficeName").get()).toUpperCase().trim());
                     listaUsuario.add(userLdap);
                 }
             }
