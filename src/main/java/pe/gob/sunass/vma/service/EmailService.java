@@ -57,13 +57,18 @@ public class EmailService {
     public void sendEmail(RegistroVMA registrovma) throws MessagingException, IOException {
    	
      logger.info("entrando al metodo  sendEmail");
-   	InputStream inputStream = null;
+   	 InputStream inputStream = null;
   
        try {
            String servidorSmtp = propiedadesMail.getSmtphost();
            String emisionCorreo = propiedadesMail.getRemitente();
            String correoCc = propiedadesMail.getConCopia(); // Leer el correo CC del properties
            
+           logger.info("correo del Remitente: " +propiedadesMail.getRemitente());
+           logger.info("password del Remitente: " +propiedadesMail.getPassword());
+           logger.info("smtphost: "+ propiedadesMail.getSmtphost());
+           logger.info("correo con copia a: "+ propiedadesMail.getConCopia());
+         
            
         // Cargar y personalizar la plantilla HTML desde el classpath
            inputStream = getClass().getClassLoader().getResourceAsStream("email/mail-template.html");
@@ -114,18 +119,14 @@ public class EmailService {
 
        } catch (SendFailedException se) {
            logger.error("Error al enviar correo: fallo por relay: " + se.getMessage());
-       } catch (MailAuthenticationException ex) {
-		    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
-		    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
-		} catch (MailSendException ex) {
-		    logger.error("Error al enviar el correo: {}", ex.getMessage());
-		    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
-		}  catch (MessagingException ex) {
+       } catch (MessagingException ex) {
 		    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
-		    throw new MessagingException("Hubo un problema al enviarle un correo electrónico. Por favor, "
-		    		+ "notifique al administrador o contacte al área de soporte técnico.");
+		    logger.info("validar los valores del correo.properties...");
+		    throw new MessagingException("Se ha registrado correctamente, pero no se pudo enviar el  correo electrónico de confirmacion. Por favor, "
+		    		+ "contacte al administrador o a soporte técnico.");
 		} catch (Exception e) {
            logger.error("Error al enviar correo: " + e.getMessage());
+           logger.info("validar los valores del correo.properties...");
            throw e;
        } finally {
            if (inputStream != null) {
