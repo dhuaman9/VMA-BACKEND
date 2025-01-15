@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @SpringBootApplication
-//@PropertySource("classpath:alfresco.properties")
+@PropertySource("classpath:alfresco.properties")//se usa para local,  dev y qa
 @EnableScheduling
 public class VmaApplication extends SpringBootServletInitializer{
 

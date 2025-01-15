@@ -132,13 +132,18 @@ public class AlfrescoService {
 	        // Obtener la fecha actual para nombrar la subcarpeta
 	        LocalDate now = LocalDate.now();
 	        String mesAnio = now.getMonthValue() + "-" + now.getYear();
+	        logger.info("subcarpeta creada : " +mesAnio);
 
 	        // Verificar si la subcarpeta ya existe
 	        String subcarpetaId = getOrCreateSubfolder(mesAnio);
+	        
+	        logger.info("la subcarpetaId : " + subcarpetaId);
 
 	        // URL de subida del archivo a la subcarpeta creada
 	        String uploadUrl = appCredential.getAlfrescoHost() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
 	                + subcarpetaId + "/children";
+	        
+	        logger.info(" URL de subida  a la subcarpeta creada ,uploadUrl = " + uploadUrl);
 
 	        client = HttpClients.createDefault();
 	        HttpPost post = new HttpPost(uploadUrl);
@@ -176,9 +181,14 @@ public class AlfrescoService {
 	            Archivo archivoByIdAlfresco = archivoRepository.findArchivoByIdAlfresco(respuestaVMA.getRespuesta());
 
 	            if (Objects.nonNull(archivoByIdAlfresco)) {
+	            	
 	                archivoByIdAlfresco.setIdAlfresco(idAlfresco);
 	                archivoByIdAlfresco.setNombreArchivo(getFilenameWithUUID(file.getOriginalFilename()));
 	                archivoByIdAlfresco.setUpdatedAt(new Date());
+	                
+	                logger.info("idAlfresco del archivo a subir : " + idAlfresco);
+	                logger.info("nombre del archivo: " + getFilenameWithUUID(file.getOriginalFilename()));
+	                
 	                return mapToArchivoDTO(archivoRepository.save(archivoByIdAlfresco));
 	            }
 
@@ -229,12 +239,14 @@ public class AlfrescoService {
 		return archivoDTO;
 	}
 
-	private String getOrCreateSubfolder(String folderName) throws IOException {
+	private String getOrCreateSubfolder(String folderName) throws IOException { // se obtiene o se crea la sub carpeta
 		// URL para listar los contenidos en la carpeta base
 		String listFoldersUrl = appCredential.getAlfrescoHost()
 				+ "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + appCredential.getAlfrescoSpaceStore()
 				+ "/children";
 
+		logger.info(" URL para listar contenido en la carpeta base -> listFoldersUrl: " + listFoldersUrl);
+		
 		CloseableHttpClient client = HttpClients.createDefault();
 		HttpGet get = new HttpGet(listFoldersUrl);
 
@@ -272,6 +284,8 @@ public class AlfrescoService {
 		String createFolderUrl = appCredential.getAlfrescoHost()
 				+ "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + appCredential.getAlfrescoSpaceStore()
 				+ "/children";
+		
+		logger.info("Si no existe la carpeta, se crea  : " + createFolderUrl);
 
 		CloseableHttpClient clientCreate = HttpClients.createDefault();
 		HttpPost postCreate = new HttpPost(createFolderUrl);
@@ -298,8 +312,12 @@ public class AlfrescoService {
 	}
 
 	public ResponseEntity<Map<String, String>> downloadFile(String nodeId) {
+		
+		logger.info("entrando al metodo downloadFile ..." );
 		String url = appCredential.getAlfrescoHost() + "/alfresco/api/-default-/public/alfresco/versions/1/nodes/"
 				+ nodeId + "/content";
+		
+		logger.info("url para el  downloadFile : " +url );
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(appCredential.getAlfrescoUsername(), appCredential.getAlfrescoPassword());

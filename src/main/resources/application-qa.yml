@@ -47,11 +47,11 @@ myapp:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   #app-front-url: https://appsdev.sunass.gob.pe/vma/#
-  dias-expiracion: 7
+  dias-expiracion: 15
   
-  alfresco:
-    remote-secret-ops: http://10.10.3.115:3000
-    token: 0311874a-a7c1-4d74-b144-2f597f823359
+  #alfresco:
+    #remote-secret-ops: http://10.10.3.115:3000
+    #token: 0311874a-a7c1-4d74-b144-2f597f823359
     #url: https://alfrescodev.sunass.gob.pe/
     #user: uvma
     #password: =okKmqV*7637

@@ -176,19 +176,6 @@ public class RegistroVMAService {
 			registroVMA.setUpdatedAt(new Date());
 			agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
 			
-			/*try {
-			    emailService.sendEmail(registroVMA);
-			} catch (MailAuthenticationException ex) {
-			    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
-			    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
-			} catch (MailSendException ex) {
-			    logger.error("Error al enviar el correo: {}", ex.getMessage());
-			    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
-			}  catch (MessagingException ex) {
-			    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
-			    throw new MessagingException("Hubo un problema al enviarle un correo electrónico. Por favor, "
-			    		+ "notifique al administrador o contacte al área de soporte técnico.");
-			}*/
 			
 			if(registroRequest.isRegistroValido()) {
 				emailService.sendEmail(registroVMA);
@@ -213,19 +200,6 @@ public class RegistroVMAService {
 			agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
-			
-			/*try {
-			    emailService.sendEmail(nuevoRegistro);
-			} catch (MailAuthenticationException ex) {
-			    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
-			    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
-			} catch (MailSendException ex) {
-			    logger.error("Error al enviar el correo: {}", ex.getMessage());
-			    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
-			}  catch (MessagingException ex) {
-			    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
-			    throw new MessagingException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
-			}*/
 			
 			if(registroRequest.isRegistroValido()) {
 				emailService.sendEmail(nuevoRegistro);

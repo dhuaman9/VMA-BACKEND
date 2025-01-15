@@ -23,16 +23,31 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
 @Configuration
+@PropertySource("classpath:alfresco.properties")
 public class AlfrescoProperties {
 
+	
+	@Value("${alfresco.url}")
+    private String alfrescoUrl;
+
+    @Value("${alfresco.user}")
+    private String alfrescoUser;
+
+    @Value("${alfresco.password}")
+    private String alfrescoPassword;
+
+    @Value("${alfresco.SpaceStore}")
+    private String alfrescoSpaceStore;
+	
 	@Autowired
     private Environment environment;
+	
 	
     public static int responseCode = 0;
 	
     
     @Bean(name="myAppCredentialAlfresco")
-    @Profile("!local")
+    @Profile("prod")
 	public AppCredential appCredential() throws IOException {
 		
     	String alfrescoRemoteSecretOps = environment.getProperty("myapp.alfresco.remote-secret-ops");
@@ -91,8 +106,9 @@ public class AlfrescoProperties {
 		
 		return myAppCredential;
 	}
-    @Bean(name="myAppCredentialAlfresco")
-    @Profile("local")
+    
+   /* @Bean(name="myAppCredentialAlfresco")
+    @Profile({"local", "dev","qa"})
 	public AppCredential appCredentialLocal() throws IOException {
     	
 		AppCredential myAppCredential = new AppCredential();
@@ -101,11 +117,21 @@ public class AlfrescoProperties {
 		myAppCredential.setAlfrescoUsername(environment.getProperty("myapp.alfresco.user"));
 		myAppCredential.setAlfrescoPassword(environment.getProperty("myapp.alfresco.password"));
 		myAppCredential.setAlfrescoSpaceStore(environment.getProperty("myapp.alfresco.spaceStore"));
-		////myAppCredential.setAlfrescoCarpeta(environment.getProperty("myapp.alfresco.carpeta"));
-	  
+		
 		
 		return myAppCredential;
-	}
+	} */
+    
+    @Bean(name = "myAppCredentialAlfresco")
+    @Profile({"local", "dev", "qa"})
+    public AppCredential appCredentialLocal() {
+        AppCredential myAppCredential = new AppCredential();
+        myAppCredential.setAlfrescoHost(alfrescoUrl);
+        myAppCredential.setAlfrescoUsername(alfrescoUser);
+        myAppCredential.setAlfrescoPassword(alfrescoPassword);
+        myAppCredential.setAlfrescoSpaceStore(alfrescoSpaceStore);
+        return myAppCredential;
+    }
     
 
 	public static class AppCredential {
@@ -141,4 +167,9 @@ public class AlfrescoProperties {
 		}
 		
 	}
+	
+	
+	
+	
+	
 }
