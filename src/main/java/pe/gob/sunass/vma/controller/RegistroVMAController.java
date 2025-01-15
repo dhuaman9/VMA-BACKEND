@@ -2,13 +2,17 @@ package pe.gob.sunass.vma.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.internet.AddressException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,14 +60,14 @@ public class RegistroVMAController {
 
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@RequestBody RegistroVMARequest request,
-			@RequestHeader("Authorization") String token) throws MessagingException, IOException {
+			@RequestHeader("Authorization") String token) throws MessagingException,MailAuthenticationException,MailSendException, IOException {
 		Integer registroVMAId = registroVMAService.saveRegistroVMA(null, request, getUsername(token));
 		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}
-
+	
 	@PutMapping(path = "/{idRegistroVMA}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> saveRegistroVMA(@PathVariable Integer idRegistroVMA,
-			@RequestBody RegistroVMARequest request) throws MessagingException, IOException {
+			@RequestBody RegistroVMARequest request) throws MessagingException,MailAuthenticationException,MailSendException, IOException {
 		Integer registroVMAId = registroVMAService.saveRegistroVMA(idRegistroVMA, request, null);
 		return new ResponseEntity<>(registroVMAId, HttpStatus.CREATED);
 	}

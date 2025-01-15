@@ -129,8 +129,9 @@ public class UsuarioService {
 
 		List<Usuario> list = this.usuarioRepository.findByUserNameAndEstado(dto.getUserName(), true);
 		if (list != null && list.size() > 0) {
+			logger.info("FailledValidationException : "+ "El Usuario ya esta registrado");
 			throw new FailledValidationException("El Usuario ya esta registrado.");
-
+			
 		}
 		
 		Optional<Role> optRole = this.roleRepository.findById(dto.getRole().getIdRole());

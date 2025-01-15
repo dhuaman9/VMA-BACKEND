@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -112,7 +114,17 @@ public class EmailService {
 
        } catch (SendFailedException se) {
            logger.error("Error al enviar correo: fallo por relay: " + se.getMessage());
-       } catch (Exception e) {
+       } catch (MailAuthenticationException ex) {
+		    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
+		    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
+		} catch (MailSendException ex) {
+		    logger.error("Error al enviar el correo: {}", ex.getMessage());
+		    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
+		}  catch (MessagingException ex) {
+		    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
+		    throw new MessagingException("Hubo un problema al enviarle un correo electrónico. Por favor, "
+		    		+ "notifique al administrador o contacte al área de soporte técnico.");
+		} catch (Exception e) {
            logger.error("Error al enviar correo: " + e.getMessage());
            throw e;
        } finally {

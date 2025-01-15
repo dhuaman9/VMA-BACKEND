@@ -3,6 +3,7 @@ package pe.gob.sunass.vma.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.ConnectException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,7 +17,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.internet.AddressException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -35,6 +39,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -168,8 +175,29 @@ public class RegistroVMAService {
 			registroVMA.setIdUsuarioActualizacion(currentUserId);
 			registroVMA.setUpdatedAt(new Date());
 			agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
-			emailService.sendEmail(registroVMA); //se envia correo
+			
+			/*try {
+			    emailService.sendEmail(registroVMA);
+			} catch (MailAuthenticationException ex) {
+			    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
+			    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
+			} catch (MailSendException ex) {
+			    logger.error("Error al enviar el correo: {}", ex.getMessage());
+			    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
+			}  catch (MessagingException ex) {
+			    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
+			    throw new MessagingException("Hubo un problema al enviarle un correo electrónico. Por favor, "
+			    		+ "notifique al administrador o contacte al área de soporte técnico.");
+			}*/
+			
+			if(registroRequest.isRegistroValido()) {
+				emailService.sendEmail(registroVMA);
+			}
+			
+			//emailService.sendEmail(registroVMA); //se envia correo
+		
 			return registroVMA.getIdRegistroVma();
+			
 		} else {
 			Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 			RegistroVMA nuevoRegistro = new RegistroVMA();
@@ -185,7 +213,25 @@ public class RegistroVMAService {
 			agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
-			emailService.sendEmail(nuevoRegistro); //se envia correo
+			
+			/*try {
+			    emailService.sendEmail(nuevoRegistro);
+			} catch (MailAuthenticationException ex) {
+			    logger.error("Error de autenticación al intentar enviar el correo: {}", ex.getMessage());
+			    throw new MailAuthenticationException("Error de autenticación al intentar enviar el correo. Por favor, contacte al administrador.");
+			} catch (MailSendException ex) {
+			    logger.error("Error al enviar el correo: {}", ex.getMessage());
+			    throw new MailSendException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
+			}  catch (MessagingException ex) {
+			    logger.error("Error relacionado con el servidor de correo: {}", ex.getMessage());
+			    throw new MessagingException("Hubo un problema al enviar el correo. Por favor, notifique al administrador.");
+			}*/
+			
+			if(registroRequest.isRegistroValido()) {
+				emailService.sendEmail(nuevoRegistro);
+			}
+			//emailService.sendEmail(nuevoRegistro); //se envia correo
+			
 			return registroDB.getIdRegistroVma();
 		}
 	}
