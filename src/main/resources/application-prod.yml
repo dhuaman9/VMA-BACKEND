@@ -46,7 +46,7 @@ myapp:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  dias-expiracion: 7
+  dias-expiracion: 15
   
   alfresco:
     remote-secret-ops: http://10.10.3.115:3000

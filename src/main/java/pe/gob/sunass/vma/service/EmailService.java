@@ -65,7 +65,7 @@ public class EmailService {
            String correoCc = propiedadesMail.getConCopia(); // Leer el correo CC del properties
            
            logger.info("correo del Remitente: " +propiedadesMail.getRemitente());
-           logger.info("password del Remitente: " +propiedadesMail.getPassword());
+           //logger.info("password del Remitente: " +propiedadesMail.getPassword());
            logger.info("smtphost: "+ propiedadesMail.getSmtphost());
            logger.info("correo con copia a: "+ propiedadesMail.getConCopia());
          

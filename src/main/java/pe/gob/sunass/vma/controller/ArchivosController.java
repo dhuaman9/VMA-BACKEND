@@ -70,10 +70,10 @@ public class ArchivosController {
 			logger.info(e.getMessage(), e);
 			Map<String, String> errorResponse = Map.of("message", "File not found");
 			return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-		} catch (HttpClientErrorException | HttpServerErrorException e) {
+		} catch (HttpClientErrorException e) {
 			// Si hay un error en la solicitud HTTP (401, 403, 500, etc.), devolver error
 			// con detalles
-			logger.info("HttpClientErrorException | HttpServerErrorException  " + e.getMessage(), e);
+			logger.info("HttpClientErrorException  " + e.getMessage());
 			Map<String, String> errorResponse = Map.of("message", "Error downloading file: " + e.getMessage(), "status",
 					String.valueOf(e.getStatusCode()));
 			return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(e.getStatusCode().value()));

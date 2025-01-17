@@ -74,13 +74,21 @@ public class AlfrescoService {
 
 	
 	public ArchivoDTO uploadFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
+		logger.info("entrando al metodo uploadFile()");
+		logger.info("file : " + file);
+		logger.info("registroVMA : " + registroVMA);
+		logger.info("respuestaId : " + respuestaId);
 		validateFile(file);
 		return processFile(file, registroVMA, respuestaId);
 		
 	}
 
 	private void validateFile(MultipartFile file) {
+		logger.info("entrando al metodo validateFile()");
 	    try {
+	    	logger.info("valor de filetype : "+ file.getContentType());
+	    	logger.info("fileSize : "+ file.getSize());
+	    	
 	        String fileType = file.getContentType();
 	        long fileSize = file.getSize();
 
@@ -127,6 +135,7 @@ public class AlfrescoService {
 
 	
 	private ArchivoDTO processFile(MultipartFile file, RegistroVMA registroVMA, Integer respuestaId) throws IOException {
+		logger.info("entrando al metodo processFile()");
 	    CloseableHttpClient client = null;
 	    try {
 	        // Obtener la fecha actual para nombrar la subcarpeta
@@ -220,6 +229,11 @@ public class AlfrescoService {
 
 	// grabando los datos del archivo a la BD, pero No al alfresco
 	private Archivo grabarArchivo(String nombreArchivo, String idAlfresco, RegistroVMA registroVMA) throws IOException {
+		
+		logger.info("entrando al metodo  grabarArchivo().." );
+		logger.info(" nombreArchivo : " +nombreArchivo );
+		logger.info(" idAlfresco : " +idAlfresco );
+		logger.info(" registroVMA : " + registroVMA );
 		Archivo archivo = new Archivo();
 		archivo.setNombreArchivo(getFilenameWithUUID(nombreArchivo));
 		archivo.setIdAlfresco(idAlfresco);
@@ -240,6 +254,7 @@ public class AlfrescoService {
 	}
 
 	private String getOrCreateSubfolder(String folderName) throws IOException { // se obtiene o se crea la sub carpeta
+		logger.info("entrando al metodo  getOrCreateSubfolder().." );
 		// URL para listar los contenidos en la carpeta base
 		String listFoldersUrl = appCredential.getAlfrescoHost()
 				+ "/alfresco/api/-default-/public/alfresco/versions/1/nodes/" + appCredential.getAlfrescoSpaceStore()
@@ -381,7 +396,7 @@ public class AlfrescoService {
 			logger.info("Error inesperado: " + e.getMessage());
 			System.err.println("Error inesperado: " + e.getMessage());
 			return new ResponseEntity<>(
-					Map.of("error", "Ocurrió un error inesperado. Consulte los registros para más detalles."),
+					Map.of("error", "Ocurrió un error inesperado."),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 

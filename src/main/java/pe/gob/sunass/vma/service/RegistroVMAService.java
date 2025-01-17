@@ -3,7 +3,6 @@ package pe.gob.sunass.vma.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.ConnectException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,16 +10,11 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.mail.AuthenticationFailedException;
 import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
-import javax.mail.internet.AddressException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -39,9 +33,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.MailAuthenticationException;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -140,11 +131,15 @@ public class RegistroVMAService {
 
 	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public RegistroVMADTO findById(Integer id) throws Exception {
+		
+		logger.info("RegistroVMAService....entrando al metodo findById(Integer id)");
+		logger.info("el valor del param id :  " + id );
+		
 		RegistroVMADTO dto = null;
 		Usuario usuario = usuarioRepository.findByUserName(userUtil.getCurrentUsername()).orElseThrow();
+		logger.info("el usuario en sesion es : " + userUtil.getCurrentUsername() );
 		Optional<RegistroVMA> opt = null;
-		if (usuario.getRole().getIdRol() == 2
-				|| (usuario.getRole().getIdRol() == 4 && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) { // rol2  es  admin  DF y  rol 4  es  consultor
+		if (usuario.getRole().getIdRol() == 2 || (usuario.getRole().getIdRol() == 4 && usuario.getTipo().equals(Constants.EMPRESA_SUNASS))) { // rol2  es  admin  DF y  rol 4  es  consultor
 			opt = this.registroVMARepository.findById(id);
 		} else {
 			opt = this.registroVMARepository.findByIdItem(id, userUtil.getCurrentUserIdEmpresa());
@@ -155,18 +150,23 @@ public class RegistroVMAService {
 			dto = RegistroVMAAssembler.buildDtoModel(registroVMA);
 			return dto;
 		} else {
-			logger.info("No esta permitido ver otro ID vma");
+			logger.info("ForbiddenException : Permiso denegado , No esta permitido ver otro ID vma");
 			throw new ForbiddenException("Permiso denegado , no tiene acceso a otro registro  ");
 		}
-		// return dto;
 	}
 
 	@Transactional
 	public Integer saveRegistroVMA(Integer idRegistroVMA, RegistroVMARequest registroRequest, String username) throws MessagingException, IOException {
+		
+		logger.info("Entrando al metodo saveRegistroVMA(..)");
 		RegistroVMA registroVMA;
 		Integer currentUserId = userUtil.getCurrentUserId();
 
 		if (idRegistroVMA != null) {
+			logger.info(" SI idRegistroVMA != null .... el idRegistroVMA es : "+ idRegistroVMA);
+			logger.info(" registroRequest.isRegistroValido() : " +registroRequest.isRegistroValido());
+			logger.info(" registroRequest.getRespuestas() : " +registroRequest.getRespuestas());
+			
 			registroVMA = registroVMARepository.findById(idRegistroVMA).orElseThrow();
 			registroVMA.setUpdatedAt(new Date());
 			registroVMA.setEstado(
@@ -174,21 +174,28 @@ public class RegistroVMAService {
 			saveRespuestas(registroRequest.getRespuestas(), registroVMA);
 			registroVMA.setIdUsuarioActualizacion(currentUserId);
 			registroVMA.setUpdatedAt(new Date());
-			agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
+			//agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
 			
 			
 			if(registroRequest.isRegistroValido()) {
+				logger.info(" SI registroRequest.isRegistroValido() = true , el registro es COMPLETO,  por ende se ingresa a los metodos: ");
+				logger.info(" -> agregarDatosUsuarioSiEsVMACompleto y emailService.sendEmail ");
+			
+				agregarDatosUsuarioSiEsVMACompleto(registroVMA, registroRequest);
 				emailService.sendEmail(registroVMA);
 			}
 			
-			//emailService.sendEmail(registroVMA); //se envia correo
-		
 			return registroVMA.getIdRegistroVma();
 			
 		} else {
+			
+			logger.info(" SI el idRegistroVMA es  null , entonces...  ");
 			Usuario usuario = usuarioRepository.findByUserName(username).orElseThrow();
 			RegistroVMA nuevoRegistro = new RegistroVMA();
 			Empresa empresa = new Empresa();
+			logger.info(" registroRequest.getIdEmpresa() =   " +registroRequest.getIdEmpresa());
+			logger.info(" usuario.getEmpresa() =   " + usuario.getEmpresa());
+			logger.info(" registroRequest.isRegistroValido() =   " + registroRequest.isRegistroValido());
 			empresa.setIdEmpresa(registroRequest.getIdEmpresa());
 			nuevoRegistro.setEmpresa(usuario.getEmpresa());
 			nuevoRegistro.setUsername(username);
@@ -197,11 +204,15 @@ public class RegistroVMAService {
 			nuevoRegistro.setFichaRegistro(fichaRepository.findFichaRegistroActual());
 			nuevoRegistro.setCreatedAt(new Date());
 			nuevoRegistro.setIdUsuarioRegistro(currentUserId);
-			agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
+			//agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 			RegistroVMA registroDB = registroVMARepository.save(nuevoRegistro);
 			saveRespuestas(registroRequest.getRespuestas(), registroDB);
 			
 			if(registroRequest.isRegistroValido()) {
+				
+				logger.info(" SI registroRequest.isRegistroValido() = true , el registro es COMPLETO,  por ende se ingresa a los metodos: ");
+				logger.info(" -> agregarDatosUsuarioSiEsVMACompleto y emailService.sendEmail ");
+				agregarDatosUsuarioSiEsVMACompleto(nuevoRegistro, registroRequest);
 				emailService.sendEmail(nuevoRegistro);
 			}
 			//emailService.sendEmail(nuevoRegistro); //se envia correo
@@ -211,6 +222,11 @@ public class RegistroVMAService {
 	}
 
 	private void agregarDatosUsuarioSiEsVMACompleto(RegistroVMA registroVMA, RegistroVMARequest registroRequest) {
+		logger.info("entrando al metodo  agregarDatosUsuarioSiEsVMACompleto()  ");
+		logger.info(" registrando datos del registrador, para finalizar el registro vma..  ");
+		logger.info(" nombres completos del registrador " +registroRequest.getDatosUsuarioRegistradorDto().getNombreCompleto());
+		logger.info(" email del registrador " +  registroRequest.getDatosUsuarioRegistradorDto().getEmail());
+		logger.info(" telefono del registrador " + registroRequest.getDatosUsuarioRegistradorDto().getTelefono());
 		if (registroRequest.isRegistroValido() && registroRequest.getDatosUsuarioRegistradorDto() != null) {
 			registroVMA.setNombreCompleto(registroRequest.getDatosUsuarioRegistradorDto().getNombreCompleto());
 			registroVMA.setEmail(registroRequest.getDatosUsuarioRegistradorDto().getEmail());
@@ -221,22 +237,25 @@ public class RegistroVMAService {
 	@Transactional
 	public void saveRespuestaVMAArchivo(MultipartFile file, Integer registroVMAId, Integer preguntaId,
 			Integer respuestaId) throws IOException {
-
+		logger.info("entrando al metodo  saveRespuestaVMAArchivo()  ");
+		logger.info("valor del param  file :  " + file);
+		logger.info("el  registroVMAId :  " +registroVMAId);
+		logger.info("la  preguntaId :  " + preguntaId);
+		logger.info("la  respuestaId :  " + respuestaId);
 		RegistroVMA optRegistroVMA = this.registroVMARepository.findByIdRegistroVma(registroVMAId)
 				.orElseThrow(() -> new ResourceNotFoundException("Registro VMA no encontrado"));
 		Integer currentUserId = userUtil.getCurrentUserId();
 		ArchivoDTO archivoDTO = alfrescoService.uploadFile(file, optRegistroVMA, respuestaId);
 
 		if (Objects.nonNull(respuestaId)) {
+			logger.info("si  respuestaId no es nulo ...  ");
 
 			Optional<RespuestaVMA> respuestaOpt = respuestaVMARepository.findById(respuestaId);
 
 			if (respuestaOpt.isPresent()) {
 				RespuestaVMA respuestaVMA = respuestaOpt.get();
-
 				alfrescoService.deleteFile(respuestaVMA.getRespuesta());
-
-				respuestaVMA.setRespuesta(archivoDTO.getNombreArchivo());
+				respuestaVMA.setRespuesta(archivoDTO.getIdAlfresco());
 				respuestaVMA.setIdUsuarioActualizacion(currentUserId);
 				respuestaVMA.setFechaActualizacion(new Date());
 				respuestaVMARepository.save(respuestaVMA);
@@ -244,6 +263,7 @@ public class RegistroVMAService {
 				registrarNuevaRespuetaArchivo(registroVMAId, respuestaId, archivoDTO, preguntaId);
 			}
 		} else {
+			logger.info("si en caso  respuestaId  es nulo , entrara al metodo  registrarNuevaRespuetaArchivo");
 			registrarNuevaRespuetaArchivo(registroVMAId, null, archivoDTO, preguntaId);
 		}
 
@@ -254,6 +274,13 @@ public class RegistroVMAService {
 
 	private void registrarNuevaRespuetaArchivo(Integer registroVMAId, Integer respuestaId, ArchivoDTO archivoDTO,
 			Integer preguntaId) {
+		
+		logger.info("entrando al metodo  registrarNuevaRespuetaArchivo()  ");
+		logger.info("archivoDTO.getIdAlfresco() :  " + archivoDTO.getIdAlfresco());
+		logger.info("el  registroVMAId :  " +registroVMAId);
+		logger.info("la  preguntaId :  " + preguntaId);
+		logger.info("la  respuestaId :  " + respuestaId);
+		
 		RegistroVMA registroVMA = new RegistroVMA();
 		registroVMA.setIdRegistroVma(registroVMAId);
 		RespuestaVMA respuestaVMA = new RespuestaVMA(respuestaId, null, archivoDTO.getIdAlfresco(), registroVMA,
@@ -277,7 +304,7 @@ public class RegistroVMAService {
 	 * @param search
 	 * @return
 	 * 
-	 * en el futuro, si DF solicita el campo estado en Empresas, considerarlo en el listado de registrosVMA, para excluir a EPS inactivas y con estado vma = SIN REGISTRO
+	 * en el futuro, si DF solicita el campo estado en Empresas, considerarlo en el listado de registrosVMA, para excluir a EPS inactivas
 	 */
 	public Page<RegistroVMA> searchRegistroVMA(Integer empresaId, String estado, Date startDate, Date endDate,
 			String year, String username, int page, int pageSize, String search) {
@@ -493,14 +520,16 @@ public class RegistroVMAService {
 		return predicates;
 	}
 
-//	private void saveRespuestas(List<RespuestaDTO> respuestasRequest, RegistroVMA registro) {
-//		respuestaVMARepository.saveAll(respuestasRequest.stream()
-//				.map(respuesta -> respuestaDtoToRespuestaVMA(respuesta, registro)).collect(Collectors.toList()));
-//	}
+
 
 	private void saveRespuestas(List<RespuestaDTO> respuestasRequest, RegistroVMA registro) {
-		respuestaVMARepository.saveAll(respuestasRequest.stream().map(respuesta -> {
-			RespuestaVMA respuestaVMA = respuestaDtoToRespuestaVMA(respuesta, registro);
+		respuestaVMARepository.saveAll(respuestasRequest.stream().map(respuesta -> {  // Convierte la lista respuestasRequest en un stream para procesar cada elemento
+			// Utiliza el método map para transformar cada RespuestaDTO en un objeto RespuestaVMA.
+			
+			/* Se utiliza el respuestaDtoToRespuestaVMA(), para  convertir un objeto RespuestaDTO en un objeto RespuestaVMA.
+			 *  Este método  mapea los campos comunes entre RespuestaDTO y RespuestaVMA, y utiliza el objeto registro para 
+			 *  agregar información adicional.*/
+			RespuestaVMA respuestaVMA = respuestaDtoToRespuestaVMA(respuesta, registro);  
 
 			respuestaVMA.setFechaRegistro(new Date());
 			respuestaVMA.setIdUsuarioRegistro(userUtil.getCurrentUserId());
@@ -567,9 +596,7 @@ public class RegistroVMAService {
 	// anexo 2
 	public List<AnexoRespuestaSiDTO> listaDeAnexosRegistroMarcaronSi(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-//		
+	
 		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
@@ -597,8 +624,6 @@ public class RegistroVMAService {
 
 	public List<AnexoTresListadoEPDTO> listaDeAnexosRelacionEPInspeccionados(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
 		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
@@ -630,8 +655,7 @@ public class RegistroVMAService {
 	/* anexo 4 - Detalle de porcentaje de toma de muestra inopinada de las EP */
 
 	public List<AnexoPorcentajeMuestraInopinadaDTO> listaDeAnexosTomaDeMuestrasInopinadas(String anhio) {
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+
 		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
@@ -708,15 +732,12 @@ public class RegistroVMAService {
 	}
 
 	/*
-	 * anexo 6 - Detalle de las EP que han realizado la evaluación de los VMA del
-	 * Anexo 2 del reglamento de VMA
+	 * anexo 6 - Detalle de las EP que han realizado la evaluación de los VMA del Anexo 2 del reglamento de VMA
 	 */
 
 	public List<AnexoEvaluacionVmaAnexo2DTO> listaDeAnexosEPevaluaronVMAAnexo2(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-//		
+	
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
 			    .collect(Collectors.toList());
@@ -751,13 +772,11 @@ public class RegistroVMAService {
 		return anexos;
 	}
 
-	// anexo 7 - Detalle de las EP que han realizado la atención de reclamos
-	// referidos a VMA
+	// anexo 7 - Detalle de las EP que han realizado la atención de reclamos  referidos a VMA
 
 	public List<AnexoReclamosVMADTO> listaDeAnexosEPSAtendieronReclamos(String anhio) {
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-//		
+
+		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
 			    .collect(Collectors.toList());
@@ -785,12 +804,10 @@ public class RegistroVMAService {
 		return anexos;
 	}
 
-	// anexo 8 - Detalle de los costos de identificación, inspección y registro de
-	// los UND
+	// anexo 8 - Detalle de los costos de identificación, inspección y registro de  los UND
 
 	public List<AnexoCostoTotalUNDDTO> anexoDetalleCostosUND(String anhio) {
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
+
 		
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
@@ -822,9 +839,7 @@ public class RegistroVMAService {
 
 	public List<AnexoCostoTotalMuestrasInopinadasDTO> listaAnexosCostosMuestrasInopinadas(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-		
+
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
 			    .collect(Collectors.toList());
@@ -857,9 +872,7 @@ public class RegistroVMAService {
 
 	public List<AnexoCostoTotalesIncurridosDTO> listaAnexosCostosTotalesIncurridos(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-		
+
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
 			    .collect(Collectors.toList());
@@ -889,14 +902,11 @@ public class RegistroVMAService {
 		return anexos;
 	}
 
-	// anexo 11 , Detalle de los ingresos facturados durante el año actual, por
-	// conceptos de VMA
+	// anexo 11 , Detalle de los ingresos facturados durante el año actual, por conceptos de VMA
 
 	public List<AnexoIngresosImplVmaDTO> listaDeAnexosIngresosVMA(String anhio) {
 		
-//		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
-//				.sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipo())).collect(Collectors.toList());
-		
+
 		List<RegistroVMA> registrosCompletos = registroVMARepository.findRegistrosCompletos(anhio).stream()
 			    .sorted(Comparator.comparing(registro -> registro.getEmpresa().getTipoEmpresa().getNombre()))
 			    .collect(Collectors.toList());
@@ -915,6 +925,7 @@ public class RegistroVMAService {
 	}
 
 	public void actualizarEstadoIncompleto(Integer id) {
+		
 		Optional<RegistroVMA> registro = registroVMARepository.findById(id);
 
 		if (registro.isPresent()) {
