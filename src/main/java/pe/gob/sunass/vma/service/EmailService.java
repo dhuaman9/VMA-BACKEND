@@ -78,7 +78,7 @@ public class EmailService {
            
            String htmlContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
            
-           SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+           SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
            
            htmlContent = htmlContent.replace("[[${fullname}]]", registrovma.getNombreCompleto())
                    .replace("[[${eps}]]", registrovma.getEmpresa().getNombre())
